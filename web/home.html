@@ -1,0 +1,198 @@
+ <!DOCTYPE html>
+<html lang="en" ng-app="vaultee">
+<head>
+    <title>VAULTEE</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+</head>
+
+<body ng-controller="vaulteeController">
+    <div class="container">
+    
+        <div class="navbar navbar-inverse">
+            <div class="navbar-inner">
+                <div class="containter">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+
+                    <a class="brand" href="/">&nbsp;VAULTEE <small class="muted"><span app-shortversion></span></small></a>
+                    <div class="nav-collapse">
+                        <ul class="nav">
+                            <li ng-repeat="item in core.views" ng-class="{active: item.category == core.view.category}">
+                                <a href="#" ng-click="switchToView(item)">{{item.name}}</a>
+                            </li>
+                       </ul>
+
+                       <ul class="nav pull-right">
+                            <li class="dropdown">
+                              <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{core.user.name}} ({{core.user.email}}) <b class="caret"></b></a>
+                              <ul class="dropdown-menu">
+                                <li><a href="#">Log Out</a></li>
+                                <li class="divider"></li>
+                                <li><a href="#">Other Action</a></li>
+                              </ul>
+                            </li>
+                        </ul>
+
+                    </div>
+
+                    <a class="brand pull-right"><i id="heart" class="icon-heart" style="opacity: 0.3"></i></a>
+
+                </div>
+            </div>
+        </div>
+
+        <section id="allItems" ng-show="core.view.section == 0">
+            <div class="row">
+                <div class="span12">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>CATEGORY</th>
+                                <th>NAME</th>
+                                <th>CREATED</th>
+                                <th>MODIFIED</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                              <tr ng-repeat="asset in core.assets">
+                                <td>{{asset.categoryName | uppercase}}</td>
+                                <td><a href="#" ng-click="switchToAsset(asset)">{{asset.name | uppercase}}</a></td>
+                                <td>{{asset.created | date:'MMM dd, yyyy @ HH:mm'}}</td>
+                                <td>{{asset.modified | date:'MMM dd, yyyy @ HH:mm'}}</span></td>
+                              </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="pagination">
+                        <ul>
+                          <li class="disabled"><a href="#">PAGE</a></li>
+                          <li class="active"><a href="#">1</a></li>
+                          <li><a href="#">2</a></li>
+                          <li><a href="#">3</a></li>
+                          <li><a href="#">4</a></li>
+                          <li><a href="#">5</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </section>    
+
+        <section id="assetItems" ng-show="core.view.section == 1">
+            <div class="row">
+                <div class="span12">
+                    <ul class="nav nav-pills">
+                        <li><a href="#" ng-click="switchToAddAsset(core.view)">ADD<br>ASSET</a></li>
+                        <li ng-repeat="asset in core.assets | filter:assetFilter" ng-class="{active: asset.id == core.view.asset.id}">
+                            <a href="#" ng-click="switchToAsset(asset)">{{asset.name | uppercase}}<br><small class="muted">{{asset.modified | date:'MMM dd, yyyy'}}</small></a>
+                        </li>
+                    </ul>           
+                </div>
+            </div>
+
+            <div class="row" ng-show="viewFirstAssetIndex(core.view) > -1">
+                <div class="span12">
+                    <div>
+                        <ul class="breadcrumb">
+                            <li ng-show="core.view.asset.nameEditing"><input ng-model="core.view.asset.name" autofocus ng-blur="stopEditingName(core.view.asset)"></input></li>
+                            <li ng-show="core.view.asset.nameEditing"><span class="divider">|</span></li>
+                            <li ng-show="!core.view.asset.nameEditing">{{core.view.asset.name | uppercase}} <small class="muted"><a href="#" ng-click="startEditingName(core.view.asset)">(change)</a></small></li>
+                            <li ng-show="!core.view.asset.nameEditing"><span class="divider">|</span></li>
+                            <li>REVISION {{core.view.asset.revision.index}} <small>({{core.view.asset.revision.created | date:'MMM dd, yyyy @ HH:mm' }})</small></li>
+                        </ul>
+
+                        <span class="pull-right">
+                            <a href="#" class="btn btn-primary" ng-click="saveAsset(core.view.asset)">Save</a>&nbsp;
+                            <a href="#" class="btn btn-primary">Delete</a>&nbsp;
+                            <a href="#" class="btn">Cancel</a>
+                        </span>                              
+                    </div>
+
+                    <div class="pagination">
+                        <ul class="nav nav-pills">
+                            <li class="disabled"><a href="#">REVISION</a></li>
+                            <li ng-repeat="rev in core.view.asset.revisions" ng-class="{active: rev.id == core.view.asset.revision.id}">
+                                <a href="#" ng-click="switchToRevision(rev)">{{rev.index}}</a>
+                            </li>
+                        </ul>                           
+                    </div>                    
+
+                    <form name="form">
+
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>TYPE</th>
+                                    <th>ITEM</th>
+                                    <th>QTY</th>
+                                    <th>PRICE</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                                <tbody>
+                                <tr ng-repeat="item in core.view.asset.revision.items">
+                                    <td>{{item.product.itemType.name | uppercase}}</td>
+                                    <td>{{item.product.name}}</td>
+                                    <td style="text-align: center;">{{item.quantity}}</td>
+                                    <td style="text-align: right;">{{item.price | currency}}</td>
+                                    <td><i id="edit" class="icon-edit" style="opacity: 0.3"></i>&nbsp;<i id="remove" class="icon-remove" style="opacity: 0.3"></i></td>
+                                </tr>
+                                <tr>
+                                    <td><select ng-model="core.view.asset.newItem.product.itemType" ng-options="t as t.name | uppercase for t in core.itemTypes" class="span1" required></select></td>
+                                    <td><input type="text" ng-model="core.view.asset.newItem.reference" class="span8" ng-blur="scrapeItem(core.view.asset.newItem)" required></td>
+                                    <td><input type="number" ng-model="core.view.asset.newItem.quantity" class="span1" required></td>
+                                    <td><input type="number" ng-model="core.view.asset.newItem.price" class="span1" required></td>
+                                    <td><button type="button" class="btn btn-info" ng-click="addItem(core.view.asset.newItem)" ng-disabled="form.$invalid || formIsUnchanged(core.view.asset.newItem)">Add</button></td>
+                                </tr>
+                                </tbody>
+                        </table>
+
+                    </form>      
+
+<!--                     <div>
+                        <pre>{{core.view.asset.newItem}}</pre>
+                        <br>
+                        <pre>{{core.view.asset}}</pre>
+                    </div> -->
+                </div>
+            </div>
+        </section> 
+
+        <hr>
+
+        <footer>
+            &copy; <a href="http://www.apertoire.net/">apertoire.net</a> 2012-2013
+        </footer>
+
+        <iframe name="sink" id="sink" src="" ng-show="false"></iframe>
+    </div><!-- /container -->
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
+    <script src="lib/jquery.pubsub.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+    <script src="lib/rsvp.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/sockjs-client/0.3.4/sockjs.min.js"></script>
+    <script src="lib/vertxbus.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.1.1/angular.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/directives.js"></script>
+
+</body>
+</html>

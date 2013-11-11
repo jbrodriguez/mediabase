@@ -10,6 +10,6 @@ type Config struct {
 }
 
 func (self *Config) Init() {
-	self.Host = GetOrDefaultString(os.Getenv("HOST"), "localhost")
+	self.Host = GetOrDefaultString(os.Getenv("HOST"), "blackbeard.apertoire.org")
 	self.Port = GetOrDefaultString(os.Getenv("PORT"), "8080")
 }

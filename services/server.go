@@ -21,11 +21,13 @@ type Server struct {
 }
 
 func (self *Server) static(res http.ResponseWriter, req *http.Request) {
-	http.ServeFile(res, req, "public"+req.URL.Path)
+	log.Println(req.URL.Path)
+	http.ServeFile(res, req, "web"+req.URL.Path)
 }
 
 func (self *Server) notFound(res http.ResponseWriter, req *http.Request) {
-	http.ServeFile(res, req, "public/404.html")
+	log.Println(req.URL.Path)
+	http.ServeFile(res, req, "web/404.html")
 }
 
 func (self *Server) status(w http.ResponseWriter, req *http.Request) {
@@ -67,14 +69,20 @@ func (self *Server) Start() {
 	log.Printf("starting server service")
 
 	self.r = mux.NewRouter()
-	self.s = self.r.PathPrefix(apiVersion).Subrouter()
 
+	self.r.PathPrefix("/web").Handler(http.StripPrefix("/web", http.FileServer(http.Dir("./web/"))))
+
+	self.s = self.r.PathPrefix(apiVersion).Subrouter()
 	self.s.HandleFunc("/", self.status).Methods("GET")
 	self.s.HandleFunc("/login", self.postLogin).Methods("POST")
 	self.s.HandleFunc("/events", self.getEvents).Methods("GET")
 
-	log.Printf("start listening on %s:%s", self.Config.Host, self.Config.Port)
-	go http.ListenAndServe(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port), self.s)
+	self.r.Handle("/", http.RedirectHandler("/web/index.html", 302))
+
+	// log.Printf("start listening on %s:%s", self.Config.Host, self.Config.Port)
+	// go http.ListenAndServe(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port), self.r)
+	log.Printf("start listening on :%s", self.Config.Port)
+	go http.ListenAndServe(fmt.Sprintf(":%s", self.Config.Port), self.r)
 }
 
 func (self *Server) Stop() {
