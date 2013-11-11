@@ -2,7 +2,7 @@ package services
 
 import (
 	"apertoire.net/moviebase/bus"
-	"apertoire.net/moviebase/model"
+	// "apertoire.net/moviebase/model"
 	"database/sql"
 	_ "github.com/lib/pq"
 	"log"
@@ -39,10 +39,10 @@ func (self *Dal) prepare(sql string) *sql.Stmt {
 func (self *Dal) Start() {
 	log.Printf("starting dal service ...")
 
-	self.db, self.err = sql.Open("postgres", "user=apertoire password=secret dbname=vaultee host=kepler")
-	if self.err != nil {
-		panic(self.err.Error())
-	}
+	// self.db, self.err = sql.Open("postgres", "user=apertoire password=secret dbname=vaultee host=kepler")
+	// if self.err != nil {
+	// 	panic(self.err.Error())
+	// }
 
 	self.authenticate = self.prepare("select id, password from account where email = $1")
 	self.getUserDataById = self.prepare("select name, email from account where id = $1")
@@ -60,58 +60,58 @@ func (self *Dal) Start() {
 
 	log.Printf("connected to database")
 
-	go self.react()
+	// go self.react()
 }
 
 func (self *Dal) Stop() {
-	self.db.Close()
+	// self.db.Close()
 }
 
-func (self *Dal) react() {
-	for {
-		select {
-		case msg := <-self.Bus.UserAuth:
-			go self.doAuthenticate(msg.Payload, msg.Reply)
-		case msg := <-self.Bus.UserData:
-			go self.doGetUserDataById(msg.Payload, msg.Reply)
-		}
-	}
-}
+// func (self *Dal) react() {
+// 	for {
+// 		select {
+// 		case msg := <-self.Bus.UserAuth:
+// 			go self.doAuthenticate(msg.Payload, msg.Reply)
+// 		case msg := <-self.Bus.UserData:
+// 			go self.doGetUserDataById(msg.Payload, msg.Reply)
+// 		}
+// 	}
+// }
 
-func (self *Dal) doAuthenticate(user *model.UserAuthReq, reply chan *model.UserAuthRep) {
-	var id int8
-	var pwd string
+// func (self *Dal) doAuthenticate(user *model.UserAuthReq, reply chan *model.UserAuthRep) {
+// 	var id int8
+// 	var pwd string
 
-	err := self.authenticate.QueryRow(user.Email).Scan(&id, &pwd)
-	if err == sql.ErrNoRows {
-		reply <- nil
-		return
-	} else if err != nil {
-		panic(err.Error())
-	}
+// 	err := self.authenticate.QueryRow(user.Email).Scan(&id, &pwd)
+// 	if err == sql.ErrNoRows {
+// 		reply <- nil
+// 		return
+// 	} else if err != nil {
+// 		panic(err.Error())
+// 	}
 
-	reply <- &model.UserAuthRep{id, pwd}
-}
+// 	reply <- &model.UserAuthRep{id, pwd}
+// }
 
-func (self *Dal) doGetUserDataById(user *model.UserDataReq, reply chan *model.UserDataRep) {
-	var name string
-	var email string
+// func (self *Dal) doGetUserDataById(user *model.UserDataReq, reply chan *model.UserDataRep) {
+// 	var name string
+// 	var email string
 
-	err := self.getUserDataById.QueryRow(user.Id).Scan(&name, &email)
-	if err == sql.ErrNoRows {
-		reply <- nil
-		return
-	} else if err != nil {
-		panic(err.Error())
-	}
+// 	err := self.getUserDataById.QueryRow(user.Id).Scan(&name, &email)
+// 	if err == sql.ErrNoRows {
+// 		reply <- nil
+// 		return
+// 	} else if err != nil {
+// 		panic(err.Error())
+// 	}
 
-	reply <- &model.UserDataRep{name, email}
-}
+// 	reply <- &model.UserDataRep{name, email}
+// }
 
-func (self *Dal) search() {
-	rows, err := self.db.Query("SELECT id, heroku_id FROM resources WHERE destroyed_at IS NULL")
-	if err != nil {
-		return
-	}
-	defer rows.Close()
-}
+// func (self *Dal) search() {
+// 	rows, err := self.db.Query("SELECT id, heroku_id FROM resources WHERE destroyed_at IS NULL")
+// 	if err != nil {
+// 		return
+// 	}
+// 	defer rows.Close()
+// }

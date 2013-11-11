@@ -1,5 +1,13 @@
 package model
 
+type MovieScanReq struct {
+	Start bool `json: start`
+}
+
+type MovieScanRep struct {
+	Started bool `json: started`
+}
+
 type UserAuthReq struct {
 	Email    string `json: email`
 	Password string `json: password`
