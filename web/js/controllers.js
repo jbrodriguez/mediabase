@@ -1,7 +1,7 @@
 'use strict';
 
 /* Controllers */
-function vaulteeController($scope, core, model, uuid, defaults) {
+function mediabaseController($scope, core, model, uuid, defaults) {
 
 	// Bind to the core service, that manages the model for the app
 	$scope.core = core;

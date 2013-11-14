@@ -3,9 +3,9 @@
 /* Services */
 // Demonstrate how to register services
 // In this case it is a simple value service.
-angular.module('vaultee.services', []).
-	value('shortversion', '0.5.0').
-	value('longversion', '0.5.0-20130421.146').
+angular.module('mediabase.services', []).
+	value('shortversion', '0.1.0').
+	value('longversion', '0.1.0-20131111.01').
 	service('uuid', function() {
 	    this.get = function() {
 	        return 'xxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -37,7 +37,7 @@ angular.module('vaultee.services', []).
 
 	        var promise = new RSVP.Promise();
 
-	        eb.send(message, $.extend({sessionID: $.cookie('vaultee_sessionid')}, params), handler);
+	        eb.send(message, $.extend({sessionID: $.cookie('mediabase_sessionid')}, params), handler);
 
 	        function handler(reply) {
 	        	console.log('this is what i got: '+JSON.stringify(reply));

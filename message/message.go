@@ -1,7 +1,7 @@
 package message
 
 import (
-	"apertoire.net/moviebase/model"
+	"apertoire.net/mediabase/model"
 )
 
 type MovieScan struct {

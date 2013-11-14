@@ -1,8 +1,8 @@
 package services
 
 import (
-	"apertoire.net/moviebase/bus"
-	// "apertoire.net/moviebase/model"
+	"apertoire.net/mediabase/bus"
+	// "apertoire.net/mediabase/model"
 	"database/sql"
 	_ "github.com/lib/pq"
 	"log"
@@ -44,8 +44,8 @@ func (self *Dal) Start() {
 	// 	panic(self.err.Error())
 	// }
 
-	self.authenticate = self.prepare("select id, password from account where email = $1")
-	self.getUserDataById = self.prepare("select name, email from account where id = $1")
+	// self.authenticate = self.prepare("select id, password from account where email = $1")
+	// self.getUserDataById = self.prepare("select name, email from account where id = $1")
 	// getAssets, err := self.db.Prepare("select asset.id, asset.name, asset.category, asset.created, asset.modified, assetCategory.name as categoryName from asset, assetCategory where asset.account_id = ? and assetCategory.id = asset.category order by asset.created desc")
 	// getRevisions, err := self.db.Prepare("select id, asset_id, index, created from revision where asset_id = ? order by index desc")
 	// getItems, err := self.db.Prepare("select prod.id, prod.name, prod.asin, prod.upc, it.id as typeId, it.name as typeName,  itm.quantity, itm.price, itm.reference from itemtype it, product prod, item itm, asset ast, revision rev where ast.id = ? and rev.id = ? and itm.revision_id = rev.id and prod.id = itm.product_id and it.id = prod.itemtype_id order by prod.itemtype_id asc")

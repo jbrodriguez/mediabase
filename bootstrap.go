@@ -1,9 +1,9 @@
 package main
 
 import (
-	"apertoire.net/moviebase/bus"
-	"apertoire.net/moviebase/helper"
-	"apertoire.net/moviebase/services"
+	"apertoire.net/mediabase/bus"
+	"apertoire.net/mediabase/helper"
+	"apertoire.net/mediabase/services"
 	"fmt"
 	"log"
 )
@@ -17,15 +17,19 @@ func main() {
 	bus := bus.Bus{}
 	server := services.Server{Bus: &bus, Config: config}
 	dal := services.Dal{Bus: &bus}
+	scanner := services.Scanner{Bus: &bus}
 
 	bus.Start()
 	dal.Start()
 	server.Start()
+	scanner.Start()
 
 	log.Printf("press enter to stop ...")
 	var input string
 	fmt.Scanln(&input)
 
+	scanner.Stop()
 	server.Stop()
 	dal.Stop()
+	// bus.Stop()
 }

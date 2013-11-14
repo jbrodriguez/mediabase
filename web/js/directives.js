@@ -7,7 +7,7 @@ String.prototype.splice = function(idx, rem, s) {
 };
 
 /* Directives */
-angular.module('vaultee.directives', []).
+angular.module('mediabase.directives', []).
 	directive('appShortversion', ['shortversion', function(version) {
     	return function(scope, elm, attrs) {
       		elm.text(version);

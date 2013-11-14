@@ -1,7 +1,7 @@
 package bus
 
 import (
-	"apertoire.net/moviebase/message"
+	"apertoire.net/mediabase/message"
 	"log"
 )
 

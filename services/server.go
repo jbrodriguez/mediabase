@@ -1,10 +1,10 @@
 package services
 
 import (
-	"apertoire.net/moviebase/bus"
-	"apertoire.net/moviebase/helper"
-	"apertoire.net/moviebase/message"
-	"apertoire.net/moviebase/model"
+	"apertoire.net/mediabase/bus"
+	"apertoire.net/mediabase/helper"
+	"apertoire.net/mediabase/message"
+	"apertoire.net/mediabase/model"
 	"fmt"
 	"github.com/gorilla/mux"
 	"io"
@@ -40,6 +40,12 @@ func (self *Server) scanMovies(w http.ResponseWriter, req *http.Request) {
 	reply := <-msg.Reply
 
 	helper.WriteJson(w, 200, &reply)
+}
+
+func (self *Server) testScan() {
+	msg := message.MovieScan{&model.MovieScanReq{true}, make(chan *model.MovieScanRep)}
+	self.Bus.MovieScan <- &msg
+	// reply := <-msg.Reply
 }
 
 // func (self *Server) postLogin(w http.ResponseWriter, req *http.Request) {
@@ -92,6 +98,8 @@ func (self *Server) Start() {
 	// go http.ListenAndServe(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port), self.r)
 	log.Printf("start listening on :%s", self.Config.Port)
 	go http.ListenAndServe(fmt.Sprintf(":%s", self.Config.Port), self.r)
+
+	go self.testScan()
 }
 
 func (self *Server) Stop() {
