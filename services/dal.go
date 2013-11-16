@@ -2,10 +2,12 @@ package services
 
 import (
 	"apertoire.net/mediabase/bus"
+	"apertoire.net/mediabase/helper"
 	// "apertoire.net/mediabase/model"
 	"database/sql"
-	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
+	"path/filepath"
 )
 
 type Dal struct {
@@ -13,8 +15,7 @@ type Dal struct {
 	db  *sql.DB
 	err error
 
-	authenticate    *sql.Stmt
-	getUserDataById *sql.Stmt
+	exists *sql.Stmt
 	// getAssets       *sql.Stmt
 	// getRevisions    *sql.Stmt
 	// getItems        *sql.Stmt
@@ -31,7 +32,7 @@ type Dal struct {
 func (self *Dal) prepare(sql string) *sql.Stmt {
 	stmt, err := self.db.Prepare(sql)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 	return stmt
 }
@@ -39,10 +40,12 @@ func (self *Dal) prepare(sql string) *sql.Stmt {
 func (self *Dal) Start() {
 	log.Printf("starting dal service ...")
 
-	// self.db, self.err = sql.Open("postgres", "user=apertoire password=secret dbname=vaultee host=kepler")
-	// if self.err != nil {
-	// 	panic(self.err.Error())
-	// }
+	self.db, self.err = sql.Open("sqlite3", filepath.Join(config.AppDir, "/db/mediabase.db"))
+	if self.err != nil {
+		log.Fatal(self.err)
+	}
+
+	self.exists = self.prepare("select id from item where name = ?")
 
 	// self.authenticate = self.prepare("select id, password from account where email = $1")
 	// self.getUserDataById = self.prepare("select name, email from account where id = $1")

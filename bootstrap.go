@@ -18,16 +18,19 @@ func main() {
 	server := services.Server{Bus: &bus, Config: config}
 	dal := services.Dal{Bus: &bus}
 	scanner := services.Scanner{Bus: &bus}
+	core := services.Core(Bus: &bus)
 
 	bus.Start()
 	dal.Start()
 	server.Start()
 	scanner.Start()
+	core.Start()
 
 	log.Printf("press enter to stop ...")
 	var input string
 	fmt.Scanln(&input)
 
+	core.Stop()
 	scanner.Stop()
 	server.Stop()
 	dal.Stop()

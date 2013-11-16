@@ -1,28 +1,36 @@
 package model
 
-type MovieScanReq struct {
+type ScanMovieReq struct {
 	Start bool `json: start`
 }
 
-type MovieScanRep struct {
+type ScanMovieRep struct {
 	Started bool `json: started`
 }
 
-type UserAuthReq struct {
-	Email    string `json: email`
-	Password string `json: password`
+type Movie struct {
+	Resolution string `json: resolution`
+	Name       string `json: name`
+	Year       string `json: year`
+	Type       string `json: type`
+	Path       string `json: path`
 }
 
-type UserAuthRep struct {
-	Id    int8   `json: id`
-	Email string `json: email`
-}
+// type UserAuthReq struct {
+// 	Email    string `json: email`
+// 	Password string `json: password`
+// }
 
-type UserDataReq struct {
-	Id int8 `json: id`
-}
+// type UserAuthRep struct {
+// 	Id    int8   `json: id`
+// 	Email string `json: email`
+// }
 
-type UserDataRep struct {
-	Name  string `json: name`
-	Email string `json: email`
-}
+// type UserDataReq struct {
+// 	Id int8 `json: id`
+// }
+
+// type UserDataRep struct {
+// 	Name  string `json: name`
+// 	Email string `json: email`
+// }

@@ -6,12 +6,15 @@ import (
 )
 
 type Bus struct {
-	MovieScan chan *message.MovieScan
+	ScanMovie  chan *message.ScanMovie
+	MovieFound chan *message.MovieFound
 }
 
 func (self *Bus) Start() {
 	log.Println("bus starting up ...")
-	self.MovieScan = make(chan *message.MovieScan)
+
+	self.ScanMovie = make(chan *message.ScanMovie)
+	self.MovieFound = make(chan *message.MovieFound)
 }
 
 // type Bus struct {
