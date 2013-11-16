@@ -13,7 +13,9 @@
 # /Volumes/films/(.*?)/(.*?)/(?:.*/)*.*\.(bdmv|iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$
 # /Volumes/films/(.*?)/(.*?)/(?:.*/)*.*\.(bdmv|iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$
 # /Volumes/films/(.*?)/(.*?)/.*\.(bdmv|iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$
+# /Volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)/(?:.*/)*.*_JRSidecar\.(?P<FileType>xml)$
 
 # current
+/Volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)/(?:.*/)*BDMV/index.bdmv$
 /Volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)/(?:.*/)*.*\.(?P<FileType>bdmv|iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$
-/Volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)/(?:.*/)*.*_JRSidecar\.(?P<FileType>xml)$
+/Volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)/(?:.*/)*(video_ts|hv000i01)\.(?P<FileType>ifo)$

@@ -9,6 +9,10 @@ type MovieScan struct {
 	Reply   chan *model.MovieScanRep
 }
 
+type MovieFound struct {
+	Payload *model.Movie
+}
+
 // type UserAuth struct {
 // 	Payload *model.UserAuthReq
 // 	Reply   chan *model.UserAuthRep
