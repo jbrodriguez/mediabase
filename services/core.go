@@ -2,12 +2,16 @@ package services
 
 import (
 	"apertoire.net/mediabase/bus"
-	// "apertoire.net/mediabase/helper"
+	"apertoire.net/mediabase/helper"
+	"apertoire.net/mediabase/message"
+	"crypto/sha1"
+	"encoding/hex"
 	"log"
 )
 
 type Core struct {
-	Bus *bus.Bus
+	Bus    *bus.Bus
+	Config *helper.Config
 }
 
 func (self *Core) Start() {
@@ -27,8 +31,21 @@ func (self *Core) Stop() {
 func (self *Core) react() {
 	for {
 		select {
-		case msg := <-self.Bus.MediaScanned:
-			// go self.doAuthenticate(msg.Payload, msg.Reply)
+		case msg := <-self.Bus.MovieFound:
+			go self.doMovieFound(msg)
 		}
 	}
+}
+
+func (self *Core) doMovieFound(movie *message.Movie) {
+	log.Printf("found: %s (%s) [%s, %s, %s]", movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path)
+
+	// calculate hex sha1 for the full movie path
+	h := sha1.New()
+	h.Write([]byte(movie.Path))
+	movie.Picture = hex.EncodeToString(h.Sum(nil)) + ".jpg"
+
+	self.Bus.StoreMovie <- movie
+
+	self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture}
 }

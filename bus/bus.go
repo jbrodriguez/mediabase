@@ -6,24 +6,21 @@ import (
 )
 
 type Bus struct {
-	ScanMovie  chan *message.ScanMovie
-	MovieFound chan *message.MovieFound
+	ScanMovies   chan *message.ScanMovies
+	MovieFound   chan *message.Movie
+	StoreMovie   chan *message.Movie
+	CachePicture chan *message.Picture
+	UpdateMovie  chan *message.Picture
 }
 
 func (self *Bus) Start() {
 	log.Println("bus starting up ...")
 
-	self.ScanMovie = make(chan *message.ScanMovie)
-	self.MovieFound = make(chan *message.MovieFound)
+	self.ScanMovies = make(chan *message.ScanMovies)
+	self.MovieFound = make(chan *message.Movie)
+
+	self.StoreMovie = make(chan *message.Movie)
+	self.CachePicture = make(chan *message.Picture)
+
+	self.UpdateMovie = make(chan *message.Picture)
 }
-
-// type Bus struct {
-// 	UserAuth chan *message.UserAuth
-// 	UserData chan *message.UserData
-// }
-
-// func (self *Bus) Start() {
-// 	log.Println("bus starting up ...")
-// 	self.UserAuth = make(chan *message.UserAuth)
-// 	self.UserData = make(chan *message.UserData)
-// }

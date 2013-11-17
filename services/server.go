@@ -4,7 +4,6 @@ import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
-	"apertoire.net/mediabase/model"
 	"fmt"
 	"github.com/gorilla/mux"
 	"io"
@@ -16,7 +15,7 @@ const apiVersion string = "/v1"
 
 type Server struct {
 	Bus    *bus.Bus
-	Config helper.Config
+	Config *helper.Config
 	r, s   *mux.Router
 }
 
@@ -35,16 +34,16 @@ func (self *Server) status(w http.ResponseWriter, req *http.Request) {
 }
 
 func (self *Server) scanMovies(w http.ResponseWriter, req *http.Request) {
-	msg := message.MovieScan{&model.MovieScanReq{true}, make(chan *model.MovieScanRep)}
-	self.Bus.MovieScan <- &msg
-	reply := <-msg.Reply
+	// msg := message.MovieScan{&model.MovieScanReq{true}, make(chan *model.MovieScanRep)}
+	// self.Bus.MovieScan <- &msg
+	// reply := <-msg.Reply
 
-	helper.WriteJson(w, 200, &reply)
+	// helper.WriteJson(w, 200, &reply)
 }
 
 func (self *Server) testScan() {
-	msg := message.MovieScan{&model.MovieScanReq{true}, make(chan *model.MovieScanRep)}
-	self.Bus.MovieScan <- &msg
+	msg := message.ScanMovies{make(chan string)}
+	self.Bus.ScanMovies <- &msg
 	// reply := <-msg.Reply
 }
 

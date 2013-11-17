@@ -3,21 +3,19 @@ package services
 import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
-	"apertoire.net/mediabase/model"
+	"apertoire.net/mediabase/message"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
+	// "strings"
 )
-
-var re = regexp.MustCompile(`/Volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)/(?:.*/)*.*\.(?P<FileType>bdmv|iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$`)
 
 type Scanner struct {
 	Bus    *bus.Bus
-	Config helper.Config
+	Config *helper.Config
 
-	re [3]*regexp.Regexp
+	re [3]*helper.Rexp
 }
 
 func (self *Scanner) Start() {
@@ -37,9 +35,9 @@ func (self *Scanner) Start() {
 	// fmt.Println(test[loc[0]:loc[1]], "found at: ", loc[0])
 	// break
 
-	self.re[0] = regexp.MustCompile(`/volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)/(?:.*/)*bdmv/index.bdmv$`)
-	self.re[1] = regexp.MustCompile(`/volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)/(?:.*/)*.*\.(?P<FileType>iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$`)
-	self.re[2] = regexp.MustCompile(`/volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)/(?:.*/)*(?:video_ts|hv000i01)\.(?P<FileType>ifo)$`)
+	self.re[0] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*bdmv/index.(?P<FileType>bdmv)$`)}
+	self.re[1] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*.*\.(?P<FileType>iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$`)}
+	self.re[2] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*(?:video_ts|hv000i01)\.(?P<FileType>ifo)$`)}
 
 	go self.react()
 
@@ -53,27 +51,33 @@ func (self *Scanner) Stop() {
 func (self *Scanner) react() {
 	for {
 		select {
-		case msg := <-self.Bus.MovieScan:
-			go self.doMovieScan(msg.Payload, msg.Reply)
+		case msg := <-self.Bus.ScanMovies:
+			go self.doMovieScan(msg.Reply)
 		}
 	}
 }
 
 func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 	for i := 0; i < 3; i++ {
-		match := self.re[i].FindStringSubmatch(strings.ToLower(path))
-		if match == nil {
+		// match := self.re[i].FindStringSubmatch(strings.ToLower(path))
+		// if match == nil {
+		// 	continue
+		// }
+		var rmap = self.re[i].Match(path)
+		if rmap == nil {
 			continue
 		}
 
 		log.Printf("p: %s", path)
+		self.Bus.MovieFound <- &message.Movie{Resolution: rmap["Resolution"], Name: rmap["Name"], Year: rmap["Year"], Type: rmap["FileType"], Path: path}
+
 		return nil
 	}
 
 	return nil
 }
 
-func (self *Scanner) doMovieScan(user *model.MovieScanReq, reply chan *model.MovieScanRep) {
+func (self *Scanner) doMovieScan(reply chan string) {
 	log.Printf("i got here")
 
 	err := filepath.Walk("/Volumes/films", self.visit)

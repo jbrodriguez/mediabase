@@ -8,14 +8,6 @@ type ScanMovieRep struct {
 	Started bool `json: started`
 }
 
-type Movie struct {
-	Resolution string `json: resolution`
-	Name       string `json: name`
-	Year       string `json: year`
-	Type       string `json: type`
-	Path       string `json: path`
-}
-
 // type UserAuthReq struct {
 // 	Email    string `json: email`
 // 	Password string `json: password`
