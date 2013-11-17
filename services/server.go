@@ -83,7 +83,7 @@ func (self *Server) Start() {
 
 	self.r = mux.NewRouter()
 
-	self.r.PathPrefix("/web").Handler(http.StripPrefix("/web", http.FileServer(http.Dir("./web/"))))
+	self.r.PathPrefix("/web/build").Handler(http.StripPrefix("/web/build", http.FileServer(http.Dir("./web/build/"))))
 
 	self.s = self.r.PathPrefix(apiVersion).Subrouter()
 	self.s.HandleFunc("/", self.status).Methods("GET")
@@ -91,14 +91,14 @@ func (self *Server) Start() {
 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
 	// self.s.HandleFunc("/events", self.getEvents).Methods("GET")
 
-	self.r.Handle("/", http.RedirectHandler("/web/index.html", 302))
+	self.r.Handle("/", http.RedirectHandler("/web/build/index.html", 302))
 
 	// log.Printf("start listening on %s:%s", self.Config.Host, self.Config.Port)
 	// go http.ListenAndServe(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port), self.r)
 	log.Printf("start listening on :%s", self.Config.Port)
 	go http.ListenAndServe(fmt.Sprintf(":%s", self.Config.Port), self.r)
 
-	go self.testScan()
+	// go self.testScan()
 }
 
 func (self *Server) Stop() {
