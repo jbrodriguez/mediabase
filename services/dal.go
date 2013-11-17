@@ -47,7 +47,7 @@ func (self *Dal) Start() {
 	}
 
 	// self.exists = self.prepare("select id from item where name = ?")
-	self.storeMovie = self.prepare("insert or ignore into movie (name, year, resolution, filetype, location) values (?, ?, ?, ?, ?)")
+	self.storeMovie = self.prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
 
 	// self.authenticate = self.prepare("select id, password from account where email = $1")
 	// self.getUserDataById = self.prepare("select name, email from account where id = $1")
@@ -83,7 +83,7 @@ func (self *Dal) react() {
 }
 
 func (self *Dal) doStoreMovie(movie *message.Movie) {
-	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path)
+	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
 	if self.err != nil {
 		log.Fatal(self.err)
 	}

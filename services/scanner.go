@@ -13,7 +13,7 @@ import (
 
 type Scanner struct {
 	Bus    *bus.Bus
-	Config helper.Config
+	Config *helper.Config
 
 	re [3]*helper.Rexp
 }
@@ -69,9 +69,7 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 		}
 
 		log.Printf("p: %s", path)
-
-		msg := message.Movie{rmap["Resolution"], rmap["Name"], rmap["Year"], rmap["FileType"], path}
-		self.Bus.MovieFound <- &msg
+		self.Bus.MovieFound <- &message.Movie{Resolution: rmap["Resolution"], Name: rmap["Name"], Year: rmap["Year"], Type: rmap["FileType"], Path: path}
 
 		return nil
 	}

@@ -10,6 +10,7 @@ type Movie struct {
 	Year       string `json: year`
 	Type       string `json: type`
 	Path       string `json: path`
+	Picture    string `json: picture`
 }
 
 type Picture struct {

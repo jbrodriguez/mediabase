@@ -275,3 +275,6 @@ local.properties
 
 # PDT-specific
 .buildpath
+
+# images
+.jpg

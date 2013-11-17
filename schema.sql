@@ -1,7 +1,7 @@
 DROP TABLE movie;
 CREATE TABLE movie
 (
-  id INTEGER PRIMARY KEY,
+  id integer primary key,
   name varchar(255),
   year integer,
   resolution varchar(255),
@@ -9,4 +9,5 @@ CREATE TABLE movie
   location varchar(255),
   picture varchar(255)
 );
+CREATE INDEX movie_name_idx ON movie (name);
 CREATE UNIQUE INDEX movie_location_idx ON movie (location);

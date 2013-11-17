@@ -3,7 +3,6 @@ package helper
 import (
 	"bufio"
 	"io"
-	"log"
 	"os"
 	"regexp"
 )
@@ -65,10 +64,9 @@ func (r *Rexp) Match(s string) StringMap {
 	return captures
 }
 
-func Copy(dst, src string) error {
+func Copy(src, dst string) error {
 	s, err := os.Open(src)
 	if err != nil {
-		log.Printf("couldnt open shit: %s", src)
 		return err
 	}
 	// no need to check errors on read only file, we already got everything
