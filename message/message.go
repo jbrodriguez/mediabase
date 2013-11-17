@@ -1,16 +1,20 @@
 package message
 
-import (
-	"apertoire.net/mediabase/model"
-)
-
-type MovieScan struct {
-	Payload *model.MovieScanReq
-	Reply   chan *model.MovieScanRep
+type ScanMovies struct {
+	Reply chan string
 }
 
-type MovieFound struct {
-	Payload *model.Movie
+type Movie struct {
+	Resolution string `json: resolution`
+	Name       string `json: name`
+	Year       string `json: year`
+	Type       string `json: type`
+	Path       string `json: path`
+}
+
+type Picture struct {
+	Path string `json: path`
+	Id   string `json: id`
 }
 
 // type UserAuth struct {

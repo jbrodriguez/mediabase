@@ -2,7 +2,10 @@ package helper
 
 import (
 	"bufio"
+	"io"
+	"log"
 	"os"
+	"regexp"
 )
 
 type StringMap map[string]string
@@ -23,7 +26,7 @@ func GetOrDefaultInt(ask int, def int) int {
 
 // readLines reads a whole file into memory
 // and returns a slice of its lines.
-func readLines(path string) ([]string, error) {
+func ReadLines(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -36,4 +39,48 @@ func readLines(path string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, scanner.Err()
+}
+
+type Rexp struct {
+	*regexp.Regexp
+}
+
+func (r *Rexp) Match(s string) StringMap {
+	match := r.FindStringSubmatch(s)
+	if match == nil {
+		return nil
+	}
+
+	captures := make(map[string]string)
+
+	for i, name := range r.SubexpNames() {
+		// Ignore the whole regexp match and unnamed groups
+		if i == 0 || name == "" {
+			continue
+		}
+
+		captures[name] = match[i]
+
+	}
+	return captures
+}
+
+func Copy(dst, src string) error {
+	s, err := os.Open(src)
+	if err != nil {
+		log.Printf("couldnt open shit: %s", src)
+		return err
+	}
+	// no need to check errors on read only file, we already got everything
+	// we need from the filesystem, so nothing can go wrong now.
+	defer s.Close()
+	d, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(d, s); err != nil {
+		d.Close()
+		return err
+	}
+	return d.Close()
 }

@@ -15,10 +15,10 @@ func main() {
 	config.Init()
 
 	bus := bus.Bus{}
-	server := services.Server{Bus: &bus, Config: config}
-	dal := services.Dal{Bus: &bus}
+	server := services.Server{Bus: &bus, Config: &config}
+	dal := services.Dal{Bus: &bus, Config: &config}
 	scanner := services.Scanner{Bus: &bus}
-	core := services.Core(Bus: &bus)
+	core := services.Core{Bus: &bus, Config: &config}
 
 	bus.Start()
 	dal.Start()

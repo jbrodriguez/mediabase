@@ -3,7 +3,7 @@ package services
 import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
-	// "apertoire.net/mediabase/model"
+	"apertoire.net/mediabase/message"
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
@@ -11,11 +11,12 @@ import (
 )
 
 type Dal struct {
-	Bus *bus.Bus
-	db  *sql.DB
-	err error
+	Bus    *bus.Bus
+	Config *helper.Config
+	db     *sql.DB
+	err    error
 
-	exists *sql.Stmt
+	storeMovie *sql.Stmt
 	// getAssets       *sql.Stmt
 	// getRevisions    *sql.Stmt
 	// getItems        *sql.Stmt
@@ -40,12 +41,13 @@ func (self *Dal) prepare(sql string) *sql.Stmt {
 func (self *Dal) Start() {
 	log.Printf("starting dal service ...")
 
-	self.db, self.err = sql.Open("sqlite3", filepath.Join(config.AppDir, "/db/mediabase.db"))
+	self.db, self.err = sql.Open("sqlite3", filepath.Join(self.Config.AppDir, "/db/mediabase.db"))
 	if self.err != nil {
 		log.Fatal(self.err)
 	}
 
-	self.exists = self.prepare("select id from item where name = ?")
+	// self.exists = self.prepare("select id from item where name = ?")
+	self.storeMovie = self.prepare("insert or ignore into movie (name, year, resolution, filetype, location) values (?, ?, ?, ?, ?)")
 
 	// self.authenticate = self.prepare("select id, password from account where email = $1")
 	// self.getUserDataById = self.prepare("select name, email from account where id = $1")
@@ -63,23 +65,29 @@ func (self *Dal) Start() {
 
 	log.Printf("connected to database")
 
-	// go self.react()
+	go self.react()
 }
 
 func (self *Dal) Stop() {
-	// self.db.Close()
+	self.storeMovie.Close()
+	self.db.Close()
 }
 
-// func (self *Dal) react() {
-// 	for {
-// 		select {
-// 		case msg := <-self.Bus.UserAuth:
-// 			go self.doAuthenticate(msg.Payload, msg.Reply)
-// 		case msg := <-self.Bus.UserData:
-// 			go self.doGetUserDataById(msg.Payload, msg.Reply)
-// 		}
-// 	}
-// }
+func (self *Dal) react() {
+	for {
+		select {
+		case msg := <-self.Bus.StoreMovie:
+			go self.doStoreMovie(msg)
+		}
+	}
+}
+
+func (self *Dal) doStoreMovie(movie *message.Movie) {
+	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path)
+	if self.err != nil {
+		log.Fatal(self.err)
+	}
+}
 
 // func (self *Dal) doAuthenticate(user *model.UserAuthReq, reply chan *model.UserAuthRep) {
 // 	var id int8
