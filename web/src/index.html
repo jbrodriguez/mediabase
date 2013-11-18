@@ -1,20 +1,7 @@
 <!DOCTYPE html>
-<html ng-app="ngBoilerplate" ng-controller="AppCtrl">
+<html ng-app="mediabase" ng-controller="AppCtrl">
   <head>
     <title ng-bind="pageTitle"></title>
-
-    <!-- social media tags -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:site" content="@joshdmiller">
-    <meta name="twitter:title" content="ngBoilerplate">
-    <meta name="twitter:description" content="Non-Trivial AngularJS Made Easy: Everything you need to kickstart AngularJS projects: a best-practice directory structure, an intelligent build system, and the best web design libraries around.">
-    <meta name="twitter:creator" content="@joshdmiller">
-    <meta name="twitter:image:src" content="https://a248.e.akamai.net/assets.github.com/images/modules/logos_page/Octocat.png?1366128846">
-    <meta property="og:title" content="ngBoilerplate" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="http://bit.ly/ngBoilerplate" />
-    <meta property="og:image" content="https://a248.e.akamai.net/assets.github.com/images/modules/logos_page/Octocat.png?1366128846" />
-    <meta property="og:description" content="Non-Trivial AngularJS Made Easy: Everything you need to kickstart AngularJS projects: a best-practice directory structure, an intelligent build system, and the best web design libraries around.">
 
     <!-- font awesome from BootstrapCDN -->
     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
@@ -33,30 +20,34 @@
   <body>
     <div class="container">
       <div class="masthead">
-        <h3 class="muted">ng-boilerplate <small><a
-              href="http://github.com/joshdmiller/ng-boilerplate/blob/master/CHANGELOG.md">v<%= version %></a></small></h3>
+        <h3 class="muted">mediabase <small><a
+              href="">v<%= version %></a></small></h3>
         <div class="navbar">
           <div class="navbar-inner">
             <div class="container">
               <ul class="nav">
+                
                 <li ui-route="/home" ng-class="{active:$uiRoute}">
                   <a href="#/home">
                     <i class="icon-home"></i>
                     Home
                   </a>
                 </li>
-                <li ui-route="/about" ng-class="{active:$uiRoute}">
-                  <a href="#/about">
-                    <i class="icon-info-sign"></i>
-                    What is it?
+
+                <li ui-route="/movies" ng-class="{active:$uiRoute}">
+                  <a href="#/movies">
+                    <i class="icon-home"></i>
+                    Movies
                   </a>
                 </li>
-                <li>
-                  <a href="https://github.com/joshdmiller/ng-boilerplate#readme">
-                    <i class="icon-book"></i>
-                    Read the Docs
+
+                <li ui-route="/shows" ng-class="{active:$uiRoute}">
+                  <a href="#/shows">
+                    <i class="icon-home"></i>
+                    Shows
                   </a>
                 </li>
+
                 <li>
                   <a href="https://github.com/joshdmiller/ng-boilerplate">
                     <i class="icon-github-alt"></i>
@@ -69,6 +60,13 @@
                     Support
                   </a>
                 </li>
+
+                <li ui-route="/about" ng-class="{active:$uiRoute}">
+                  <a href="#/about">
+                    <i class="icon-info-sign"></i>
+                    What is it?
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -76,23 +74,21 @@
       </div>
     </div>
 
-    <div class="container" ui-view="main"></div>
+    <div class="container" ui-view></div>
 
     <footer class="footer">
       <div class="container">
         <div class="footer-inner">
           <ul class="social">
-            <li><a target="_blank" href="http://gplus.to/joshdmiller"><i class="icon-google-plus-sign"></i></a></li>
-            <li><a target="_blank" href="http://twitter.com/joshdmiller"><i class="icon-twitter-sign"></i></a></li>
-            <li><a target="_blank" href="http://linkedin.com/in/joshdmiller"><i class="icon-linkedin-sign"></i></a></li>
-            <li><a target="_blank" href="http://github.com/joshdmiller/ng-boilerplate"><i class="icon-github-sign"></i></a></li>
+            <li><a target="_blank" href="http://gplus.to/jbrodriguez"><i class="icon-google-plus-sign"></i></a></li>
+            <li><a target="_blank" href="http://twitter.com/jbrodriguez2"><i class="icon-twitter-sign"></i></a></li>
+            <li><a target="_blank" href="http://linkedin.com/in/jbrodriguez2"><i class="icon-linkedin-sign"></i></a></li>
+            <li><a target="_blank" href="http://github.com/apertoire/mediabase"><i class="icon-github-sign"></i></a></li>
           </ul>
           
 
           <p>
-            (c) 2013 Josh David Miller. 
-            <a href="http://github.com/joshdmiller/ng-boilerplate/fork_select">Fork this</a>
-            to kickstart your next project.
+            (c) 2013 apertoire.net. 
             <br />
             ng-boilerplate is based on
             <a href="http://www.angularjs.org">AngularJS</a>,
