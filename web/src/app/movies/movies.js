@@ -15,14 +15,22 @@ angular.module( 'mediabase.movies', [
   .state('movies.scan', {
       url: '/scan',
       controller: 'MoviesScanCtrl',
-      templateUrl: 'movies/movies.scan.tpl.html'
+      templateUrl: 'movies/movies.scan.tpl.html',
+      data: {pageTitle: 'Scan Movies'}
   });
 })
 
 .controller( 'MoviesCtrl', function MoviesCtrl( $scope ) {
 })
 
-.controller( 'MoviesScanCtrl', function MoviesScanCtrl($scope) {
-})
+.controller( 'MoviesScanCtrl', ['$scope', 'core', function MoviesScanCtrl($scope, core) {
+	$scope.message = "we're the waiting";
+
+	core.scanMovies()
+		.then(function() {
+			$scope.message = "you broke another mirror";
+			$scope.apply();
+		});
+}])
 
 ;

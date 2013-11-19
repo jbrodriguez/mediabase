@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-const apiVersion string = "/v1"
+const apiVersion string = "/api/v1"
 
 type Server struct {
 	Bus    *bus.Bus
@@ -34,6 +34,12 @@ func (self *Server) status(w http.ResponseWriter, req *http.Request) {
 }
 
 func (self *Server) scanMovies(w http.ResponseWriter, req *http.Request) {
+	log.Println("you know .. i got here")
+	// data := struct {
+	// 	Code        int8
+	// 	Description string
+	// }{0, "all is good"}
+	// helper.WriteJson(w, 200, &data)
 	// msg := message.MovieScan{&model.MovieScanReq{true}, make(chan *model.MovieScanRep)}
 	// self.Bus.MovieScan <- &msg
 	// reply := <-msg.Reply
@@ -87,7 +93,7 @@ func (self *Server) Start() {
 
 	self.s = self.r.PathPrefix(apiVersion).Subrouter()
 	self.s.HandleFunc("/", self.status).Methods("GET")
-	self.s.HandleFunc("/", self.scanMovies).Methods("PUT")
+	self.s.HandleFunc("/movies/scan", self.scanMovies).Methods("GET")
 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
 	// self.s.HandleFunc("/events", self.getEvents).Methods("GET")
 

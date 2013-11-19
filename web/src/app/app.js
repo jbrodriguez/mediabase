@@ -4,6 +4,7 @@ angular.module( 'mediabase', [
   'mediabase.home',
   'mediabase.movies',
   'mediabase.about',
+  'mediabase.services',
   'ui.state',
   'ui.route'
 ])
