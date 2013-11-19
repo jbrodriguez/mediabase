@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-const apiVersion string = "/v1"
+const apiVersion string = "/api/v1"
 
 type Server struct {
 	Bus    *bus.Bus
@@ -34,6 +34,12 @@ func (self *Server) status(w http.ResponseWriter, req *http.Request) {
 }
 
 func (self *Server) scanMovies(w http.ResponseWriter, req *http.Request) {
+	log.Println("you know .. i got here")
+	// data := struct {
+	// 	Code        int8
+	// 	Description string
+	// }{0, "all is good"}
+	// helper.WriteJson(w, 200, &data)
 	// msg := message.MovieScan{&model.MovieScanReq{true}, make(chan *model.MovieScanRep)}
 	// self.Bus.MovieScan <- &msg
 	// reply := <-msg.Reply
@@ -83,22 +89,22 @@ func (self *Server) Start() {
 
 	self.r = mux.NewRouter()
 
-	self.r.PathPrefix("/web").Handler(http.StripPrefix("/web", http.FileServer(http.Dir("./web/"))))
+	self.r.PathPrefix("/web/build").Handler(http.StripPrefix("/web/build", http.FileServer(http.Dir("./web/build/"))))
 
 	self.s = self.r.PathPrefix(apiVersion).Subrouter()
 	self.s.HandleFunc("/", self.status).Methods("GET")
-	self.s.HandleFunc("/", self.scanMovies).Methods("PUT")
+	self.s.HandleFunc("/movies/scan", self.scanMovies).Methods("GET")
 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
 	// self.s.HandleFunc("/events", self.getEvents).Methods("GET")
 
-	self.r.Handle("/", http.RedirectHandler("/web/index.html", 302))
+	self.r.Handle("/", http.RedirectHandler("/web/build/index.html", 302))
 
 	// log.Printf("start listening on %s:%s", self.Config.Host, self.Config.Port)
 	// go http.ListenAndServe(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port), self.r)
 	log.Printf("start listening on :%s", self.Config.Port)
 	go http.ListenAndServe(fmt.Sprintf(":%s", self.Config.Port), self.r)
 
-	go self.testScan()
+	// go self.testScan()
 }
 
 func (self *Server) Stop() {

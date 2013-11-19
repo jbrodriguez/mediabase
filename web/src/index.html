@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html ng-app="mediabase" ng-controller="AppCtrl">
+  <head>
+    <title ng-bind="pageTitle"></title>
+
+    <!-- font awesome from BootstrapCDN -->
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+
+    <!-- compiled CSS --><% styles.forEach( function ( file ) { %>
+    <link rel="stylesheet" type="text/css" href="<%= file %>" /><% }); %>
+
+    <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
+    <script type="text/javascript" src="<%= file %>"></script><% }); %>
+
+    <!-- it's stupid to have to load it here, but this is for the +1 button -->
+    <script type="text/javascript" src="https://apis.google.com/js/plusone.js">
+      { "parsetags": "explicit" }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <h3 class="muted">mediabase <small><a
+              href="">v<%= version %></a></small></h3>
+        <div class="navbar">
+          <div class="navbar-inner">
+            <div class="container">
+              <ul class="nav">
+                
+                <li ui-route="/home" ng-class="{active:$uiRoute}">
+                  <a href="#/home">
+                    <i class="icon-home"></i>
+                    Home
+                  </a>
+                </li>
+
+                <li ui-route="/movies" ng-class="{active:$uiRoute}">
+                  <a href="#/movies">
+                    <i class="icon-home"></i>
+                    Movies
+                  </a>
+                </li>
+
+                <li ui-route="/shows" ng-class="{active:$uiRoute}">
+                  <a href="#/shows">
+                    <i class="icon-home"></i>
+                    Shows
+                  </a>
+                </li>
+
+                <li>
+                  <a href="https://github.com/joshdmiller/ng-boilerplate">
+                    <i class="icon-github-alt"></i>
+                    Github
+                  </a>
+                </li>
+                <li>
+                  <a href="https://github.com/joshdmiller/ng-boilerplate/issues">
+                    <i class="icon-comments"></i>
+                    Support
+                  </a>
+                </li>
+
+                <li ui-route="/about" ng-class="{active:$uiRoute}">
+                  <a href="#/about">
+                    <i class="icon-info-sign"></i>
+                    What is it?
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" ui-view></div>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-inner">
+          <ul class="social">
+            <li><a target="_blank" href="http://gplus.to/jbrodriguez"><i class="icon-google-plus-sign"></i></a></li>
+            <li><a target="_blank" href="http://twitter.com/jbrodriguez2"><i class="icon-twitter-sign"></i></a></li>
+            <li><a target="_blank" href="http://linkedin.com/in/jbrodriguez2"><i class="icon-linkedin-sign"></i></a></li>
+            <li><a target="_blank" href="http://github.com/apertoire/mediabase"><i class="icon-github-sign"></i></a></li>
+          </ul>
+          
+
+          <p>
+            (c) 2013 apertoire.net. 
+            <br />
+            ng-boilerplate is based on
+            <a href="http://www.angularjs.org">AngularJS</a>,
+            <a href="http://getbootstrap.com">Bootstrap</a>, 
+            <a href="http://angular-ui.github.com/bootstrap">UI Bootstrap</a>,
+            and 
+            <a href="http://fortawesome.github.com/Font-Awesome">Font Awesome</a>.        
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
