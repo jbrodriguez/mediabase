@@ -29,7 +29,7 @@ angular.module( 'mediabase.movies', [
 	core.scanMovies()
 		.then(function() {
 			$scope.message = "you broke another mirror";
-			$scope.apply();
+			// $scope.apply();
 		});
 }])
 

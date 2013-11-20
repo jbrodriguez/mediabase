@@ -78,15 +78,68 @@ func (self *Dal) react() {
 		select {
 		case msg := <-self.Bus.StoreMovie:
 			go self.doStoreMovie(msg)
+		case msg := <-self.Bus.GetMovies:
+			go self.doGetMovies(msg)
 		}
 	}
 }
 
-func (self *Dal) doStoreMovie(movie *message.Movie) {
-	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-	if self.err != nil {
-		log.Fatal(self.err)
+// func (self *Dal) doStoreMovie(movie *message.Movie) {
+// 	tx
+
+// 	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+// 	if self.err != nil {
+// 		log.Fatal(self.err)
+// 	}
+// }
+
+func (self *Dal) doGetMovies(movies []message.Movie) {
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	stmt, err := tx.Prepare("select name, year, resolution, filetype, location, picture from movie limit ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(30)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		movie := message.Movie{}
+		rows.Scan(&movie.Name, &movie.Year, &movie.Resolution, &movie.Type, &movie.Path, &movie.Picture)
+	}
+	rows.Close()
+}
+
+func (self *Dal) doStoreMovie(movie *message.Movie) {
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stmt, err := tx.Prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tx.Commit()
+
+	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	// if self.err != nil {
+	// 	log.Fatal(self.err)
+	// }
 }
 
 // func (self *Dal) doAuthenticate(user *model.UserAuthReq, reply chan *model.UserAuthRep) {

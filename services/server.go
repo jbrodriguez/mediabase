@@ -40,11 +40,24 @@ func (self *Server) scanMovies(w http.ResponseWriter, req *http.Request) {
 	// 	Description string
 	// }{0, "all is good"}
 	// helper.WriteJson(w, 200, &data)
-	// msg := message.MovieScan{&model.MovieScanReq{true}, make(chan *model.MovieScanRep)}
-	// self.Bus.MovieScan <- &msg
-	// reply := <-msg.Reply
 
-	// helper.WriteJson(w, 200, &reply)
+	msg := message.ScanMovies{make(chan string)}
+	self.Bus.ScanMovies <- &msg
+	reply := <-msg.Reply
+
+	log.Printf("response is: %s", reply)
+
+	helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
+}
+
+func (self *Server) getMovies(w http.ResponseWriter, req *http.Request) {
+	msg := []message.GetMovies{}
+	self.Bus.GetMovies <- &msg
+	reply := <-msg.Reply
+
+	log.Printf("response is: %s", reply)
+
+	helper.WriteJson(w, 200, &reply)
 }
 
 func (self *Server) testScan() {
@@ -94,6 +107,8 @@ func (self *Server) Start() {
 	self.s = self.r.PathPrefix(apiVersion).Subrouter()
 	self.s.HandleFunc("/", self.status).Methods("GET")
 	self.s.HandleFunc("/movies/scan", self.scanMovies).Methods("GET")
+	self.s.HandleFunc("/movies/get", self.getMovies).Methods("GET")
+
 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
 	// self.s.HandleFunc("/events", self.getEvents).Methods("GET")
 
