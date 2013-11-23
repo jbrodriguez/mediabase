@@ -4,6 +4,10 @@ type ScanMovies struct {
 	Reply chan string
 }
 
+type GetMovies struct {
+	Reply chan []*Movie
+}
+
 type Movie struct {
 	Resolution string `json: resolution`
 	Name       string `json: name`

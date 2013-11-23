@@ -20,8 +20,17 @@ angular.module( 'mediabase.movies', [
   });
 })
 
-.controller( 'MoviesCtrl', function MoviesCtrl( $scope ) {
-})
+.controller( 'MoviesCtrl', ['$scope', 'core', function MoviesCtrl( $scope, core ) {
+	$scope.message = 'Initializing ...';
+	$scope.items = [];
+
+	core.getMovies()
+		.success(function(data, status, headers, config) {
+			$scope.message = "I am el mero mero";
+			$scope.items = data;
+		});
+
+}])
 
 .controller( 'MoviesScanCtrl', ['$scope', 'core', function MoviesScanCtrl($scope, core) {
 	$scope.message = "we're the waiting";
@@ -29,7 +38,7 @@ angular.module( 'mediabase.movies', [
 	core.scanMovies()
 		.then(function() {
 			$scope.message = "you broke another mirror";
-			$scope.apply();
+			// $scope.apply();
 		});
 }])
 

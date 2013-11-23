@@ -52,7 +52,7 @@ func (self *Scanner) react() {
 	for {
 		select {
 		case msg := <-self.Bus.ScanMovies:
-			go self.doMovieScan(msg.Reply)
+			go self.doScanMovies(msg.Reply)
 		}
 	}
 }
@@ -77,8 +77,10 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 	return nil
 }
 
-func (self *Scanner) doMovieScan(reply chan string) {
-	log.Printf("i got here")
+func (self *Scanner) doScanMovies(reply chan string) {
+	log.Printf("inside ScanMovies")
+
+	reply <- "Movie scanning process started ..."
 
 	err := filepath.Walk("/Volumes/films", self.visit)
 	log.Println("err: %s", err)
