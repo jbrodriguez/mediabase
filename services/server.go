@@ -51,7 +51,7 @@ func (self *Server) scanMovies(w http.ResponseWriter, req *http.Request) {
 }
 
 func (self *Server) getMovies(w http.ResponseWriter, req *http.Request) {
-	msg := []message.GetMovies{}
+	msg := message.GetMovies{make(chan []*message.Movie)}
 	self.Bus.GetMovies <- &msg
 	reply := <-msg.Reply
 
@@ -106,8 +106,8 @@ func (self *Server) Start() {
 
 	self.s = self.r.PathPrefix(apiVersion).Subrouter()
 	self.s.HandleFunc("/", self.status).Methods("GET")
+	self.s.HandleFunc("/movies", self.getMovies).Methods("GET")
 	self.s.HandleFunc("/movies/scan", self.scanMovies).Methods("GET")
-	self.s.HandleFunc("/movies/get", self.getMovies).Methods("GET")
 
 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
 	// self.s.HandleFunc("/events", self.getEvents).Methods("GET")

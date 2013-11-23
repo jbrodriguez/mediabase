@@ -5,7 +5,7 @@ type ScanMovies struct {
 }
 
 type GetMovies struct {
-	Reply chan []Movie
+	Reply chan []*Movie
 }
 
 type Movie struct {

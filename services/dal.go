@@ -93,7 +93,7 @@ func (self *Dal) react() {
 // 	}
 // }
 
-func (self *Dal) doGetMovies(movies []message.Movie) {
+func (self *Dal) doGetMovies(msg *message.GetMovies) {
 	tx, err := self.db.Begin()
 	if err != nil {
 		log.Fatal(err)
@@ -110,11 +110,16 @@ func (self *Dal) doGetMovies(movies []message.Movie) {
 		log.Fatal(err)
 	}
 
+	var items []*message.Movie
+
 	for rows.Next() {
 		movie := message.Movie{}
 		rows.Scan(&movie.Name, &movie.Year, &movie.Resolution, &movie.Type, &movie.Path, &movie.Picture)
+		items = append(items, &movie)
 	}
 	rows.Close()
+
+	msg.Reply <- items
 }
 
 func (self *Dal) doStoreMovie(movie *message.Movie) {

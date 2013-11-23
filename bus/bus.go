@@ -8,7 +8,7 @@ import (
 type Bus struct {
 	ScanMovies   chan *message.ScanMovies
 	MovieFound   chan *message.Movie
-	GetMovies    chan []message.Movie
+	GetMovies    chan *message.GetMovies
 	StoreMovie   chan *message.Movie
 	CachePicture chan *message.Picture
 	UpdateMovie  chan *message.Picture
@@ -20,7 +20,7 @@ func (self *Bus) Start() {
 	self.ScanMovies = make(chan *message.ScanMovies)
 	self.MovieFound = make(chan *message.Movie)
 
-	self.GetMovies = make(chan []message.Movie)
+	self.GetMovies = make(chan *message.GetMovies)
 
 	self.StoreMovie = make(chan *message.Movie)
 	self.CachePicture = make(chan *message.Picture)
