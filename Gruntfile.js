@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 						dest: "<%= build_dir %>",
 						cwd: ".",
 						expand: true,
-						flatten: true
+						flatten: true,
 					}
 				]
 			},
@@ -44,7 +44,7 @@ module.exports = function(grunt) {
 						dest: "<%= build_dir %>",
 						cwd: ".",
 						expand: true,
-						flatten: true
+						flatten: true,
 					}
 				]
 			}
@@ -53,9 +53,7 @@ module.exports = function(grunt) {
 		index: {
 			build: {
 				dir: "<%= build_dir %>",
-				js: [
-					"<%= lib_files %>"
-				]
+				js: "<%= lib_files.js %>"
 			}
 		}
 	});
@@ -64,11 +62,15 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-contrib-copy");
 
 	grunt.registerMultiTask("index", "Process index.html template", function() {
+		var jsFiles = this.data.js.map( function(file) {
+			return file.replace(/^.*[\\\/]/, '');
+		});
+
 		grunt.file.copy("web/src/index.html", this.data.dir + "/index.html", {
 			process: function(contents, path) {
 				return grunt.template.process(contents, {
 					data: {
-						scripts: grunt.config("this.data.js"),
+						scripts: jsFiles,
 						version: grunt.config("pkg.version")
 					}
 				})
