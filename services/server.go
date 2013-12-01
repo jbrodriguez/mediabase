@@ -12,6 +12,7 @@ import (
 )
 
 const apiVersion string = "/api/v1"
+const docPath string = "build/"
 
 type Server struct {
 	Bus    *bus.Bus
@@ -21,12 +22,12 @@ type Server struct {
 
 func (self *Server) static(res http.ResponseWriter, req *http.Request) {
 	log.Println(req.URL.Path)
-	http.ServeFile(res, req, "web"+req.URL.Path)
+	http.ServeFile(res, req, docPath+req.URL.Path)
 }
 
 func (self *Server) notFound(res http.ResponseWriter, req *http.Request) {
 	log.Println(req.URL.Path)
-	http.ServeFile(res, req, "web/404.html")
+	http.ServeFile(res, req, docPath+"404.html")
 }
 
 func (self *Server) status(w http.ResponseWriter, req *http.Request) {
@@ -102,7 +103,7 @@ func (self *Server) Start() {
 
 	self.r = mux.NewRouter()
 
-	self.r.PathPrefix("/web/build").Handler(http.StripPrefix("/web/build", http.FileServer(http.Dir("./web/build/"))))
+	self.r.PathPrefix("/" + docPath).Handler(http.StripPrefix("/"+docPath, http.FileServer(http.Dir("./"+docPath))))
 
 	self.s = self.r.PathPrefix(apiVersion).Subrouter()
 	self.s.HandleFunc("/", self.status).Methods("GET")
@@ -112,7 +113,7 @@ func (self *Server) Start() {
 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
 	// self.s.HandleFunc("/events", self.getEvents).Methods("GET")
 
-	self.r.Handle("/", http.RedirectHandler("/web/build/index.html", 302))
+	self.r.Handle("/", http.RedirectHandler(docPath+"index.html", 302))
 
 	// log.Printf("start listening on %s:%s", self.Config.Host, self.Config.Port)
 	// go http.ListenAndServe(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port), self.r)

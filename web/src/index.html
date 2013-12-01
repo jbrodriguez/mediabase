@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
+	<meta charset="utf-8">
+	<title>mediabase</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" rel="stylesheet">
+	<link href="mediabase.css" rel="stylesheet">
+
+    <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
+    <script type="text/javascript" src="<%= file %>"></script><% }); %>	
+</head>
+
+<body>
+<div class="navbar navbar-fixed-top header">
+	<div class="col-lg-12">
+		<div class="navbar-header">
+			<a href="#" class="navbar-brand">Mediabase</a>
+	        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse1">
+            <i class="glyphicon glyphicon-search"></i>
+            </button>
+		</div>
+		<div class="collapse navbar-collapse" id="navbar-collapse1">
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="/" target="_ext">apertoire.net</a></li>
+				<li>
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-bell"></i></a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<div class="navbar navbar-default" id="subnav">
+	<div class="col-lg-12">
+		<div class="navbar-header">
+			<form class="navbar-form pull-left">
+				<div class="input-group" style="max-width:470px;">
+					<input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+					<div class="input-group-btn">
+						<button class="btn btn-default btn-primary" type="submit">
+						<i class="glyphicon glyphicon-search"></i>
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="collapse navbar-collapse" id="navbar-collapse3">
+			<ul class="nav navbar-nav navbar-right">
+				<li class="active"><a href="#">Posts</a></li>
+				<li><a href="#someroute" role="button" data-toggle="modal">Login</a></li>
+				<li><a href="#otherroute" role="button" data-toggle="modal">About</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<div class="col-lg-12" id="main">
+	<div class="row">
+		<div class="col-lg-2">
+			<div class="panel panel-default">
+				<div class="panel-thumbnail">
+				<img src="e3bdd3405039fa5ed9191b24f1a9c55bd267df33.jpg" class="img-responsive">
+				</div>
+
+				<div class="panel-body">
+					<p class="lead">The Matrix</p>
+					<p>120k followers, 900 posts</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-2">
+			<div class="panel panel-default">
+				<div class="panel-thumbnail">
+				<img src="e3bdd3405039fa5ed9191b24f1a9c55bd267df33.jpg" class="img-responsive">
+				</div>
+
+				<div class="panel-body">
+					<p class="lead">The Matrix</p>
+					<p>120k followers, 900 posts</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-2">
+			<div class="panel panel-default">
+				<div class="panel-heading">The Matrix</div>
+
+				<div class="panel-thumbnail">
+				<img src="226988e5f70cbed45f763e3bbc1d522f5855c90f.jpg" class="img-responsive">
+				</div>
+
+				<div class="panel-body">
+					<p>120k followers, 900 posts</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-2">
+			<div class="panel panel-default">
+				<div class="panel-heading">The Matrix</div>
+
+				<div class="panel-thumbnail">
+				<img src="226988e5f70cbed45f763e3bbc1d522f5855c90f.jpg" class="img-responsive">
+				</div>
+
+				<div class="panel-body">
+					<p>120k followers, 900 posts</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-2">
+			<div class="panel panel-default">
+				<div class="panel-heading">The Matrix</div>
+
+				<div class="panel-thumbnail">
+				<img src="226988e5f70cbed45f763e3bbc1d522f5855c90f.jpg" class="img-responsive">
+				</div>
+
+				<div class="panel-body">
+					<p>120k followers, 900 posts</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-lg-2">
+			<div class="panel panel-default">
+				<div class="panel-heading">The Matrix</div>
+
+				<div class="panel-thumbnail">
+				<img src="226988e5f70cbed45f763e3bbc1d522f5855c90f.jpg" class="img-responsive">
+				</div>
+
+				<div class="panel-body">
+					<p>120k followers, 900 posts</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-4">
+			<div class="panel panel-default">
+				<div class="panel-thumbnail">
+				<img src="d256253c00fcb2ac821838c59e3c2a5fac408807.jpg" class="img-responsive">
+				</div>
+
+				<div class="panel-body">
+					<p class="lead">The Matrix</p>
+					<p>120k followers, 900 posts</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-sm-4">
+			<div class="panel panel-default">
+				<div class="panel-thumbnail">
+				<img src="d1768dfe2057bdd572f1432d08060c7e1e5ef84f.jpg" class="img-responsive">
+				</div>
+
+				<div class="panel-body">
+					<p class="lead">The Godfather</p>
+					<p>120k followers, 900 posts</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>
