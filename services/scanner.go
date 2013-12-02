@@ -69,7 +69,9 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 		}
 
 		log.Printf("p: %s", path)
-		self.Bus.MovieFound <- &message.Movie{Resolution: rmap["Resolution"], Name: rmap["Name"], Year: rmap["Year"], Type: rmap["FileType"], Path: path}
+		go func() {
+			self.Bus.MovieFound <- &message.Movie{Resolution: rmap["Resolution"], Name: rmap["Name"], Year: rmap["Year"], Type: rmap["FileType"], Path: path}
+		}()
 
 		return nil
 	}
@@ -80,7 +82,7 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 func (self *Scanner) doScanMovies(reply chan string) {
 	log.Printf("inside ScanMovies")
 
-	reply <- "Movie scanning process started ..."
+	// reply <- "Movie scanning process started ..."
 
 	err := filepath.Walk("/Volumes/films", self.visit)
 	log.Println("err: %s", err)

@@ -45,7 +45,11 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 	h.Write([]byte(movie.Path))
 	movie.Picture = hex.EncodeToString(h.Sum(nil)) + ".jpg"
 
-	self.Bus.StoreMovie <- movie
+	go func() {
+		self.Bus.StoreMovie <- movie
+	}()
 
-	self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture}
+	go func() {
+		self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture}
+	}()
 }

@@ -128,21 +128,21 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 		log.Fatal(err)
 	}
 
-	// stmt, err := tx.Prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer stmt.Close()
-
-	// _, err = stmt.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-	if self.err != nil {
-		log.Fatal(self.err)
+	stmt, err := tx.Prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	// if self.err != nil {
+	// 	log.Fatal(self.err)
+	// }
 
 	tx.Commit()
 

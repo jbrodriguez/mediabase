@@ -120,7 +120,7 @@ func (self *Server) Start() {
 	log.Printf("start listening on :%s", self.Config.Port)
 	go http.ListenAndServe(fmt.Sprintf(":%s", self.Config.Port), self.r)
 
-	// go self.testScan()
+	go self.testScan()
 }
 
 func (self *Server) Stop() {

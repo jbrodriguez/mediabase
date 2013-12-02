@@ -1,0 +1,16 @@
+    <div class="pure-u-1" id="list">
+        <div class="email-item pure-g" ng-repeat="item in items" ng-class="{'email-item-selected': $index == selectedIndex }" ng-click="itemClicked($index)">
+            <div class="pure-u-1-8">
+                <img class="email-avatar" alt="{{item.Name}}" width="70" src="img/{{item.Picture}}">
+            </div>
+
+            <div class="pure-u-7-8">
+                <h4 class="email-subject">{{item.Name}} ({{item.Year}})</h4>
+                <p class="email-desc">
+                    Hey, I just wanted to check in with you from Toronto. I got here earlier today. But we will try and overcome to see what the future brings for us
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="pure-u-1" id="main" ui-view></div>
