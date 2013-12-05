@@ -77,7 +77,7 @@ func (self *Dal) react() {
 	for {
 		select {
 		case msg := <-self.Bus.StoreMovie:
-			go self.doStoreMovie(msg)
+			self.doStoreMovie(msg)
 		case msg := <-self.Bus.GetMovies:
 			go self.doGetMovies(msg)
 		}
@@ -125,24 +125,24 @@ func (self *Dal) doGetMovies(msg *message.GetMovies) {
 func (self *Dal) doStoreMovie(movie *message.Movie) {
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("at begin: %s", err)
 	}
 
-	stmt, err := tx.Prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-	// if self.err != nil {
-	// 	log.Fatal(self.err)
+	// stmt, err := tx.Prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
+	// if err != nil {
+	// 	log.Fatalf("at prepare: %s", err)
 	// }
+	// defer stmt.Close()
+
+	// _, err = stmt.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	// if err != nil {
+	// 	log.Fatalf("at exec: %s", err)
+	// }
+
+	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	if self.err != nil {
+		log.Fatalf("at storemovie: %s", self.err)
+	}
 
 	tx.Commit()
 

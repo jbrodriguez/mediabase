@@ -12,6 +12,7 @@ type Bus struct {
 	StoreMovie   chan *message.Movie
 	CachePicture chan *message.Picture
 	UpdateMovie  chan *message.Picture
+	Log          chan string
 }
 
 func (self *Bus) Start() {
@@ -26,6 +27,8 @@ func (self *Bus) Start() {
 	self.CachePicture = make(chan *message.Picture)
 
 	self.UpdateMovie = make(chan *message.Picture)
+
+	self.Log = make(chan string)
 }
 
 // type Msg struct {

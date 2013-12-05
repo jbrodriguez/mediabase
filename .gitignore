@@ -45,6 +45,7 @@ Icon
 # misc
 .jpg
 .log
+.txt
 
 ### grunt stuff
 *.sw*

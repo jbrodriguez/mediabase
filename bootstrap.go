@@ -15,6 +15,7 @@ func main() {
 	config.Init()
 
 	bus := bus.Bus{}
+	logger := services.Logger{Bus: &bus, Config: &config}
 	server := services.Server{Bus: &bus, Config: &config}
 	dal := services.Dal{Bus: &bus, Config: &config}
 	cache := services.Cache{Bus: &bus, Config: &config}
@@ -22,6 +23,7 @@ func main() {
 	core := services.Core{Bus: &bus, Config: &config}
 
 	bus.Start()
+	logger.Start()
 	dal.Start()
 	server.Start()
 	cache.Start()
@@ -37,5 +39,6 @@ func main() {
 	cache.Stop()
 	server.Stop()
 	dal.Stop()
+	logger.Stop()
 	// bus.Stop()
 }

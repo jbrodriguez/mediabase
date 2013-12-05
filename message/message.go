@@ -20,6 +20,7 @@ type Movie struct {
 type Picture struct {
 	Path string `json: path`
 	Id   string `json: id`
+	Name string `json: name`
 }
 
 // type UserAuth struct {

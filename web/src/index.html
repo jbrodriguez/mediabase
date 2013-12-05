@@ -13,67 +13,21 @@
     <script type="text/javascript" src="<%= file %>"></script><% }); %> 
 </head>
 <body>
-
-<div class="pure-g-r content" id="layout">
-    <div class="pure-u" id="nav">
-        <a href="#" class="nav-menu-button">Menu</a>
-
-        <div class="nav-inner">
-            <button class="pure-button primary-button">Mediabase</button>
-
-            <div class="pure-menu pure-menu-open">
-                <ul>
-                    <li class="pure-menu-heading">MEDIA</li>
-                    <li><a href="#/movies"><span class="email-label-personal"></span>Movies</a></li>
-                    <li><a href="#"><span class="email-label-work"></span>Shows</a></li>
-
-                    <li><a href="#">Inbox <span class="email-count">(2)</span></a></li>
-                    <li><a href="#">Important</a></li>
-                    <li><a href="#">Sent</a></li>
-                    <li><a href="#">Drafts</a></li>
-                    <li><a href="#">Trash</a></li>
-                    <li class="pure-menu-heading">Labels</li>
-                    <li><a href="#"><span class="email-label-personal"></span>Personal</a></li>
-                    <li><a href="#"><span class="email-label-work"></span>Work</a></li>
-                    <li><a href="#"><span class="email-label-travel"></span>Travel</a></li>
-                </ul>
-            </div>
-        </div>
+    <div class="pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
+        <a href="#" class="pure-menu-heading">MediaBase</a>
+        <ul>
+            <li><a href="#/movies">Movies</a></li>
+            <li><a href="#">Shows</a></li>
+            <li>
+                <form class="pure-form">
+                    <div class="pure-u-1">
+                        <input class="pure-input-1" type="text" placeholder="Enter search string">
+                    </div>
+                </form>
+            </li>
+        </ul>
     </div>
 
-    <div ui-view></div>
-</div>
-
-<script src="http://yui.yahooapis.com/3.12.0/build/yui/yui.js"></script>
-<script>
-    YUI().use('node-base', 'node-event-delegate', function (Y) {
-
-        var menuButton = Y.one('.nav-menu-button'),
-            nav        = Y.one('#nav');
-
-        // Setting the active class name expands the menu vertically on small screens.
-        menuButton.on('click', function (e) {
-            nav.toggleClass('active');
-        });
-
-        // Your application code goes here...
-
-    });
-</script>
-
-<script>
-YUI().use('node-base', 'node-event-delegate', function (Y) {
-    // This just makes sure that the href="#" attached to the <a> elements
-    // don't scroll you back up the page.
-    Y.one('body').delegate('click', function (e) {
-        e.preventDefault();
-    }, 'a[href="#"]');
-});
-</script>
-
-
-
-
-
+    <div class="pane" ui-view></div>
 </body>
 </html>

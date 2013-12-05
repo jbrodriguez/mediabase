@@ -6,6 +6,8 @@ import (
 	"apertoire.net/mediabase/message"
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
+	"github.com/goinggo/tracelog"
 	"log"
 )
 
@@ -39,17 +41,21 @@ func (self *Core) react() {
 
 func (self *Core) doMovieFound(movie *message.Movie) {
 	log.Printf("found: %s (%s) [%s, %s, %s]", movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path)
-
+	tracelog.INFO("mb", "core", fmt.Sprintf("found: %s (%s) [%s, %s, %s]", movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path))
 	// calculate hex sha1 for the full movie path
 	h := sha1.New()
-	h.Write([]byte(movie.Path))
+	h.Write([]byte(fmt.Sprintf("%s|%s", movie.Name, movie.Year)))
 	movie.Picture = hex.EncodeToString(h.Sum(nil)) + ".jpg"
 
-	go func() {
-		self.Bus.StoreMovie <- movie
-	}()
+	// go func() {
+	// 	self.Bus.StoreMovie <- movie
+	// }()
 
-	go func() {
-		self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture}
-	}()
+	// go func() {
+	// 	self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture}
+	// }()
+
+	self.Bus.StoreMovie <- movie
+
+	self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture, Name: movie.Name}
 }

@@ -1,3 +1,28 @@
+<div class="pure-g-r" id="layout">
+    <div class="pure-u" id="nav">
+
+        <div class="nav-inner">
+
+            <div class="pure-menu pure-menu-open">
+                <ul>
+                    <li class="pure-menu-heading">MEDIA</li>
+                    <li><a href="#/movies"><span class="email-label-personal"></span>Movies</a></li>
+                    <li><a href="#"><span class="email-label-work"></span>Shows</a></li>
+
+                    <li><a href="#">Inbox <span class="email-count">(2)</span></a></li>
+                    <li><a href="#">Important</a></li>
+                    <li><a href="#">Sent</a></li>
+                    <li><a href="#">Drafts</a></li>
+                    <li><a href="#">Trash</a></li>
+                    <li class="pure-menu-heading">Labels</li>
+                    <li><a href="#"><span class="email-label-personal"></span>Personal</a></li>
+                    <li><a href="#"><span class="email-label-work"></span>Work</a></li>
+                    <li><a href="#"><span class="email-label-travel"></span>Travel</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <div class="pure-u-1" id="list">
         <div class="email-item pure-g" ng-repeat="item in items" ng-class="{'email-item-selected': $index == selectedIndex }" ng-click="itemClicked($index)">
             <div class="pure-u-1-8">
@@ -14,3 +39,4 @@
     </div>
 
     <div class="pure-u-1" id="main" ui-view></div>
+</div>
