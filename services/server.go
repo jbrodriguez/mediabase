@@ -61,6 +61,25 @@ func (self *Server) getMovies(w http.ResponseWriter, req *http.Request) {
 	helper.WriteJson(w, 200, &reply)
 }
 
+func (self *Server) searchMovies(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	term, ok := vars["term"]
+	if !ok {
+		// do some error handling
+		return
+	}
+
+	log.Printf("the mother is: %s", term)
+
+	msg := message.SearchMovies{term, make(chan []*message.Movie)}
+	self.Bus.SearchMovies <- &msg
+	reply := <-msg.Reply
+
+	log.Printf("response is: %s", reply)
+
+	helper.WriteJson(w, 200, &reply)
+}
+
 func (self *Server) testScan() {
 	msg := message.ScanMovies{make(chan string)}
 	self.Bus.ScanMovies <- &msg
@@ -109,6 +128,7 @@ func (self *Server) Start() {
 	self.s.HandleFunc("/", self.status).Methods("GET")
 	self.s.HandleFunc("/movies", self.getMovies).Methods("GET")
 	self.s.HandleFunc("/movies/scan", self.scanMovies).Methods("GET")
+	self.s.HandleFunc("/movies/search&q={term}", self.searchMovies).Methods("GET")
 
 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
 	// self.s.HandleFunc("/events", self.getEvents).Methods("GET")
@@ -120,7 +140,7 @@ func (self *Server) Start() {
 	log.Printf("start listening on :%s", self.Config.Port)
 	go http.ListenAndServe(fmt.Sprintf(":%s", self.Config.Port), self.r)
 
-	go self.testScan()
+	// go self.testScan()
 }
 
 func (self *Server) Stop() {

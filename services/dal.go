@@ -16,7 +16,8 @@ type Dal struct {
 	db     *sql.DB
 	err    error
 
-	storeMovie *sql.Stmt
+	storeMovie   *sql.Stmt
+	searchMovies *sql.Stmt
 	// getAssets       *sql.Stmt
 	// getRevisions    *sql.Stmt
 	// getItems        *sql.Stmt
@@ -48,6 +49,7 @@ func (self *Dal) Start() {
 
 	// self.exists = self.prepare("select id from item where name = ?")
 	self.storeMovie = self.prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
+	self.searchMovies = self.prepare("select t.name, t.year, t.resolution, t.filetype, t.location, t.picture from movie t, moviename i where i.name match ? and t.id = i.docid")
 
 	// self.authenticate = self.prepare("select id, password from account where email = $1")
 	// self.getUserDataById = self.prepare("select name, email from account where id = $1")
@@ -69,6 +71,7 @@ func (self *Dal) Start() {
 }
 
 func (self *Dal) Stop() {
+	self.searchMovies.Close()
 	self.storeMovie.Close()
 	self.db.Close()
 }
@@ -80,6 +83,8 @@ func (self *Dal) react() {
 			self.doStoreMovie(msg)
 		case msg := <-self.Bus.GetMovies:
 			go self.doGetMovies(msg)
+		case msg := <-self.Bus.SearchMovies:
+			go self.doSearchMovies(msg)
 		}
 	}
 }
@@ -92,6 +97,36 @@ func (self *Dal) react() {
 // 		log.Fatal(self.err)
 // 	}
 // }
+
+func (self *Dal) doStoreMovie(movie *message.Movie) {
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatalf("at begin: %s", err)
+	}
+
+	// stmt, err := tx.Prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
+	// if err != nil {
+	// 	log.Fatalf("at prepare: %s", err)
+	// }
+	// defer stmt.Close()
+
+	// _, err = stmt.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	// if err != nil {
+	// 	log.Fatalf("at exec: %s", err)
+	// }
+
+	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	if self.err != nil {
+		log.Fatalf("at storemovie: %s", self.err)
+	}
+
+	tx.Commit()
+
+	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	// if self.err != nil {
+	// 	log.Fatal(self.err)
+	// }
+}
 
 func (self *Dal) doGetMovies(msg *message.GetMovies) {
 	tx, err := self.db.Begin()
@@ -122,34 +157,46 @@ func (self *Dal) doGetMovies(msg *message.GetMovies) {
 	msg.Reply <- items
 }
 
-func (self *Dal) doStoreMovie(movie *message.Movie) {
-	tx, err := self.db.Begin()
-	if err != nil {
-		log.Fatalf("at begin: %s", err)
-	}
-
-	// stmt, err := tx.Prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
+func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
+	// tx, err := self.db.Begin()
 	// if err != nil {
-	// 	log.Fatalf("at prepare: %s", err)
+	// 	log.Fatal(err)
+	// }
+
+	// stmt, err := tx.Prepare("select name, year, resolution, filetype, location, picture from movie where name like ?")
+	// if err != nil {
+	// 	log.Fatal(err)
 	// }
 	// defer stmt.Close()
 
-	// _, err = stmt.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	// term := "%" + msg.Term + "%"
+	// log.Printf("this is: %s", term)
+
+	// rows, err := stmt.Query(term)
 	// if err != nil {
-	// 	log.Fatalf("at exec: %s", err)
+	// 	log.Fatal(err)
 	// }
 
-	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-	if self.err != nil {
-		log.Fatalf("at storemovie: %s", self.err)
+	// term := "%" + msg.Term + "%"
+	// term := msg.Term + "%"
+	term := msg.Term
+	log.Printf("this is: %s", term)
+
+	rows, err := self.searchMovies.Query(term)
+	if err != nil {
+		log.Fatal(self.err)
 	}
 
-	tx.Commit()
+	var items []*message.Movie
 
-	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-	// if self.err != nil {
-	// 	log.Fatal(self.err)
-	// }
+	for rows.Next() {
+		movie := message.Movie{}
+		rows.Scan(&movie.Name, &movie.Year, &movie.Resolution, &movie.Type, &movie.Path, &movie.Picture)
+		items = append(items, &movie)
+	}
+	rows.Close()
+
+	msg.Reply <- items
 }
 
 // func (self *Dal) doAuthenticate(user *model.UserAuthReq, reply chan *model.UserAuthRep) {

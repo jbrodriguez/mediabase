@@ -13,5 +13,9 @@ angular.module( 'mediabase.services', [
 		return $http.get(api + "movies");
 	};
 
+	rest.searchMovies = function(term) {
+		return $http.get(api + "movies/search&q=" + term)
+	}
+
 	return rest;
 }]);

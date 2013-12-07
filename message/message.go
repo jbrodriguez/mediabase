@@ -8,6 +8,11 @@ type GetMovies struct {
 	Reply chan []*Movie
 }
 
+type SearchMovies struct {
+	Term  string
+	Reply chan []*Movie
+}
+
 type Movie struct {
 	Resolution string `json: resolution`
 	Name       string `json: name`
