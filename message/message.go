@@ -8,6 +8,11 @@ type GetMovies struct {
 	Reply chan []*Movie
 }
 
+type SearchMovies struct {
+	Term  string
+	Reply chan []*Movie
+}
+
 type Movie struct {
 	Resolution string `json: resolution`
 	Name       string `json: name`
@@ -20,6 +25,7 @@ type Movie struct {
 type Picture struct {
 	Path string `json: path`
 	Id   string `json: id`
+	Name string `json: name`
 }
 
 // type UserAuth struct {

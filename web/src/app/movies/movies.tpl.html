@@ -1,0 +1,40 @@
+<div class="pure-g-r" id="layout">
+    <div class="pure-u" id="nav">
+
+        <div class="nav-inner">
+
+            <div class="pure-menu pure-menu-open">
+                <ul>
+                    <li class="pure-menu-heading">MEDIA</li>
+                    <li><a href="#/movies"><span class="email-label-personal"></span>Movies</a></li>
+                    <li><a href="#"><span class="email-label-work"></span>Shows</a></li>
+
+                    <li><a href="#">Inbox <span class="email-count">(2)</span></a></li>
+                    <li><a href="#">Important</a></li>
+                    <li><a href="#">Sent</a></li>
+                    <li><a href="#">Drafts</a></li>
+                    <li><a href="#">Trash</a></li>
+                    <li class="pure-menu-heading">UTILITY</li>
+                    <li><a href="#/movies/scan"><span class="email-label-personal"></span>Scan</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="pure-u-1" id="list">
+        <div class="email-item pure-g" ng-repeat="item in items" ng-class="{'email-item-selected': $index == selectedIndex }" ng-click="itemClicked($index)">
+            <div class="pure-u-1-8">
+                <img class="email-avatar" alt="{{item.Name}}" width="70" src="img/t_{{item.Picture}}">
+            </div>
+
+            <div class="pure-u-7-8">
+                <h4 class="email-name">{{item.Name}}</h4>
+                <a class="pure-button pure-button-year">{{item.Year}}</a>
+                <a class="pure-button pure-button-{{item.Resolution}}">{{item.Resolution}}</a>
+                <p class="email-desc">{{item.Path}}
+            </div>
+        </div>
+    </div>
+
+    <div class="pure-u-1" id="main" ui-view></div>
+</div>

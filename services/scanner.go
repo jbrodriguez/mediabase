@@ -35,9 +35,9 @@ func (self *Scanner) Start() {
 	// fmt.Println(test[loc[0]:loc[1]], "found at: ", loc[0])
 	// break
 
-	self.re[0] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*bdmv/index.(?P<FileType>bdmv)$`)}
-	self.re[1] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*.*\.(?P<FileType>iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$`)}
-	self.re[2] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/films/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*(?:video_ts|hv000i01)\.(?P<FileType>ifo)$`)}
+	self.re[0] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*bdmv/index.(?P<FileType>bdmv)$`)}
+	self.re[1] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*.*\.(?P<FileType>iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$`)}
+	self.re[2] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*(?:video_ts|hv000i01)\.(?P<FileType>ifo)$`)}
 
 	go self.react()
 
@@ -58,6 +58,12 @@ func (self *Scanner) react() {
 }
 
 func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
+	if err != nil {
+		log.Printf("from-start err: %s", err)
+	}
+
+	// log.Printf("maldito: %s", path)
+
 	for i := 0; i < 3; i++ {
 		// match := self.re[i].FindStringSubmatch(strings.ToLower(path))
 		// if match == nil {
@@ -69,6 +75,9 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 		}
 
 		log.Printf("p: %s", path)
+		// go func() {
+		// 	self.Bus.MovieFound <- &message.Movie{Resolution: rmap["Resolution"], Name: rmap["Name"], Year: rmap["Year"], Type: rmap["FileType"], Path: path}
+		// }()
 		self.Bus.MovieFound <- &message.Movie{Resolution: rmap["Resolution"], Name: rmap["Name"], Year: rmap["Year"], Type: rmap["FileType"], Path: path}
 
 		return nil
@@ -80,9 +89,20 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 func (self *Scanner) doScanMovies(reply chan string) {
 	log.Printf("inside ScanMovies")
 
-	reply <- "Movie scanning process started ..."
+	// reply <- "Movie scanning process started ..."
 
-	err := filepath.Walk("/Volumes/films", self.visit)
-	log.Println("err: %s", err)
+	err := filepath.Walk("/Volumes/hal-films", self.visit)
+	if err != nil {
+		log.Println("err: %s", err)
+	}
+
+	log.Printf("completed scanning hal for movies")
+
+	err = filepath.Walk("/Volumes/wopr-films", self.visit)
+	if err != nil {
+		log.Println("err: %s", err)
+	}
+
+	log.Printf("completed scanning wopr for movies")
 
 }
