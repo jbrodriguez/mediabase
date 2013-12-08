@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	// "io/ioutil"
+	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 func ReadForm(resp http.ResponseWriter, req *http.Request) bool {
@@ -62,4 +64,26 @@ func fvar(req *http.Request, name string) string {
 
 func qvar(req *http.Request, name string) string {
 	return req.FormValue(name)
+}
+
+func Download(url, dst string) {
+	out, err := os.Create(dst)
+	if err != nil {
+		log.Printf("Unable to create: %s", dst)
+		return
+	}
+	defer out.Close()
+
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Printf("Unable to download %s", url)
+		return
+	}
+	defer resp.Body.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		log.Printf("unable to save to %s", dst)
+		return
+	}
 }

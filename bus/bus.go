@@ -6,29 +6,37 @@ import (
 )
 
 type Bus struct {
-	ScanMovies   chan *message.ScanMovies
+	ScanMovies  chan *message.ScanMovies
+	ScrapeMovie chan *message.Movie
+
 	MovieFound   chan *message.Movie
+	MovieScraped chan *message.Movie
+
 	GetMovies    chan *message.GetMovies
 	SearchMovies chan *message.SearchMovies
-	StoreMovie   chan *message.Movie
-	CachePicture chan *message.Picture
-	UpdateMovie  chan *message.Picture
-	Log          chan string
+
+	StoreMovie chan *message.Movie
+	CacheMedia chan *message.Media
+	// UpdateMovie  chan *message.Picture
+	Log chan string
 }
 
 func (self *Bus) Start() {
 	log.Println("bus starting up ...")
 
 	self.ScanMovies = make(chan *message.ScanMovies)
+	self.ScrapeMovie = make(chan *message.Movie)
+
 	self.MovieFound = make(chan *message.Movie)
+	self.MovieScraped = make(chan *message.Movie)
 
 	self.GetMovies = make(chan *message.GetMovies)
 	self.SearchMovies = make(chan *message.SearchMovies)
 
 	self.StoreMovie = make(chan *message.Movie)
-	self.CachePicture = make(chan *message.Picture)
+	self.CacheMedia = make(chan *message.Media)
 
-	self.UpdateMovie = make(chan *message.Picture)
+	// self.UpdateMovie = make(chan *message.Picture)
 
 	self.Log = make(chan string)
 }

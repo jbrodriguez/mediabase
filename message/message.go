@@ -14,18 +14,25 @@ type SearchMovies struct {
 }
 
 type Movie struct {
-	Resolution string `json: resolution`
-	Name       string `json: name`
-	Year       string `json: year`
-	Type       string `json: type`
-	Path       string `json: path`
-	Picture    string `json: picture`
+	Title          string `json: title`
+	Original_Title string `json: `
+	Year           string `json: year`
+	Runtime        uint64 `json: runtime`
+	Tmdb_Id        uint64 `json: tmdb_id`
+	Imdb_Id        string `json: imdb_id`
+	Overview       string `json: overview`
+	Tagline        string `json: tagline`
+	Resolution     string `json: resolution`
+	FileType       string `json: filetype`
+	Location       string `json: location`
+	Cover          string `json: cover`
+	Backdrop       string `json: backdrop`
 }
 
-type Picture struct {
-	Path string `json: path`
-	Id   string `json: id`
-	Name string `json: name`
+type Media struct {
+	BaseUrl       string `json: path`
+	SecureBaseUrl string `json: id`
+	Movie         *Movie `json: movie`
 }
 
 // type UserAuth struct {

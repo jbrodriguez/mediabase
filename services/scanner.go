@@ -75,10 +75,7 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 		}
 
 		log.Printf("p: %s", path)
-		// go func() {
-		// 	self.Bus.MovieFound <- &message.Movie{Resolution: rmap["Resolution"], Name: rmap["Name"], Year: rmap["Year"], Type: rmap["FileType"], Path: path}
-		// }()
-		self.Bus.MovieFound <- &message.Movie{Resolution: rmap["Resolution"], Name: rmap["Name"], Year: rmap["Year"], Type: rmap["FileType"], Path: path}
+		self.Bus.MovieFound <- &message.Movie{Title: rmap["Name"], Year: rmap["Year"], Resolution: rmap["Resolution"], FileType: rmap["FileType"], Location: path}
 
 		return nil
 	}
@@ -104,5 +101,4 @@ func (self *Scanner) doScanMovies(reply chan string) {
 	}
 
 	log.Printf("completed scanning wopr for movies")
-
 }

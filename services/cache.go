@@ -33,40 +33,43 @@ func (self *Cache) Stop() {
 func (self *Cache) react() {
 	for {
 		select {
-		case msg := <-self.Bus.CachePicture:
-			go self.doCachePicture(msg)
+		case msg := <-self.Bus.CacheMedia:
+			self.doCacheMedia(msg)
 		}
 	}
 }
 
-func (self *Cache) doCachePicture(picture *message.Picture) {
-	picPath := filepath.Join(self.Config.AppDir, "/web/img/", picture.Id)
-	if _, err := os.Stat(picPath); err == nil {
+func (self *Cache) doCacheMedia(media *message.Media) {
+	coverPath := filepath.Join(self.Config.AppDir, "/web/img/p", media.Movie.Cover)
+	if _, err := os.Stat(coverPath); err == nil {
 		// log.Printf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		// self.Bus.Log <- fmt.Sprintf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
-		tracelog.INFO("mb", "cache", fmt.Sprintf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id))
+		tracelog.INFO("mb", "cache", fmt.Sprintf("SKIP: cover in cache for [%s]: %s", media.Movie.Title, media.Movie.Cover))
 
 		return
 	}
 
-	ext := filepath.Ext(picture.Path)
-	name := picture.Path[0:len(picture.Path)-len(ext)] + ".jpg"
+	// ext := filepath.Ext(picture.Path)
+	// name := picture.Path[0:len(picture.Path)-len(ext)] + ".jpg"
 
-	err := helper.Copy(name, picPath)
-	if err != nil {
-		// log.Printf("ERR: couldn't copy %s", name)
-		// self.Bus.Log <- fmt.Sprintf("couldn't copy %s", name)
-		tracelog.INFO("mb", "cache", fmt.Sprintf("for %s couldn't copy %s", picture.Name, name))
+	helper.Download(media.SecureBaseUrl+"original"+media.Movie.Cover, coverPath)
+	// if err != nil {
+	// 	// log.Printf("ERR: couldn't copy %s", name)
+	// 	// self.Bus.Log <- fmt.Sprintf("couldn't copy %s", name)
+	// 	tracelog.INFO("mb", "cache", fmt.Sprintf("for %s couldn't copy %s", picture.Name, name))
 
-		return
-	}
+	// 	return
+	// }
 
 	// log.Printf("INFO: for [%s] copied image to %s", picture.Name, picture.Id)
 	// self.Bus.Log <- fmt.Sprintf("INFO: for [%s] copied %s to %s", picture.Name, name, picture.Id)
-	tracelog.INFO("mb", "cache", fmt.Sprintf("INFO: for [%s] copied image to %s", picture.Name, picture.Id))
+	// tracelog.INFO("mb", "cache", fmt.Sprintf("INFO: for [%s] copied image to %s", picture.Name, picture.Id))
 
-	self.doResize(picPath, filepath.Join(self.Config.AppDir, "/web/img/", "t_"+picture.Id))
-	tracelog.INFO("mb", "cache", fmt.Sprintf("INFO: for [%s] created thumb to %s", filepath.Join(self.Config.AppDir, "/web/img/", "t_"+picture.Id)))
+	self.doResize(coverPath, filepath.Join(self.Config.AppDir, "/web/img/t", media.Movie.Cover))
+	// tracelog.INFO("mb", "cache", fmt.Sprintf("INFO: for [%s] created thumb to %s", filepath.Join(self.Config.AppDir, "/web/img/", "t_"+picture.Id)))
+
+	backdropPath := filepath.Join(self.Config.AppDir, "/web/img/b", media.Movie.Backdrop)
+	helper.Download(media.SecureBaseUrl+"original"+media.Movie.Backdrop, backdropPath)
 }
 
 func (self *Cache) doResize(src, dst string) {
