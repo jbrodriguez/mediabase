@@ -1,5 +1,6 @@
 body {
     color: #777;
+    background: #ddd;
 }
 
 a {
@@ -97,7 +98,7 @@ The content `<div>` is where all your content goes.
 #list {
     margin-left: -700px;
     width:700px;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid #c3c3c3;
 }
 
 /* HELPER CLASSES */
@@ -175,7 +176,7 @@ The content `<div>` is where all your content goes.
 /* Email Item Styles */
 .email-item {
     padding: 0.9em 1em;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #c3c3c3;
     border-left: 6px solid transparent;
 }
     .email-avatar {
@@ -185,10 +186,10 @@ The content `<div>` is where all your content goes.
     .email-name,
     .email-subject {
         margin: 0;
+        padding-bottom: 5px;
     }
     .email-name {
-        text-transform: uppercase;
-        color: #999;
+        color: #585555;
     }
     .email-desc {
         font-size: 80%;
@@ -229,6 +230,34 @@ The content `<div>` is where all your content goes.
             margin-bottom: 0.3em;
         }
 
+.pure-button-year,
+.pure-button-bluray,
+.pure-button-blurip,
+.pure-button-dvd,
+.pure-button-xvid {
+    color: white;
+    font-size: 70%;
+}
+
+.pure-button-year {
+    background: rgb(153, 155, 157);
+}
+
+.pure-button-bluray {
+    background: rgb(64, 90, 141);
+}
+
+.pure-button-blurip {
+    background: rgb(165, 78, 158);
+}
+
+.pure-button-dvd {
+    background: rgb(132, 167, 76);
+}
+
+.pure-button-xvid {
+    background: rgb(242, 111, 72);
+}
 
 @media (max-width: 867px) {
 

@@ -48,8 +48,9 @@ func (self *Dal) Start() {
 	}
 
 	// self.exists = self.prepare("select id from item where name = ?")
-	self.storeMovie = self.prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
-	self.searchMovies = self.prepare("select t.name, t.year, t.resolution, t.filetype, t.location, t.picture from movie t, moviename i where i.name match ? and t.id = i.docid")
+	self.storeMovie = self.prepare("insert or ignore into movie(name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
+	self.searchMovies = self.prepare("select dt.name, dt.year, dt.resolution, dt.filetype, dt.location, dt.picture from movie dt, moviename vt where vt.name match ? and dt.rowid = vt.docid order by dt.name")
+	// self.searchMovies = self.prepare("create virtual table oso using fts4(content='movie', name)")
 
 	// self.authenticate = self.prepare("select id, password from account where email = $1")
 	// self.getUserDataById = self.prepare("select name, email from account where id = $1")
@@ -179,7 +180,9 @@ func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
 
 	// term := "%" + msg.Term + "%"
 	// term := msg.Term + "%"
-	term := msg.Term
+	// term := "*" + msg.Term + "*"
+	// term := msg.Term + "* OR " + msg.Term
+	term := msg.Term + "*"
 	log.Printf("this is: %s", term)
 
 	rows, err := self.searchMovies.Query(term)

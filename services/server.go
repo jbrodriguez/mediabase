@@ -56,7 +56,7 @@ func (self *Server) getMovies(w http.ResponseWriter, req *http.Request) {
 	self.Bus.GetMovies <- &msg
 	reply := <-msg.Reply
 
-	log.Printf("response is: %s", reply)
+	// log.Printf("response is: %s", reply)
 
 	helper.WriteJson(w, 200, &reply)
 }
@@ -75,7 +75,7 @@ func (self *Server) searchMovies(w http.ResponseWriter, r *http.Request) {
 	self.Bus.SearchMovies <- &msg
 	reply := <-msg.Reply
 
-	log.Printf("response is: %s", reply)
+	// log.Printf("response is: %s", reply)
 
 	helper.WriteJson(w, 200, &reply)
 }

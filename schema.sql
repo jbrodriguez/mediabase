@@ -1,7 +1,8 @@
 DROP TABLE movie;
+DROP TABLE moviename;
+
 CREATE TABLE movie
 (
-  id integer primary key,
   name varchar(255),
   year integer,
   resolution varchar(255),

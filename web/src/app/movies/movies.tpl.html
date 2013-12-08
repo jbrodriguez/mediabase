@@ -14,10 +14,8 @@
                     <li><a href="#">Sent</a></li>
                     <li><a href="#">Drafts</a></li>
                     <li><a href="#">Trash</a></li>
-                    <li class="pure-menu-heading">Labels</li>
-                    <li><a href="#"><span class="email-label-personal"></span>Personal</a></li>
-                    <li><a href="#"><span class="email-label-work"></span>Work</a></li>
-                    <li><a href="#"><span class="email-label-travel"></span>Travel</a></li>
+                    <li class="pure-menu-heading">UTILITY</li>
+                    <li><a href="#/movies/scan"><span class="email-label-personal"></span>Scan</a></li>
                 </ul>
             </div>
         </div>
@@ -26,14 +24,14 @@
     <div class="pure-u-1" id="list">
         <div class="email-item pure-g" ng-repeat="item in items" ng-class="{'email-item-selected': $index == selectedIndex }" ng-click="itemClicked($index)">
             <div class="pure-u-1-8">
-                <img class="email-avatar" alt="{{item.Name}}" width="70" src="img/{{item.Picture}}">
+                <img class="email-avatar" alt="{{item.Name}}" width="70" src="img/t_{{item.Picture}}">
             </div>
 
             <div class="pure-u-7-8">
-                <h4 class="email-subject">{{item.Name}} ({{item.Year}})</h4>
-                <p class="email-desc">
-                    Hey, I just wanted to check in with you from Toronto. I got here earlier today. But we will try and overcome to see what the future brings for us
-                </p>
+                <h4 class="email-name">{{item.Name}}</h4>
+                <a class="pure-button pure-button-year">{{item.Year}}</a>
+                <a class="pure-button pure-button-{{item.Resolution}}">{{item.Resolution}}</a>
+                <p class="email-desc">{{item.Path}}
             </div>
         </div>
     </div>

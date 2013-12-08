@@ -6,6 +6,8 @@ import (
 	"apertoire.net/mediabase/message"
 	"fmt"
 	"github.com/goinggo/tracelog"
+	"github.com/nfnt/resize"
+	"image/jpeg"
 	"log"
 	"os"
 	"path/filepath"
@@ -62,4 +64,38 @@ func (self *Cache) doCachePicture(picture *message.Picture) {
 	// log.Printf("INFO: for [%s] copied image to %s", picture.Name, picture.Id)
 	// self.Bus.Log <- fmt.Sprintf("INFO: for [%s] copied %s to %s", picture.Name, name, picture.Id)
 	tracelog.INFO("mb", "cache", fmt.Sprintf("INFO: for [%s] copied image to %s", picture.Name, picture.Id))
+
+	self.doResize(picPath, filepath.Join(self.Config.AppDir, "/web/img/", "t_"+picture.Id))
+	tracelog.INFO("mb", "cache", fmt.Sprintf("INFO: for [%s] created thumb to %s", filepath.Join(self.Config.AppDir, "/web/img/", "t_"+picture.Id)))
+}
+
+func (self *Cache) doResize(src, dst string) {
+	// open "test.jpg"
+	file, err := os.Open(src)
+	if err != nil {
+		log.Printf("[%s] unable to open %s", err, src)
+		return
+	}
+
+	// decode jpeg into image.Image
+	img, err := jpeg.Decode(file)
+	if err != nil {
+		log.Printf("[%s] unable to decode %s", err, src)
+		return
+	}
+	file.Close()
+
+	// resize to width 1000 using Lanczos resampling
+	// and preserve aspect ratio
+	m := resize.Resize(80, 0, img, resize.Lanczos3)
+
+	out, err := os.Create(dst)
+	if err != nil {
+		log.Printf("[%s] unable to create %s", err, dst)
+		return
+	}
+	defer out.Close()
+
+	// write new image to file
+	jpeg.Encode(out, m, nil)
 }
