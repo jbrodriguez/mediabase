@@ -24,6 +24,8 @@ func (self *Logger) Start() {
 
 func (self *Logger) Stop() {
 	tracelog.Stop()
+
+	log.Printf("logger service stopped")
 }
 
 func (self *Logger) react() {

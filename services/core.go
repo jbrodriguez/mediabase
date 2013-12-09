@@ -28,6 +28,7 @@ func (self *Core) Start() {
 
 func (self *Core) Stop() {
 	// some deinitialization
+	log.Printf("core service stopped")
 }
 
 func (self *Core) react() {
@@ -42,7 +43,7 @@ func (self *Core) react() {
 }
 
 func (self *Core) doMovieFound(movie *message.Movie) {
-	log.Printf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
+	// log.Printf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
 	tracelog.INFO("mb", "core", fmt.Sprintf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location))
 	// calculate hex sha1 for the full movie path
 	// h := sha1.New()
@@ -64,6 +65,13 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 	// self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture, Title: movie.Title}
 }
 
-func (self *Core) doMovieScraped(movie *message.Movie) {
+func (self *Core) doMovieScraped(media *message.Media) {
+	go func() {
+		self.Bus.StoreMovie <- media.Movie
+	}()
 
+	go func() {
+		media.BasePath = self.Config.AppDir
+		self.Bus.CacheMedia <- media
+	}()
 }

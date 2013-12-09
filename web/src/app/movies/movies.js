@@ -20,6 +20,10 @@ angular.module( 'mediabase.movies', [
 		$scope.selectedIndex = $index;
 	}
 
+	$scope.scan = function() {
+		core.scanMovies()
+	}
+
 	$scope.$onRootScope('app.search', function(selfie, term) {
 		core.searchMovies(term)
 			.success(function(data, status, headers, config) {

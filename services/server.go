@@ -144,5 +144,6 @@ func (self *Server) Start() {
 }
 
 func (self *Server) Stop() {
+	log.Printf("server service stopped")
 	// nothing here
 }

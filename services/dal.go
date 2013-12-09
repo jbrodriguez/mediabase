@@ -5,6 +5,7 @@ import (
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
 	"database/sql"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"path/filepath"
@@ -15,6 +16,7 @@ type Dal struct {
 	Config *helper.Config
 	db     *sql.DB
 	err    error
+	cnt    int
 
 	storeMovie   *sql.Stmt
 	searchMovies *sql.Stmt
@@ -42,14 +44,17 @@ func (self *Dal) prepare(sql string) *sql.Stmt {
 func (self *Dal) Start() {
 	log.Printf("starting dal service ...")
 
-	self.db, self.err = sql.Open("sqlite3", filepath.Join(self.Config.AppDir, "/db/mediabase.db"))
+	dbase := fmt.Sprintf("file:%s?cache=shared&mode=rwc", filepath.Join(self.Config.AppDir, "/db/mediabase.db"))
+	self.db, self.err = sql.Open("sqlite3", dbase)
 	if self.err != nil {
 		log.Fatal(self.err)
 	}
 
+	self.cnt = 0
+
 	// self.exists = self.prepare("select id from item where name = ?")
 	self.storeMovie = self.prepare("insert or ignore into movie(title, year, resolution, filetype, location) values (?, ?, ?, ?, ?)")
-	self.searchMovies = self.prepare("select dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt_imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, moviefts vt where vt.moviefts match ? and dt.rowid = vt.docid order by dt.title")
+	self.searchMovies = self.prepare("select dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, moviefts vt where vt.moviefts match ? and dt.rowid = vt.docid order by dt.title")
 	// self.searchMovies = self.prepare("create virtual table oso using fts4(content='movie', name)")
 
 	// self.authenticate = self.prepare("select id, password from account where email = $1")
@@ -75,6 +80,8 @@ func (self *Dal) Stop() {
 	self.searchMovies.Close()
 	self.storeMovie.Close()
 	self.db.Close()
+
+	log.Printf("dal service stopped")
 }
 
 func (self *Dal) react() {
@@ -100,28 +107,35 @@ func (self *Dal) react() {
 // }
 
 func (self *Dal) doStoreMovie(movie *message.Movie) {
+	self.cnt++
+
+	log.Printf("++++++++++++++++++++++++++++++++++++  MARRANOO = %d", self.cnt)
+
 	tx, err := self.db.Begin()
 	if err != nil {
 		log.Fatalf("at begin: %s", err)
 	}
 
-	// stmt, err := tx.Prepare("insert or ignore into movie (name, year, resolution, filetype, location, picture) values (?, ?, ?, ?, ?, ?)")
-	// if err != nil {
-	// 	log.Fatalf("at prepare: %s", err)
-	// }
-	// defer stmt.Close()
+	stmt, err := tx.Prepare("insert or ignore into movie(title, original_title, year, resolution, filetype, location) values (?, ?, ?, ?, ?, ?)")
+	if err != nil {
+		log.Fatalf("at prepare: %s", err)
+	}
+	defer stmt.Close()
 
-	// _, err = stmt.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-	// if err != nil {
-	// 	log.Fatalf("at exec: %s", err)
-	// }
-
-	_, self.err = self.storeMovie.Exec(movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
-	if self.err != nil {
-		log.Fatalf("at storemovie: %s", self.err)
+	_, err = stmt.Exec(movie.Title, movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
+	if err != nil {
+		log.Fatalf("at exec: %s", err)
 	}
 
+	log.Printf("Movie is %v", movie)
+
+	// _, self.err = self.storeMovie.Exec(movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
+	// if self.err != nil {
+	// 	log.Fatalf("at storemovie: %s", self.err)
+	// }
+
 	tx.Commit()
+	log.Printf("++++++++++++++++++++++++++++++++++++  RENACUAJOOOOOO = %d", self.cnt)
 
 	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
 	// if self.err != nil {

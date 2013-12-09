@@ -46,6 +46,7 @@ func (self *Scanner) Start() {
 
 func (self *Scanner) Stop() {
 	// nothing right now
+	log.Printf("scanner service stopped")
 }
 
 func (self *Scanner) react() {

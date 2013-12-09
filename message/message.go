@@ -30,9 +30,10 @@ type Movie struct {
 }
 
 type Media struct {
-	BaseUrl       string `json: path`
-	SecureBaseUrl string `json: id`
-	Movie         *Movie `json: movie`
+	BaseUrl       string
+	SecureBaseUrl string
+	BasePath      string
+	Movie         *Movie
 }
 
 // type UserAuth struct {

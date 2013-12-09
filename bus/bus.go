@@ -10,7 +10,7 @@ type Bus struct {
 	ScrapeMovie chan *message.Movie
 
 	MovieFound   chan *message.Movie
-	MovieScraped chan *message.Movie
+	MovieScraped chan *message.Media
 
 	GetMovies    chan *message.GetMovies
 	SearchMovies chan *message.SearchMovies
@@ -28,7 +28,7 @@ func (self *Bus) Start() {
 	self.ScrapeMovie = make(chan *message.Movie)
 
 	self.MovieFound = make(chan *message.Movie)
-	self.MovieScraped = make(chan *message.Movie)
+	self.MovieScraped = make(chan *message.Media)
 
 	self.GetMovies = make(chan *message.GetMovies)
 	self.SearchMovies = make(chan *message.SearchMovies)
