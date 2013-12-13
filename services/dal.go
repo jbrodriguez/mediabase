@@ -161,13 +161,13 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 		log.Fatalf("at begin: %s", err)
 	}
 
-	stmt, err := tx.Prepare("insert or ignore into movie(title, original_title, year, resolution, filetype, location) values (?, ?, ?, ?, ?, ?)")
+	stmt, err := tx.Prepare("insert or ignore into movie(title, original_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		log.Fatalf("at prepare: %s", err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(movie.Title, movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
+	_, err = stmt.Exec(movie.Title, movie.Original_Title, movie.Year, movie.Runtime, movie.Tmdb_id, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Resolution, movie.FileType, movie.Location, movie.Cover, movie.Backdrop)
 	if err != nil {
 		log.Fatalf("at exec: %s", err)
 	}
