@@ -5,6 +5,7 @@ import (
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
 	"github.com/apertoire/go-tmdb"
+	"github.com/goinggo/tracelog"
 	"log"
 )
 
@@ -47,16 +48,22 @@ func (self *Scraper) react() {
 }
 
 func (self *Scraper) requestWork(movie *message.Movie) {
+	tracelog.INFO("mb", "scraper", "work requested: %s", movie.Title)
+
 	c := make(chan *message.Media)
 
 	self.workpool.Work <- helper.Request{self.scrapeMovie, &message.Media{"", "", "", movie}, c}
+
+	tracelog.INFO("mb", "scraper", "waiting for work reply: %s", movie.Title)
+
 	media := <-c
 
+	tracelog.INFO("mb", "scraper", "about to send movie scraped event: %s %s", media.Movie.Title, media.Movie.Backdrop)
 	self.Bus.MovieScraped <- media
 }
 
 func (self *Scraper) scrapeMovie(media *message.Media) *message.Media {
-	log.Printf("before searchmovie %s", media.Movie.Title)
+	tracelog.INFO("mb", "scraper", "before searchmovie %s", media.Movie.Title)
 	res, err := self.tmdb.SearchMovie(media.Movie.Title)
 	if err != nil {
 		log.Println(err)
@@ -69,7 +76,8 @@ func (self *Scraper) scrapeMovie(media *message.Media) *message.Media {
 
 	id := res.Results[0].Id
 
-	log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
+	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
+	tracelog.INFO("mb", "scraper", "before gethmovie %s", media.Movie.Title)
 	gmr, err := self.tmdb.GetMovie(id)
 	if err != nil {
 		log.Println(err)
@@ -88,6 +96,7 @@ func (self *Scraper) scrapeMovie(media *message.Media) *message.Media {
 	media.BaseUrl = self.tmdb.BaseUrl
 	media.SecureBaseUrl = self.tmdb.SecureBaseUrl
 
+	tracelog.INFO("mb", "scraper", "before finalizing %s", media.Movie.Title)
 	return media
 	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}
 }

@@ -4,11 +4,12 @@ import (
 	"apertoire.net/mediabase/message"
 	"container/heap"
 	"fmt"
+	"github.com/goinggo/tracelog"
 )
 
 type Workpool struct {
-	pool Pool
-	done chan *Worker
+	Pool Pool
+	Done chan *Worker
 
 	Work chan Request
 }
@@ -18,7 +19,7 @@ func NewWorkpool(workers int, depth int) *Workpool {
 	done := make(chan *Worker)
 
 	for i := 0; i < workers; i++ {
-		pool[i] = &Worker{make(chan Request, depth), 0, 0}
+		pool[i] = &Worker{make(chan Request, depth), 0, 0, i}
 		go pool[i].work(done)
 	}
 
@@ -36,35 +37,41 @@ func (wp *Workpool) Balance() {
 		select {
 		case req := <-wp.Work:
 			wp.dispatch(req)
-		case w := <-wp.done:
+		case w := <-wp.Done:
 			wp.completed(w)
 		}
 	}
 }
 
 func (wp *Workpool) dispatch(req Request) {
-	fmt.Printf("dispatch request->%v\n", req)
+	// fmt.Printf("dispatch request->%v\n", req)
+	tracelog.INFO("mb", "workpool", "inside dispatch for %s", req.Arg.Movie.Title)
 	// Grab the least loaded worker...
-	w := heap.Pop(&wp.pool).(*Worker)
+	w := heap.Pop(&wp.Pool).(*Worker)
 	// ...send it the task.
+
+	tracelog.INFO("mb", "workpool", "[%d] dispatched for %s", w.id, req.Arg.Movie.Title)
 	w.requests <- req
 	// One more in its work queue.
 	w.pending++
 	// Put it into its place on the heap.
-	heap.Push(&wp.pool, w)
-	fmt.Printf("end dispatch request->%v\n", req)
+	heap.Push(&wp.Pool, w)
+	tracelog.INFO("mb", "workpool", "[%d] completed dispatch for %s", w.id, req.Arg.Movie.Title)
+	// fmt.Printf("end dispatch request->%v\n", req)
 }
 
 func (wp *Workpool) completed(w *Worker) {
-	fmt.Printf("completed worker->%s\n", w)
+	// fmt.Printf("[%d] completed worker->%s\n", w)
+	tracelog.INFO("mb", "workpool", "[%d] completed worker", w.id)
 	// One fewer in the queue.
 	w.pending--
 	// Remove it from heap.
-	fmt.Printf("pool length is %d\n", len(wp.pool))
-	heap.Remove(&wp.pool, w.index)
+	fmt.Printf("pool length is %d\n", len(wp.Pool))
+	heap.Remove(&wp.Pool, w.index)
 	// Put it into its place on the heap.
-	heap.Push(&wp.pool, w)
-	fmt.Printf("done completed worker->%s\n", w)
+	heap.Push(&wp.Pool, w)
+	// fmt.Printf("done completed worker->%s\n", w)
+	tracelog.INFO("mb", "workpool", "[%d] done completed worker", w.id)
 }
 
 type Request struct {
@@ -77,13 +84,26 @@ type Worker struct {
 	requests chan Request
 	pending  int
 	index    int
+	id       int
 }
 
 func (w *Worker) work(done chan *Worker) {
 	for {
 		req := <-w.requests
-		req.Ch <- req.Fn(req.Arg)
+
+		tracelog.INFO("mb", "workpool", "[%d] after getting work from the channel for %s", w.id, req.Arg.Movie.Title)
+
+		msg := req.Fn(req.Arg)
+
+		tracelog.INFO("mb", "workpool", "[%d] finished function for %s (runtime: %d | poster: %s)", w.id, req.Arg.Movie.Title, req.Arg.Movie.Runtime, req.Arg.Movie.Cover)
+
+		req.Ch <- msg
+
+		tracelog.INFO("mb", "workpool", "[%d] sent results to repley channel for %s (runtime: %d | poster: %s)", w.id, req.Arg.Movie.Title, req.Arg.Movie.Runtime, req.Arg.Movie.Cover)
+
 		done <- w
+
+		tracelog.INFO("mb", "workpool", "[%d] after done is sent for %s (runtime: %d | poster: %s)", w.id, req.Arg.Movie.Title, req.Arg.Movie.Runtime, req.Arg.Movie.Cover)
 	}
 }
 
