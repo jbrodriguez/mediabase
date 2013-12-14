@@ -13,9 +13,14 @@ type SearchMovies struct {
 	Reply chan []*Movie
 }
 
+type CheckMovie struct {
+	Movie  *Movie
+	Result chan bool
+}
+
 type Movie struct {
 	Title          string `json: title`
-	Original_Title string `json: `
+	Original_Title string `json: original_title`
 	Year           string `json: year`
 	Runtime        uint64 `json: runtime`
 	Tmdb_Id        uint64 `json: tmdb_id`

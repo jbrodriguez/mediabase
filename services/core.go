@@ -58,6 +58,15 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 	// 	self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture}
 	// }()
 
+	c := make(chan bool)
+
+	self.Bus.CheckMovie <- &message.CheckMovie{movie, c}
+	exists := <-c
+
+	if exists {
+		return
+	}
+
 	self.Bus.ScrapeMovie <- movie
 
 	// self.Bus.StoreMovie <- movie
