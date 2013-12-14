@@ -4,65 +4,12 @@ import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
+	"fmt"
 	"github.com/apertoire/go-tmdb"
 	"github.com/goinggo/tracelog"
 	"github.com/goinggo/workpool"
 	"log"
 )
-
-type Gig struct {
-	bus   *bus.Bus
-	tmdb  *tmdb.Tmdb
-	media *message.Media
-	ret   chan *message.Media
-}
-
-func (self *Gig) DoWork(workRoutine int) {
-	var result *message.Media
-
-	defer func() {
-		self.ret <- result
-	}()
-
-	result = self.media
-
-	tracelog.INFO("mb", "scraper", "before searchmovie %s", self.media.Movie.Title)
-	res, err := self.tmdb.SearchMovie(self.media.Movie.Title)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	if res.Total_Results != 1 {
-		log.Println("more than one")
-	}
-
-	id := res.Results[0].Id
-
-	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
-	tracelog.INFO("mb", "scraper", "before gethmovie %s", self.media.Movie.Title)
-	gmr, err := self.tmdb.GetMovie(id)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	self.media.Movie.Original_Title = gmr.Original_Title
-	self.media.Movie.Runtime = gmr.Runtime
-	self.media.Movie.Tmdb_Id = gmr.Id
-	self.media.Movie.Imdb_Id = gmr.Imdb_Id
-	self.media.Movie.Overview = gmr.Overview
-	self.media.Movie.Tagline = gmr.Tagline
-	self.media.Movie.Cover = gmr.Poster_Path
-	self.media.Movie.Backdrop = gmr.Backdrop_Path
-
-	self.media.BaseUrl = self.tmdb.BaseUrl
-	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
-
-	tracelog.INFO("mb", "scraper", "before finalizing %s", self.media.Movie.Title)
-	// return media
-	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}
-}
 
 type Scraper struct {
 	Bus      *bus.Bus
@@ -105,7 +52,7 @@ func (self *Scraper) react() {
 }
 
 func (self *Scraper) requestWork(movie *message.Movie) {
-	tracelog.INFO("mb", "scraper", "work requested: %s", movie.Title)
+	tracelog.TRACE("mb", "scraper", "WORK REQUESTED [%s]", movie.Title)
 
 	c := make(chan *message.Media)
 
@@ -118,12 +65,70 @@ func (self *Scraper) requestWork(movie *message.Movie) {
 
 	self.workpool.PostWork("gig", gig)
 
-	tracelog.INFO("mb", "scraper", "waiting for work reply: %s", movie.Title)
-
+	// tracelog.TRACE("mb", "scraper", "[%s] RUNNING SCRAPING [%s]", movie.Title)
 	media := <-c
 
-	tracelog.INFO("mb", "scraper", "about to send movie scraped event: %s %s", media.Movie.Title, media.Movie.Backdrop)
+	// tracelog.TRACE("mb", "scraper", "[%s] FINISHED SCRAPING", media.Movie.Title)
 	self.Bus.MovieScraped <- media
+
+	tracelog.TRACE("mb", "scraper", "WORK COMPLETED [%s]", movie.Title)
+}
+
+type Gig struct {
+	bus   *bus.Bus
+	tmdb  *tmdb.Tmdb
+	media *message.Media
+	ret   chan *message.Media
+}
+
+func (self *Gig) DoWork(workRoutine int) {
+	var result *message.Media
+
+	defer func() {
+		self.ret <- result
+	}()
+
+	result = self.media
+
+	tracelog.TRACE("mb", "scraper", "STARTED SCRAPING [%s]", self.media.Movie.Title)
+	res, err := self.tmdb.SearchMovie(self.media.Movie.Title)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if res.Total_Results == 0 {
+		tracelog.TRACE("mb", "scraper", fmt.Sprintf("TMDB: NO MATCH FOUND [%s]", self.media.Movie.Title))
+		return
+	} else if res.Total_Results > 1 {
+		tracelog.TRACE("mb", "scraper", fmt.Sprintf("TMDB: MORE THAN ONE [%s]", self.media.Movie.Title))
+	}
+
+	id := res.Results[0].Id
+
+	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
+	// tracelog.TRACE("mb", "scraper", "[%s] before getmovie [%s]", self.media.Movie.Title)
+	gmr, err := self.tmdb.GetMovie(id)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	self.media.Movie.Original_Title = gmr.Original_Title
+	self.media.Movie.Runtime = gmr.Runtime
+	self.media.Movie.Tmdb_Id = gmr.Id
+	self.media.Movie.Imdb_Id = gmr.Imdb_Id
+	self.media.Movie.Overview = gmr.Overview
+	self.media.Movie.Tagline = gmr.Tagline
+	self.media.Movie.Cover = gmr.Poster_Path
+	self.media.Movie.Backdrop = gmr.Backdrop_Path
+
+	self.media.BaseUrl = self.tmdb.BaseUrl
+	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
+
+	tracelog.TRACE("mb", "scraper", "FINISHED SCRAPING [%s]", self.media.Movie.Title)
+	// return media
+	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}
 }
 
 // func (self *Scraper) scrapeMovie(media *message.Media) *message.Media {

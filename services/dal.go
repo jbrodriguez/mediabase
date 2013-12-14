@@ -5,6 +5,7 @@ import (
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
 	"database/sql"
+	"github.com/goinggo/tracelog"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"path/filepath"
@@ -95,6 +96,8 @@ func (self *Dal) react() {
 			go self.doGetMovies(msg)
 		case msg := <-self.Bus.SearchMovies:
 			go self.doSearchMovies(msg)
+		case msg := <-self.Bus.CheckMovie:
+			go self.doCheckMovie(msg)
 		}
 	}
 }
@@ -151,10 +154,41 @@ func (self *Dal) react() {
 // 	// }
 // }
 
+func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatalf("at begin: %s", err)
+	}
+
+	stmt, err := tx.Prepare("select rowid from movie where location = ?")
+	if err != nil {
+		tx.Rollback()
+		log.Fatalf("at prepare: %s", err)
+	}
+	defer stmt.Close()
+
+	var id int
+	err = stmt.QueryRow(msg.Movie.Location).Scan(&id)
+
+	// if err == sql.ErrNoRows {
+	// 	log.Fatalf("id = %d, err = %d", id, err)
+	// }
+
+	// log.Fatal("gone and done")
+	if err != sql.ErrNoRows {
+		tx.Rollback()
+		log.Fatalf("at queryrow: %s", err)
+	}
+
+	tx.Commit()
+
+	msg.Result <- (id != 0)
+}
+
 func (self *Dal) doStoreMovie(movie *message.Movie) {
 	self.cnt++
 
-	log.Printf("++++++++++++++++++++++++++++++++++++  MARRANOO = %d", self.cnt)
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("STARTED SAVING %s [%d]", movie.Title, self.cnt))
 
 	tx, err := self.db.Begin()
 	if err != nil {
@@ -163,16 +197,18 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 
 	stmt, err := tx.Prepare("insert or ignore into movie(title, original_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
+		tx.Rollback()
 		log.Fatalf("at prepare: %s", err)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(movie.Title, movie.Original_Title, movie.Year, movie.Runtime, movie.Tmdb_Id, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Resolution, movie.FileType, movie.Location, movie.Cover, movie.Backdrop)
 	if err != nil {
+		tx.Rollback()
 		log.Fatalf("at exec: %s", err)
 	}
 
-	log.Printf("Movie is %v", movie)
+	// log.Printf("Movie is %v", movie)
 
 	// _, self.err = self.storeMovie.Exec(movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
 	// if self.err != nil {
@@ -180,7 +216,7 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 	// }
 
 	tx.Commit()
-	log.Printf("++++++++++++++++++++++++++++++++++++  RENACUAJOOOOOO = %d", self.cnt)
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("FINISHED SAVING %s [%d]", movie.Title, self.cnt))
 
 	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
 	// if self.err != nil {

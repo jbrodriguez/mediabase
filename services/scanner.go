@@ -4,6 +4,8 @@ import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
+	"fmt"
+	"github.com/goinggo/tracelog"
 	"log"
 	"os"
 	"path/filepath"
@@ -75,8 +77,10 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 			continue
 		}
 
-		log.Printf("p: %s", path)
-		self.Bus.MovieFound <- &message.Movie{Title: rmap["Name"], Year: rmap["Year"], Resolution: rmap["Resolution"], FileType: rmap["FileType"], Location: path}
+		movie := &message.Movie{Title: rmap["Name"], Year: rmap["Year"], Resolution: rmap["Resolution"], FileType: rmap["FileType"], Location: path}
+		tracelog.TRACE("mb", "scanner", fmt.Sprintf("FOUND [%s] (%s))", movie.Title, movie.Location))
+
+		self.Bus.MovieFound <- movie
 
 		return nil
 	}

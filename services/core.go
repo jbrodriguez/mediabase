@@ -44,7 +44,7 @@ func (self *Core) react() {
 
 func (self *Core) doMovieFound(movie *message.Movie) {
 	// log.Printf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
-	tracelog.INFO("mb", "core", fmt.Sprintf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location))
+	// tracelog.INFO("mb", "core", fmt.Sprintf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location))
 	// calculate hex sha1 for the full movie path
 	// h := sha1.New()
 	// h.Write([]byte(fmt.Sprintf("%s|%s", movie.Title, movie.Year)))
@@ -64,6 +64,7 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 	exists := <-c
 
 	if exists {
+		tracelog.TRACE("mb", "core", fmt.Sprintf("SKIPPED: present in db [%s] (%s)", movie.Title, movie.Location))
 		return
 	}
 
@@ -76,10 +77,12 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 
 func (self *Core) doMovieScraped(media *message.Media) {
 	go func() {
+		tracelog.TRACE("mb", "core", fmt.Sprintf("STORING MOVIE [%s]", media.Movie.Title))
 		self.Bus.StoreMovie <- media.Movie
 	}()
 
 	go func() {
+		tracelog.TRACE("mb", "core", fmt.Sprintf("CACHING MEDIA [%s]", media.Movie.Title))
 		media.BasePath = self.Config.AppDir
 		self.Bus.CacheMedia <- media
 	}()
