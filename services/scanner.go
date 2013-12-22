@@ -10,14 +10,15 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	// "strings"
+	"strings"
 )
 
 type Scanner struct {
 	Bus    *bus.Bus
 	Config *helper.Config
 
-	re [3]*helper.Rexp
+	re           [3]*helper.Rexp
+	includedMask string
 }
 
 func (self *Scanner) Start() {
@@ -38,8 +39,10 @@ func (self *Scanner) Start() {
 	// break
 
 	self.re[0] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*bdmv/index.(?P<FileType>bdmv)$`)}
-	self.re[1] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*.*\.(?P<FileType>iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms)$`)}
+	self.re[1] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*.*\.(?P<FileType>iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms|mdf|wmv)$`)}
 	self.re[2] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*(?:video_ts|hv000i01)\.(?P<FileType>ifo)$`)}
+
+	self.includedMask = ".bdmv|.iso|.img|.nrg|.mkv|.avi|.xvid|.ts|.mpg|.dvr-ms|.mdf|.wmv|.ifo"
 
 	go self.react()
 
@@ -67,6 +70,11 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 
 	// log.Printf("maldito: %s", path)
 
+	if !strings.Contains(self.includedMask, strings.ToLower(filepath.Ext(path))) {
+		// log.Printf("[%s] excluding %s", filepath.Ext(path), path)
+		return nil
+	}
+
 	for i := 0; i < 3; i++ {
 		// match := self.re[i].FindStringSubmatch(strings.ToLower(path))
 		// if match == nil {
@@ -77,7 +85,7 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 			continue
 		}
 
-		movie := &message.Movie{Title: rmap["Name"], Year: rmap["Year"], Resolution: rmap["Resolution"], FileType: rmap["FileType"], Location: path}
+		movie := &message.Movie{Title: rmap["Name"], File_Title: rmap["Name"], Year: rmap["Year"], Resolution: rmap["Resolution"], FileType: rmap["FileType"], Location: path}
 		tracelog.TRACE("mb", "scanner", fmt.Sprintf("FOUND [%s] (%s))", movie.Title, movie.Location))
 
 		self.Bus.MovieFound <- movie

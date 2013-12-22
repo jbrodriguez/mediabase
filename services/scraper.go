@@ -9,6 +9,7 @@ import (
 	"github.com/goinggo/tracelog"
 	"github.com/goinggo/workpool"
 	"log"
+	"time"
 )
 
 type Scraper struct {
@@ -110,10 +111,11 @@ func (self *Gig) DoWork(workRoutine int) {
 	// tracelog.TRACE("mb", "scraper", "[%s] before getmovie [%s]", self.media.Movie.Title)
 	gmr, err := self.tmdb.GetMovie(id)
 	if err != nil {
-		log.Println(err)
+		tracelog.TRACE("mb", "scraper", fmt.Sprintf("FAILED GETTING MOVIE [%s]", self.media.Movie.Title))
 		return
 	}
 
+	self.media.Movie.Title = gmr.Title
 	self.media.Movie.Original_Title = gmr.Original_Title
 	self.media.Movie.Runtime = gmr.Runtime
 	self.media.Movie.Tmdb_Id = gmr.Id
@@ -122,6 +124,31 @@ func (self *Gig) DoWork(workRoutine int) {
 	self.media.Movie.Tagline = gmr.Tagline
 	self.media.Movie.Cover = gmr.Poster_Path
 	self.media.Movie.Backdrop = gmr.Backdrop_Path
+
+	for i := 0; i < len(gmr.Genres); i++ {
+		attr := &gmr.Genres[i]
+		if self.media.Movie.Genres == "" {
+			self.media.Movie.Genres = attr.Name
+		} else {
+			self.media.Movie.Genres += "|" + attr.Name
+		}
+	}
+
+	self.media.Movie.Vote_Average = gmr.Vote_Average
+	self.media.Movie.Vote_Count = gmr.Vote_Count
+
+	for i := 0; i < len(gmr.Production_Countries); i++ {
+		attr := &gmr.Production_Countries[i]
+		if self.media.Movie.Production_Countries == "" {
+			self.media.Movie.Production_Countries = attr.Name
+		} else {
+			self.media.Movie.Production_Countries += "|" + attr.Name
+		}
+	}
+
+	now := time.Now().Format(time.RFC3339)
+	self.media.Movie.Added = now
+	self.media.Movie.Modified = now
 
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
