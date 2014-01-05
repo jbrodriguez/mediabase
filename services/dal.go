@@ -57,6 +57,7 @@ func (self *Dal) Start() {
 	// self.exists = self.prepare("select id from item where name = ?")
 
 	self.storeMovie = self.prepare("insert or ignore into movie(title, year, resolution, filetype, location) values (?, ?, ?, ?, ?)")
+	// self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title")
 	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, moviefts vt where vt.moviefts match ? and dt.rowid = vt.docid order by dt.title")
 
 	// self.searchMovies = self.prepare("create virtual table oso using fts4(content='movie', name)")

@@ -130,7 +130,7 @@ func (self *Gig) DoWork(workRoutine int) {
 		if self.media.Movie.Genres == "" {
 			self.media.Movie.Genres = attr.Name
 		} else {
-			self.media.Movie.Genres += "|" + attr.Name
+			self.media.Movie.Genres += " " + attr.Name
 		}
 	}
 
