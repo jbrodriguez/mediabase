@@ -15,7 +15,7 @@
                     <li><a href="#">Drafts</a></li>
                     <li><a href="#">Trash</a></li>
                     <li class="pure-menu-heading">UTILITY</li>
-                    <li><a href="#/movies/scan"><span class="email-label-personal"></span>Scan</a></li>
+                    <li><a href="#" ng-click="scan()"><span class="email-label-personal"></span>Scan</a></li>
                 </ul>
             </div>
         </div>
@@ -24,14 +24,15 @@
     <div class="pure-u-1" id="list">
         <div class="email-item pure-g" ng-repeat="item in items" ng-class="{'email-item-selected': $index == selectedIndex }" ng-click="itemClicked($index)">
             <div class="pure-u-1-8">
-                <img class="email-avatar" alt="{{item.Name}}" width="70" src="img/t_{{item.Picture}}">
+                <img class="email-avatar" alt="{{item.Title}}" width="70" src="img/t/{{item.Cover}}" />
             </div>
 
             <div class="pure-u-7-8">
-                <h4 class="email-name">{{item.Name}}</h4>
+                <h4 class="email-name">{{item.Title}}</h4>
                 <a class="pure-button pure-button-year">{{item.Year}}</a>
+                <a class="pure-button pure-button-year">{{item.Runtime}} min</a>
                 <a class="pure-button pure-button-{{item.Resolution}}">{{item.Resolution}}</a>
-                <p class="email-desc">{{item.Path}}
+                <p class="email-desc">{{item.Location}}
             </div>
         </div>
     </div>

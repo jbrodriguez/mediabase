@@ -4,8 +4,8 @@ import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
-	"crypto/sha1"
-	"encoding/hex"
+	// // "crypto/sha1"
+	// // "encoding/hex"
 	"fmt"
 	"github.com/goinggo/tracelog"
 	"log"
@@ -28,6 +28,7 @@ func (self *Core) Start() {
 
 func (self *Core) Stop() {
 	// some deinitialization
+	log.Printf("core service stopped")
 }
 
 func (self *Core) react() {
@@ -35,17 +36,19 @@ func (self *Core) react() {
 		select {
 		case msg := <-self.Bus.MovieFound:
 			go self.doMovieFound(msg)
+		case msg := <-self.Bus.MovieScraped:
+			go self.doMovieScraped(msg)
 		}
 	}
 }
 
 func (self *Core) doMovieFound(movie *message.Movie) {
-	log.Printf("found: %s (%s) [%s, %s, %s]", movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path)
-	tracelog.INFO("mb", "core", fmt.Sprintf("found: %s (%s) [%s, %s, %s]", movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path))
+	// log.Printf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
+	// tracelog.INFO("mb", "core", fmt.Sprintf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location))
 	// calculate hex sha1 for the full movie path
-	h := sha1.New()
-	h.Write([]byte(fmt.Sprintf("%s|%s", movie.Name, movie.Year)))
-	movie.Picture = hex.EncodeToString(h.Sum(nil)) + ".jpg"
+	// h := sha1.New()
+	// h.Write([]byte(fmt.Sprintf("%s|%s", movie.Title, movie.Year)))
+	// movie.Picture = hex.EncodeToString(h.Sum(nil)) + ".jpg"
 
 	// go func() {
 	// 	self.Bus.StoreMovie <- movie
@@ -55,7 +58,32 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 	// 	self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture}
 	// }()
 
-	self.Bus.StoreMovie <- movie
+	c := make(chan bool)
 
-	self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture, Name: movie.Name}
+	self.Bus.CheckMovie <- &message.CheckMovie{movie, c}
+	exists := <-c
+
+	if exists {
+		tracelog.TRACE("mb", "core", fmt.Sprintf("SKIPPED: present in db [%s] (%s)", movie.Title, movie.Location))
+		return
+	}
+
+	self.Bus.ScrapeMovie <- movie
+
+	// self.Bus.StoreMovie <- movie
+
+	// self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture, Title: movie.Title}
+}
+
+func (self *Core) doMovieScraped(media *message.Media) {
+	go func() {
+		tracelog.TRACE("mb", "core", fmt.Sprintf("STORING MOVIE [%s]", media.Movie.Title))
+		self.Bus.StoreMovie <- media.Movie
+	}()
+
+	go func() {
+		tracelog.TRACE("mb", "core", fmt.Sprintf("CACHING MEDIA [%s]", media.Movie.Title))
+		media.BasePath = self.Config.AppDir
+		self.Bus.CacheMedia <- media
+	}()
 }

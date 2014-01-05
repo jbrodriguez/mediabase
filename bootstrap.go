@@ -16,18 +16,20 @@ func main() {
 
 	bus := bus.Bus{}
 	logger := services.Logger{Bus: &bus, Config: &config}
-	server := services.Server{Bus: &bus, Config: &config}
 	dal := services.Dal{Bus: &bus, Config: &config}
-	cache := services.Cache{Bus: &bus, Config: &config}
+	server := services.Server{Bus: &bus, Config: &config}
 	scanner := services.Scanner{Bus: &bus}
+	scraper := services.Scraper{Bus: &bus, Config: &config}
+	cache := services.Cache{Bus: &bus, Config: &config}
 	core := services.Core{Bus: &bus, Config: &config}
 
 	bus.Start()
 	logger.Start()
 	dal.Start()
 	server.Start()
-	cache.Start()
 	scanner.Start()
+	scraper.Start()
+	cache.Start()
 	core.Start()
 
 	log.Printf("press enter to stop ...")
@@ -35,8 +37,9 @@ func main() {
 	fmt.Scanln(&input)
 
 	core.Stop()
-	scanner.Stop()
 	cache.Stop()
+	scraper.Stop()
+	scanner.Stop()
 	server.Stop()
 	dal.Stop()
 	logger.Stop()
