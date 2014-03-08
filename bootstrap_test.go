@@ -3,7 +3,7 @@ package main
 import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
-	"apertoire.net/mediabase/message"
+	// "apertoire.net/mediabase/message"
 	"apertoire.net/mediabase/services"
 	"fmt"
 	"log"
@@ -66,8 +66,8 @@ func TestDb(t *testing.T) {
 	logger.Start()
 	dal.Start()
 
-	bus.StoreMovie <- &message.Movie{Title: "september morning"}
-	bus.StoreMovie <- &message.Movie{Title: "remember how we danced"}
+	// bus.StoreMovie <- &message.Movie{Title: "september morning"}
+	// bus.StoreMovie <- &message.Movie{Title: "remember how we danced"}
 	// bus.StoreMovie <- &message.Movie{Title: "something happened"}
 	// bus.StoreMovie <- &message.Movie{Title: "what can you do"}
 	// bus.StoreMovie <- &message.Movie{Title: "stella"}
