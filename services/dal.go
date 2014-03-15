@@ -22,6 +22,7 @@ type Dal struct {
 
 	storeMovie   *sql.Stmt
 	searchMovies *sql.Stmt
+	listMovies   *sql.Stmt
 	// getAssets       *sql.Stmt
 	// getRevisions    *sql.Stmt
 	// getItems        *sql.Stmt
@@ -62,6 +63,8 @@ func (self *Dal) Start() {
 	// self.searchMovies = self.prepare("select dt.rowid, dt.title from movie dt, moviefts vt where vt.moviefts match ? and dt.rowid = vt.docid order by dt.title")
 	// self.searchMovies = self.prepare("select * from movietitle where movietitle match 'k';")
 	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
+	// self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie where title in (select title from movie group by title having count(*) > 1) order by title")
+	self.listMovies = self.prepare("select title from movie where title in (select title from movie group by title having count(*) > 1)")
 
 	// self.searchMovies = self.prepare("create virtual table oso using fts4(content='movie', name)")
 
@@ -85,6 +88,7 @@ func (self *Dal) Start() {
 }
 
 func (self *Dal) Stop() {
+	self.listMovies.Close()
 	self.searchMovies.Close()
 	self.storeMovie.Close()
 	self.db.Close()
@@ -97,8 +101,12 @@ func (self *Dal) react() {
 		select {
 		case msg := <-self.Bus.StoreMovie:
 			self.doStoreMovie(msg)
+		case msg := <-self.Bus.DeleteMovie:
+			self.doDeleteMovie(msg)
 		case msg := <-self.Bus.GetMovies:
 			go self.doGetMovies(msg)
+		case msg := <-self.Bus.ListMovies:
+			go self.doListMovies(msg)
 		case msg := <-self.Bus.SearchMovies:
 			go self.doSearchMovies(msg)
 		case msg := <-self.Bus.CheckMovie:
@@ -232,6 +240,45 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 	// }
 }
 
+func (self *Dal) doDeleteMovie(movie *message.Movie) {
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("STARTED DELETING [%d] %s", movie.Id, movie.Title))
+
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatalf("at begin: %s", err)
+	}
+
+	// stmt, err := tx.Prepare("insert into movie(title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, director, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+
+	stmt, err := tx.Prepare("delete from movie where rowid = ?")
+	if err != nil {
+		tx.Rollback()
+		log.Fatalf("at prepare: %s", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(movie.Id)
+	if err != nil {
+		tx.Rollback()
+		log.Fatalf("at exec: %s", err)
+	}
+
+	// log.Printf("Movie is %v", movie)
+
+	// _, self.err = self.storeMovie.Exec(movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
+	// if self.err != nil {
+	// 	log.Fatalf("at storemovie: %s", self.err)
+	// }
+
+	tx.Commit()
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("FINISHED DELETING [%d] %s", movie.Id, movie.Title))
+
+	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
+	// if self.err != nil {
+	// 	log.Fatal(self.err)
+	// }
+}
+
 func (self *Dal) doGetMovies(msg *message.GetMovies) {
 	tx, err := self.db.Begin()
 	if err != nil {
@@ -259,6 +306,72 @@ func (self *Dal) doGetMovies(msg *message.GetMovies) {
 	rows.Close()
 
 	tx.Commit()
+
+	msg.Reply <- items
+}
+
+func (self *Dal) doList2Movies(msg *message.ListMovies) {
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rows, err := self.listMovies.Query()
+	if err != nil {
+		log.Fatal(self.err)
+	}
+
+	var items []*message.Movie
+
+	self.cnt = 0
+
+	for rows.Next() {
+		movie := message.Movie{}
+		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched)
+		items = append(items, &movie)
+		self.cnt++
+	}
+	rows.Close()
+
+	tx.Commit()
+
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("Listed %d movies", self.cnt))
+
+	msg.Reply <- items
+}
+
+func (self *Dal) doListMovies(msg *message.ListMovies) {
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// rows, err := self.listMovies.Query()
+	// if err != nil {
+	// 	log.Fatal(self.err)
+	// }
+
+	// rows, err := self.db.Query("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie where title in (select title from movie group by title having count(*) > 1);")
+	rows, err := self.db.Query("select a.rowid, a.title, a.original_title, a.file_title, a.year, a.runtime, a.tmdb_id, a.imdb_id, a.overview, a.tagline, a.resolution, a.filetype, a.location, a.cover, a.backdrop, a.genres, a.vote_average, a.vote_count, a.countries, a.added, a.modified, a.last_watched, a.all_watched, a.count_watched from movie a join (select title, year from movie group by title, year having count(*) > 1) b on a.title = b.title and a.year = b.year;")
+	if err != nil {
+		log.Fatal(self.err)
+	}
+
+	var items []*message.Movie
+
+	self.cnt = 0
+
+	for rows.Next() {
+		movie := message.Movie{}
+		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched)
+		items = append(items, &movie)
+		self.cnt++
+	}
+	rows.Close()
+
+	tx.Commit()
+
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("Listed %d movies", self.cnt))
 
 	msg.Reply <- items
 }

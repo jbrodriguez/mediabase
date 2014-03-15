@@ -36,22 +36,22 @@ func TestDb(t *testing.T) {
 
 	log.Println(test.Format(time.RFC3339))
 
-	n := []myGenre{
-		{id: 1, name: "alfa"},
-		{id: 2, name: "beta"},
-	}
+	// n := []myGenre{
+	// 	{id: 1, name: "alfa"},
+	// 	{id: 2, name: "beta"},
+	// }
 
-	var genres string
-	for i := 0; i < len(n); i++ {
-		attr := &n[i]
-		if genres == "" {
-			genres = attr.name
-		} else {
-			genres += "|" + attr.name
-		}
-	}
+	// var genres string
+	// for i := 0; i < len(n); i++ {
+	// 	attr := &n[i]
+	// 	if genres == "" {
+	// 		genres = attr.name
+	// 	} else {
+	// 		genres += "|" + attr.name
+	// 	}
+	// }
 
-	log.Println(genres)
+	// log.Println(genres)
 
 	log.Printf("starting up ...")
 

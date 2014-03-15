@@ -51,9 +51,36 @@ func (self *Server) scanMovies(w http.ResponseWriter, req *http.Request) {
 	helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
 }
 
+func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
+	log.Println("pruning .. i got here")
+	// data := struct {
+	// 	Code        int8
+	// 	Description string
+	// }{0, "all is good"}
+	// helper.WriteJson(w, 200, &data)
+
+	msg := message.PruneMovies{make(chan string)}
+	self.Bus.PruneMovies <- &msg
+	reply := <-msg.Reply
+
+	log.Printf("response is: %s", reply)
+
+	helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
+}
+
 func (self *Server) getMovies(w http.ResponseWriter, req *http.Request) {
 	msg := message.GetMovies{make(chan []*message.Movie)}
 	self.Bus.GetMovies <- &msg
+	reply := <-msg.Reply
+
+	// log.Printf("response is: %s", reply)
+
+	helper.WriteJson(w, 200, &reply)
+}
+
+func (self *Server) listMovies(w http.ResponseWriter, req *http.Request) {
+	msg := message.ListMovies{make(chan []*message.Movie)}
+	self.Bus.ListMovies <- &msg
 	reply := <-msg.Reply
 
 	// log.Printf("response is: %s", reply)
@@ -127,7 +154,9 @@ func (self *Server) Start() {
 	self.s = self.r.PathPrefix(apiVersion).Subrouter()
 	self.s.HandleFunc("/", self.status).Methods("GET")
 	self.s.HandleFunc("/movies", self.getMovies).Methods("GET")
+	self.s.HandleFunc("/movies/all", self.listMovies).Methods("GET")
 	self.s.HandleFunc("/movies/scan", self.scanMovies).Methods("GET")
+	self.s.HandleFunc("/movies/prune", self.pruneMovies).Methods("GET")
 	self.s.HandleFunc("/movies/search&q={term}", self.searchMovies).Methods("GET")
 
 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
