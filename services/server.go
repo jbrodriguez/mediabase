@@ -88,6 +88,27 @@ func (self *Server) listMovies(w http.ResponseWriter, req *http.Request) {
 	helper.WriteJson(w, 200, &reply)
 }
 
+func (self *Server) showDuplicates(w http.ResponseWriter, req *http.Request) {
+	msg := message.Movies{make(chan []*message.Movie)}
+	self.Bus.ShowDuplicates <- &msg
+	reply := <-msg.Reply
+	log.Printf("never returned")
+
+	// log.Printf("response is: %s", reply)
+
+	helper.WriteJson(w, 200, &reply)
+}
+
+func (self *Server) listByRuntime(w http.ResponseWriter, req *http.Request) {
+	msg := message.Movies{make(chan []*message.Movie)}
+	self.Bus.ListByRuntime <- &msg
+	reply := <-msg.Reply
+
+	// log.Printf("response is: %s", reply)
+
+	helper.WriteJson(w, 200, &reply)
+}
+
 func (self *Server) searchMovies(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	term, ok := vars["term"]
@@ -155,6 +176,8 @@ func (self *Server) Start() {
 	self.s.HandleFunc("/", self.status).Methods("GET")
 	self.s.HandleFunc("/movies", self.getMovies).Methods("GET")
 	self.s.HandleFunc("/movies/all", self.listMovies).Methods("GET")
+	self.s.HandleFunc("/movies/runtime", self.listByRuntime).Methods("GET")
+	self.s.HandleFunc("/movies/duplicates", self.showDuplicates).Methods("GET")
 	self.s.HandleFunc("/movies/scan", self.scanMovies).Methods("GET")
 	self.s.HandleFunc("/movies/prune", self.pruneMovies).Methods("GET")
 	self.s.HandleFunc("/movies/search&q={term}", self.searchMovies).Methods("GET")

@@ -15,6 +15,18 @@ angular.module( 'mediabase.movies', [
       controller: 'MoviesCtrl',
       templateUrl: 'movies/movies.all.tpl.html',
       data: {pageTitle: 'All Movies'}
+  })
+  .state('movies.duplicates', {
+      url: '/movies/duplicates',
+      controller: 'MoviesCtrl',
+      templateUrl: 'movies/movies.duplicates.tpl.html',
+      data: {pageTitle: 'Duplicate Movies'}
+  })
+  .state('movies.runtime', {
+      url: '/movies/runtime',
+      controller: 'MoviesCtrl',
+      templateUrl: 'movies/movies.runtime.tpl.html',
+      data: {pageTitle: 'Duplicate Movies'}
   })  
   .state('movies.detail', {
   	  url: '/:index',
@@ -47,6 +59,20 @@ angular.module( 'mediabase.movies', [
 				$scope.items = data;
 			})
 	}
+
+	$scope.duplicates = function() {
+		core.showDuplicates()
+			.success(function(data, status, headers, config) {
+				$scope.items = data;
+			})
+	}	
+
+	$scope.runtime = function() {
+		core.listByRuntime()
+			.success(function(data, status, headers, config) {
+				$scope.items = data;
+			})
+	}	
 
 	$scope.$onRootScope('app.search', function(selfie, term) {
 		core.searchMovies(term)

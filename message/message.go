@@ -16,6 +16,10 @@ type ListMovies struct {
 	Reply chan []*Movie
 }
 
+type Movies struct {
+	Reply chan []*Movie
+}
+
 type SearchMovies struct {
 	Term  string
 	Reply chan []*Movie

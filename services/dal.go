@@ -20,9 +20,10 @@ type Dal struct {
 	err    error
 	cnt    int
 
-	storeMovie   *sql.Stmt
-	searchMovies *sql.Stmt
-	listMovies   *sql.Stmt
+	storeMovie    *sql.Stmt
+	searchMovies  *sql.Stmt
+	listMovies    *sql.Stmt
+	listByRuntime *sql.Stmt
 	// getAssets       *sql.Stmt
 	// getRevisions    *sql.Stmt
 	// getItems        *sql.Stmt
@@ -63,8 +64,9 @@ func (self *Dal) Start() {
 	// self.searchMovies = self.prepare("select dt.rowid, dt.title from movie dt, moviefts vt where vt.moviefts match ? and dt.rowid = vt.docid order by dt.title")
 	// self.searchMovies = self.prepare("select * from movietitle where movietitle match 'k';")
 	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
-	// self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie where title in (select title from movie group by title having count(*) > 1) order by title")
-	self.listMovies = self.prepare("select title from movie where title in (select title from movie group by title having count(*) > 1)")
+	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by title")
+	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by runtime")
+	// self.listMovies = self.prepare("select title from movie where title in (select title from movie group by title having count(*) > 1)")
 
 	// self.searchMovies = self.prepare("create virtual table oso using fts4(content='movie', name)")
 
@@ -88,6 +90,7 @@ func (self *Dal) Start() {
 }
 
 func (self *Dal) Stop() {
+	self.listByRuntime.Close()
 	self.listMovies.Close()
 	self.searchMovies.Close()
 	self.storeMovie.Close()
@@ -107,6 +110,10 @@ func (self *Dal) react() {
 			go self.doGetMovies(msg)
 		case msg := <-self.Bus.ListMovies:
 			go self.doListMovies(msg)
+		case msg := <-self.Bus.ShowDuplicates:
+			go self.doShowDuplicates(msg)
+		case msg := <-self.Bus.ListByRuntime:
+			go self.doListByRuntime(msg)
 		case msg := <-self.Bus.SearchMovies:
 			go self.doSearchMovies(msg)
 		case msg := <-self.Bus.CheckMovie:
@@ -114,58 +121,6 @@ func (self *Dal) react() {
 		}
 	}
 }
-
-// func (self *Dal) doStoreMovie(movie *message.Movie) {
-// 	tx
-
-// 	_, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-// 	if self.err != nil {
-// 		log.Fatal(self.err)
-// 	}
-// }
-
-// func (self *Dal) doStoreMovie(movie *message.Movie) {
-// 	self.cnt++
-
-// 	log.Printf("++++++++++++++++++++++++++++++++++++  MARRANOO = %d", self.cnt)
-
-// 	db, err := sql.Open("sqlite3", self.dbase)
-// 	if err != nil {
-// 		log.Fatalf("at open: %s", err)
-// 	}
-// 	defer db.Close()
-
-// 	tx, err := db.Begin()
-// 	if err != nil {
-// 		log.Fatalf("at begin: %s", err)
-// 	}
-
-// 	stmt, err := tx.Prepare("insert or ignore into movie(title, original_title, year, resolution, filetype, location) values (?, ?, ?, ?, ?, ?)")
-// 	if err != nil {
-// 		log.Fatalf("at prepare: %s", err)
-// 	}
-// 	defer stmt.Close()
-
-// 	_, err = stmt.Exec(movie.Title, movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
-// 	if err != nil {
-// 		log.Fatalf("at exec: %s", err)
-// 	}
-
-// 	log.Printf("Movie is %v", movie)
-
-// 	// _, self.err = self.storeMovie.Exec(movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
-// 	// if self.err != nil {
-// 	// 	log.Fatalf("at storemovie: %s", self.err)
-// 	// }
-
-// 	tx.Commit()
-// 	log.Printf("++++++++++++++++++++++++++++++++++++  RENACUAJOOOOOO = %d", self.cnt)
-
-// 	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
-// 	// if self.err != nil {
-// 	// 	log.Fatal(self.err)
-// 	// }
-// }
 
 func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
 	tx, err := self.db.Begin()
@@ -310,7 +265,7 @@ func (self *Dal) doGetMovies(msg *message.GetMovies) {
 	msg.Reply <- items
 }
 
-func (self *Dal) doList2Movies(msg *message.ListMovies) {
+func (self *Dal) doListMovies(msg *message.ListMovies) {
 	tx, err := self.db.Begin()
 	if err != nil {
 		log.Fatal(err)
@@ -340,7 +295,39 @@ func (self *Dal) doList2Movies(msg *message.ListMovies) {
 	msg.Reply <- items
 }
 
-func (self *Dal) doListMovies(msg *message.ListMovies) {
+func (self *Dal) doListByRuntime(msg *message.Movies) {
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rows, err := self.listByRuntime.Query()
+	if err != nil {
+		log.Fatal(self.err)
+	}
+
+	var items []*message.Movie
+
+	self.cnt = 0
+
+	for rows.Next() {
+		movie := message.Movie{}
+		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched)
+		items = append(items, &movie)
+		self.cnt++
+	}
+	rows.Close()
+
+	tx.Commit()
+
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("Listed (runtime) %d movies", self.cnt))
+
+	msg.Reply <- items
+}
+
+func (self *Dal) doShowDuplicates(msg *message.Movies) {
+	tracelog.TRACE("mb", "dal", "started from the bottom now we're here")
+
 	tx, err := self.db.Begin()
 	if err != nil {
 		log.Fatal(err)
@@ -371,7 +358,7 @@ func (self *Dal) doListMovies(msg *message.ListMovies) {
 
 	tx.Commit()
 
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("Listed %d movies", self.cnt))
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("Found %d duplicate movies", self.cnt))
 
 	msg.Reply <- items
 }

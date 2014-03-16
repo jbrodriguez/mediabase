@@ -13,10 +13,12 @@ type Bus struct {
 	MovieFound   chan *message.Movie
 	MovieScraped chan *message.Media
 
-	GetMovies    chan *message.GetMovies
-	ListMovies   chan *message.ListMovies
-	SearchMovies chan *message.SearchMovies
-	CheckMovie   chan *message.CheckMovie
+	GetMovies      chan *message.GetMovies
+	ListMovies     chan *message.ListMovies
+	ShowDuplicates chan *message.Movies
+	ListByRuntime  chan *message.Movies
+	SearchMovies   chan *message.SearchMovies
+	CheckMovie     chan *message.CheckMovie
 
 	StoreMovie  chan *message.Movie
 	DeleteMovie chan *message.Movie
@@ -37,6 +39,8 @@ func (self *Bus) Start() {
 
 	self.GetMovies = make(chan *message.GetMovies)
 	self.ListMovies = make(chan *message.ListMovies)
+	self.ShowDuplicates = make(chan *message.Movies)
+	self.ListByRuntime = make(chan *message.Movies)
 	self.SearchMovies = make(chan *message.SearchMovies)
 	self.CheckMovie = make(chan *message.CheckMovie)
 
