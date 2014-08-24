@@ -9,9 +9,25 @@ angular.module( 'mediabase.services', [
 		return $http.get(api + "movies/scan");
 	};
 
+	rest.pruneMovies = function() {
+		return $http.get(api + "movies/prune");
+	};
+
 	rest.getMovies = function() {
 		return $http.get(api + "movies");
 	};
+
+	rest.listMovies = function() {
+		return $http.get(api + "movies/all");
+	}
+
+	rest.showDuplicates = function() {
+		return $http.get(api + "movies/duplicates");
+	}
+
+	rest.listByRuntime = function() {
+		return $http.get(api + "movies/runtime");
+	}
 
 	rest.searchMovies = function(term) {
 		return $http.get(api + "movies/search&q=" + term)

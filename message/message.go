@@ -4,7 +4,19 @@ type ScanMovies struct {
 	Reply chan string
 }
 
+type PruneMovies struct {
+	Reply chan string
+}
+
 type GetMovies struct {
+	Reply chan []*Movie
+}
+
+type ListMovies struct {
+	Reply chan []*Movie
+}
+
+type Movies struct {
 	Reply chan []*Movie
 }
 

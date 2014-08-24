@@ -20,6 +20,7 @@ func main() {
 	server := services.Server{Bus: &bus, Config: &config}
 	scanner := services.Scanner{Bus: &bus}
 	scraper := services.Scraper{Bus: &bus, Config: &config}
+	pruner := services.Pruner{Bus: &bus, Config: &config}
 	cache := services.Cache{Bus: &bus, Config: &config}
 	core := services.Core{Bus: &bus, Config: &config}
 
@@ -29,6 +30,7 @@ func main() {
 	server.Start()
 	scanner.Start()
 	scraper.Start()
+	pruner.Start()
 	cache.Start()
 	core.Start()
 
@@ -38,6 +40,7 @@ func main() {
 
 	core.Stop()
 	cache.Stop()
+	pruner.Stop()
 	scraper.Stop()
 	scanner.Stop()
 	server.Stop()
