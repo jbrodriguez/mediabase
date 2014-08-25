@@ -128,6 +128,11 @@ func (self *Server) searchMovies(w http.ResponseWriter, r *http.Request) {
 	helper.WriteJson(w, 200, &reply)
 }
 
+func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {
+	self.Bus.FixMovies <- 1
+	helper.WriteJson(w, 200, "ok")
+}
+
 func (self *Server) testScan() {
 	msg := message.ScanMovies{make(chan string)}
 	self.Bus.ScanMovies <- &msg
@@ -181,6 +186,7 @@ func (self *Server) Start() {
 	self.s.HandleFunc("/movies/scan", self.scanMovies).Methods("GET")
 	self.s.HandleFunc("/movies/prune", self.pruneMovies).Methods("GET")
 	self.s.HandleFunc("/movies/search&q={term}", self.searchMovies).Methods("GET")
+	self.s.HandleFunc("/movies/fix", self.fixMovies).Methods("GET")
 
 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
 	// self.s.HandleFunc("/events", self.getEvents).Methods("GET")

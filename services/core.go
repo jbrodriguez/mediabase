@@ -38,6 +38,10 @@ func (self *Core) react() {
 			go self.doMovieFound(msg)
 		case msg := <-self.Bus.MovieScraped:
 			go self.doMovieScraped(msg)
+		case msg := <-self.Bus.MovieRescraped:
+			go self.doMovieRescraped(msg)
+		case msg := <-self.Bus.FixMovies:
+			go self.doFixMovies(msg)
 		}
 	}
 }
@@ -86,4 +90,30 @@ func (self *Core) doMovieScraped(media *message.Media) {
 		media.BasePath = self.Config.AppDir
 		self.Bus.CacheMedia <- media
 	}()
+}
+
+func (self *Core) doMovieRescraped(media *message.Media) {
+	go func() {
+		tracelog.TRACE("mb", "core", fmt.Sprintf("UPDATING MOVIE [%s]", media.Movie.Title))
+		self.Bus.UpdateMovie <- media.Movie
+	}()
+
+	go func() {
+		tracelog.TRACE("mb", "core", fmt.Sprintf("CACHING MEDIA [%s]", media.Movie.Title))
+		media.BasePath = self.Config.AppDir
+		self.Bus.CacheMedia <- media
+	}()
+}
+
+func (self *Core) doFixMovies(flag int) {
+	msg := message.Movies{make(chan []*message.Movie)}
+	self.Bus.GetMoviesToFix <- &msg
+
+	tracelog.TRACE("mb", "core", fmt.Sprintf("AFTER GET MOVIES TO FIX [%v]", msg.Reply))
+
+	reply := <-msg.Reply
+
+	tracelog.TRACE("mb", "core", fmt.Sprintf("WAITING FOR REPLY [%v]", reply))
+
+	self.Bus.RescrapeMovies <- reply
 }

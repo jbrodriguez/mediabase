@@ -20,10 +20,11 @@ type Dal struct {
 	err    error
 	cnt    int
 
-	storeMovie    *sql.Stmt
-	searchMovies  *sql.Stmt
-	listMovies    *sql.Stmt
-	listByRuntime *sql.Stmt
+	storeMovie      *sql.Stmt
+	searchMovies    *sql.Stmt
+	listMovies      *sql.Stmt
+	listByRuntime   *sql.Stmt
+	listMoviesToFix *sql.Stmt
 	// getAssets       *sql.Stmt
 	// getRevisions    *sql.Stmt
 	// getItems        *sql.Stmt
@@ -66,6 +67,7 @@ func (self *Dal) Start() {
 	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
 	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by title")
 	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by runtime")
+	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie where original_title = 'FIXMOV23'")
 	// self.listMovies = self.prepare("select title from movie where title in (select title from movie group by title having count(*) > 1)")
 
 	// self.searchMovies = self.prepare("create virtual table oso using fts4(content='movie', name)")
@@ -90,6 +92,7 @@ func (self *Dal) Start() {
 }
 
 func (self *Dal) Stop() {
+	self.listMoviesToFix.Close()
 	self.listByRuntime.Close()
 	self.listMovies.Close()
 	self.searchMovies.Close()
@@ -106,6 +109,8 @@ func (self *Dal) react() {
 			self.doStoreMovie(msg)
 		case msg := <-self.Bus.DeleteMovie:
 			self.doDeleteMovie(msg)
+		case msg := <-self.Bus.UpdateMovie:
+			self.doUpdateMovie(msg)
 		case msg := <-self.Bus.GetMovies:
 			go self.doGetMovies(msg)
 		case msg := <-self.Bus.ListMovies:
@@ -118,6 +123,8 @@ func (self *Dal) react() {
 			go self.doSearchMovies(msg)
 		case msg := <-self.Bus.CheckMovie:
 			go self.doCheckMovie(msg)
+		case msg := <-self.Bus.GetMoviesToFix:
+			go self.doGetMoviesToFix(msg)
 		}
 	}
 }
@@ -232,6 +239,31 @@ func (self *Dal) doDeleteMovie(movie *message.Movie) {
 	// if self.err != nil {
 	// 	log.Fatal(self.err)
 	// }
+}
+
+func (self *Dal) doUpdateMovie(movie *message.Movie) {
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("STARTED UPDATING %s [%d]", movie.Title, self.cnt))
+
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatalf("at begin: %s", err)
+	}
+
+	stmt, err := tx.Prepare("update movie set title = ?, original_title = ?, file_title = ?, year = ?, runtime = ?, imdb_id = ?, overview = ?, tagline = ?, cover = ?, backdrop = ?, genres = ?, vote_average = ?, vote_count = ?, countries = ?, modified = ? where tmdb_id = ?")
+	if err != nil {
+		tx.Rollback()
+		log.Fatalf("at prepare: %s", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(movie.Title, movie.Original_Title, movie.File_Title, movie.Year, movie.Runtime, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Cover, movie.Backdrop, movie.Genres, movie.Vote_Average, movie.Vote_Count, movie.Production_Countries, movie.Modified, movie.Tmdb_Id)
+	if err != nil {
+		tx.Rollback()
+		log.Fatalf("at exec: %s", err)
+	}
+
+	tx.Commit()
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("FINISHED UPDATING %s", movie.Title))
 }
 
 func (self *Dal) doGetMovies(msg *message.GetMovies) {
@@ -407,40 +439,32 @@ func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
 	msg.Reply <- items
 }
 
-// func (self *Dal) doAuthenticate(user *model.UserAuthReq, reply chan *model.UserAuthRep) {
-// 	var id int8
-// 	var pwd string
+func (self *Dal) doGetMoviesToFix(msg *message.Movies) {
+	tx, err := self.db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	err := self.authenticate.QueryRow(user.Email).Scan(&id, &pwd)
-// 	if err == sql.ErrNoRows {
-// 		reply <- nil
-// 		return
-// 	} else if err != nil {
-// 		panic(err.Error())
-// 	}
+	rows, err := self.listMoviesToFix.Query()
+	if err != nil {
+		log.Fatal(self.err)
+	}
 
-// 	reply <- &model.UserAuthRep{id, pwd}
-// }
+	var items []*message.Movie
 
-// func (self *Dal) doGetUserDataById(user *model.UserDataReq, reply chan *model.UserDataRep) {
-// 	var name string
-// 	var email string
+	self.cnt = 0
 
-// 	err := self.getUserDataById.QueryRow(user.Id).Scan(&name, &email)
-// 	if err == sql.ErrNoRows {
-// 		reply <- nil
-// 		return
-// 	} else if err != nil {
-// 		panic(err.Error())
-// 	}
+	for rows.Next() {
+		movie := message.Movie{}
+		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched)
+		items = append(items, &movie)
+		self.cnt++
+	}
+	rows.Close()
 
-// 	reply <- &model.UserDataRep{name, email}
-// }
+	tx.Commit()
 
-// func (self *Dal) search() {
-// 	rows, err := self.db.Query("SELECT id, heroku_id FROM resources WHERE destroyed_at IS NULL")
-// 	if err != nil {
-// 		return
-// 	}
-// 	defer rows.Close()
-// }
+	tracelog.TRACE("mb", "dal", fmt.Sprintf("Listed %d movies to fix", self.cnt))
+
+	msg.Reply <- items
+}

@@ -28,7 +28,7 @@ func (self *Scraper) Start() {
 		log.Fatal(err)
 	}
 
-	self.workpool = workpool.New(12, 2000)
+	self.workpool = workpool.New(12, 4000)
 
 	go self.react()
 
@@ -48,8 +48,36 @@ func (self *Scraper) react() {
 		case msg := <-self.Bus.ScrapeMovie:
 			// self.doScrapeMovie(msg)
 			go self.requestWork(msg)
+
+		case msg := <-self.Bus.RescrapeMovies:
+			go self.fixMoviesWork(msg)
 		}
 	}
+}
+
+func (self *Scraper) fixMoviesWork(movies []*message.Movie) {
+	tracelog.TRACE("mb", "scraper", "FIX MOVIES WORK REQUESTED FOR [%d] movies", len(movies))
+
+	c := make(chan *message.Media)
+
+	for i := range movies {
+		gig := &FixMovieGig{
+			self.Bus,
+			self.tmdb,
+			&message.Media{"", "", "", movies[i], true},
+			c,
+		}
+
+		self.workpool.PostWork("fixMovieGig", gig)
+
+		// tracelog.TRACE("mb", "scraper", "[%s] RUNNING SCRAPING [%s]", movie.Title)
+		media := <-c
+
+		// tracelog.TRACE("mb", "scraper", "[%s] FINISHED SCRAPING", media.Movie.Title)
+		self.Bus.MovieRescraped <- media
+	}
+
+	tracelog.TRACE("mb", "scraper", "FIX MOVIES WORK COMPLETED FOR [%d]", len(movies))
 }
 
 func (self *Scraper) requestWork(movie *message.Movie) {
@@ -60,7 +88,7 @@ func (self *Scraper) requestWork(movie *message.Movie) {
 	gig := &Gig{
 		self.Bus,
 		self.tmdb,
-		&message.Media{"", "", "", movie},
+		&message.Media{"", "", "", movie, false},
 		c,
 	}
 
@@ -92,20 +120,20 @@ func (self *Gig) DoWork(workRoutine int) {
 	result = self.media
 
 	tracelog.TRACE("mb", "scraper", "STARTED SCRAPING [%s]", self.media.Movie.Title)
-	res, err := self.tmdb.SearchMovie(self.media.Movie.Title)
+	movies, err := self.tmdb.SearchMovie(self.media.Movie.Title)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	if res.Total_Results == 0 {
+	if movies.Total_Results == 0 {
 		tracelog.TRACE("mb", "scraper", fmt.Sprintf("TMDB: NO MATCH FOUND [%s]", self.media.Movie.Title))
 		return
-	} else if res.Total_Results > 1 {
+	} else if movies.Total_Results > 1 {
 		tracelog.TRACE("mb", "scraper", fmt.Sprintf("TMDB: MORE THAN ONE [%s]", self.media.Movie.Title))
 	}
 
-	id := res.Results[0].Id
+	id := movies.Results[0].Id
 
 	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
 	// tracelog.TRACE("mb", "scraper", "[%s] before getmovie [%s]", self.media.Movie.Title)
@@ -158,72 +186,71 @@ func (self *Gig) DoWork(workRoutine int) {
 	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}
 }
 
-// func (self *Scraper) scrapeMovie(media *message.Media) *message.Media {
-// 	tracelog.INFO("mb", "scraper", "before searchmovie %s", media.Movie.Title)
-// 	res, err := self.tmdb.SearchMovie(media.Movie.Title)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return nil
-// 	}
+type FixMovieGig struct {
+	bus   *bus.Bus
+	tmdb  *tmdb.Tmdb
+	media *message.Media
+	ret   chan *message.Media
+}
 
-// 	if res.Total_Results != 1 {
-// 		log.Println("more than one")
-// 	}
+func (self *FixMovieGig) DoWork(workRoutine int) {
+	var result *message.Media
 
-// 	id := res.Results[0].Id
+	defer func() {
+		self.ret <- result
+	}()
 
-// 	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
-// 	tracelog.INFO("mb", "scraper", "before gethmovie %s", media.Movie.Title)
-// 	gmr, err := self.tmdb.GetMovie(id)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return nil
-// 	}
+	tracelog.TRACE("mb", "scraper", "FIXMOVIE: STARTED SCRAPING [%s]", self.media.Movie.Title)
+	result = self.media
 
-// 	media.Movie.Original_Title = gmr.Original_Title
-// 	media.Movie.Runtime = gmr.Runtime
-// 	media.Movie.Tmdb_Id = gmr.Id
-// 	media.Movie.Imdb_Id = gmr.Imdb_Id
-// 	media.Movie.Overview = gmr.Overview
-// 	media.Movie.Tagline = gmr.Tagline
-// 	media.Movie.Cover = gmr.Poster_Path
-// 	media.Movie.Backdrop = gmr.Backdrop_Path
+	id := self.media.Movie.Tmdb_Id
 
-// 	media.BaseUrl = self.tmdb.BaseUrl
-// 	media.SecureBaseUrl = self.tmdb.SecureBaseUrl
+	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
+	// tracelog.TRACE("mb", "scraper", "[%s] before getmovie [%s]", self.media.Movie.Title)
+	gmr, err := self.tmdb.GetMovie(id)
+	if err != nil {
+		tracelog.TRACE("mb", "scraper", fmt.Sprintf("FIXMOVIE: FAILED GETTING MOVIE [%s]", self.media.Movie.Title))
+		return
+	}
 
-// 	tracelog.INFO("mb", "scraper", "before finalizing %s", media.Movie.Title)
-// 	return media
-// 	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}
-// }
+	self.media.Movie.Title = gmr.Title
+	self.media.Movie.Original_Title = gmr.Original_Title
+	self.media.Movie.Runtime = gmr.Runtime
+	self.media.Movie.Tmdb_Id = gmr.Id
+	self.media.Movie.Imdb_Id = gmr.Imdb_Id
+	self.media.Movie.Overview = gmr.Overview
+	self.media.Movie.Tagline = gmr.Tagline
+	self.media.Movie.Cover = gmr.Poster_Path
+	self.media.Movie.Backdrop = gmr.Backdrop_Path
 
-// func (self *Scraper) doScrapeMovie(movie *message.Movie) {
-// 	res, err := self.tmdb.SearchMovie(movie.Title)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return
-// 	}
+	for i := 0; i < len(gmr.Genres); i++ {
+		attr := &gmr.Genres[i]
+		if self.media.Movie.Genres == "" {
+			self.media.Movie.Genres = attr.Name
+		} else {
+			self.media.Movie.Genres += " " + attr.Name
+		}
+	}
 
-// 	if res.Total_Results != 1 {
-// 		log.Println("more than one")
-// 	}
+	self.media.Movie.Vote_Average = gmr.Vote_Average
+	self.media.Movie.Vote_Count = gmr.Vote_Count
 
-// 	id := res.Results[0].Id
+	for i := 0; i < len(gmr.Production_Countries); i++ {
+		attr := &gmr.Production_Countries[i]
+		if self.media.Movie.Production_Countries == "" {
+			self.media.Movie.Production_Countries = attr.Name
+		} else {
+			self.media.Movie.Production_Countries += "|" + attr.Name
+		}
+	}
 
-// 	gmr, err := self.tmdb.GetMovie(id)
-// 	if err != nil {
-// 		log.Println(err)
-// 		return
-// 	}
+	now := time.Now().Format(time.RFC3339)
+	self.media.Movie.Modified = now
 
-// 	movie.Original_Title = gmr.Original_Title
-// 	movie.Runtime = gmr.Runtime
-// 	movie.Tmdb_Id = gmr.Id
-// 	movie.Imdb_Id = gmr.Imdb_Id
-// 	movie.Overview = gmr.Overview
-// 	movie.Tagline = gmr.Tagline
-// 	movie.Cover = gmr.Poster_Path
-// 	movie.Backdrop = gmr.Backdrop_Path
+	self.media.BaseUrl = self.tmdb.BaseUrl
+	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
 
-// 	self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}
-// }
+	tracelog.TRACE("mb", "scraper", "FIXMOVIE: FINISHED SCRAPING [%s]", self.media.Movie.Title)
+	// return media
+	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}
+}

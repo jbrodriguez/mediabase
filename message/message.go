@@ -62,6 +62,7 @@ type Media struct {
 	SecureBaseUrl string
 	BasePath      string
 	Movie         *Movie
+	Forced        bool
 }
 
 // type UserAuth struct {

@@ -13,6 +13,10 @@ angular.module( 'mediabase.services', [
 		return $http.get(api + "movies/prune");
 	};
 
+	rest.fixMovies = function() {
+		return $http.get(api + "movies/fix");
+	};
+
 	rest.getMovies = function() {
 		return $http.get(api + "movies");
 	};

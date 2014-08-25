@@ -10,8 +10,9 @@ type Bus struct {
 	ScrapeMovie chan *message.Movie
 	PruneMovies chan *message.PruneMovies
 
-	MovieFound   chan *message.Movie
-	MovieScraped chan *message.Media
+	MovieFound     chan *message.Movie
+	MovieScraped   chan *message.Media
+	MovieRescraped chan *message.Media
 
 	GetMovies      chan *message.GetMovies
 	ListMovies     chan *message.ListMovies
@@ -19,12 +20,15 @@ type Bus struct {
 	ListByRuntime  chan *message.Movies
 	SearchMovies   chan *message.SearchMovies
 	CheckMovie     chan *message.CheckMovie
+	FixMovies      chan int
+	GetMoviesToFix chan *message.Movies
+	RescrapeMovies chan []*message.Movie
 
 	StoreMovie  chan *message.Movie
 	DeleteMovie chan *message.Movie
 	CacheMedia  chan *message.Media
-	// UpdateMovie  chan *message.Picture
-	Log chan string
+	UpdateMovie chan *message.Movie
+	Log         chan string
 }
 
 func (self *Bus) Start() {
@@ -36,6 +40,7 @@ func (self *Bus) Start() {
 
 	self.MovieFound = make(chan *message.Movie)
 	self.MovieScraped = make(chan *message.Media)
+	self.MovieRescraped = make(chan *message.Media)
 
 	self.GetMovies = make(chan *message.GetMovies)
 	self.ListMovies = make(chan *message.ListMovies)
@@ -43,12 +48,14 @@ func (self *Bus) Start() {
 	self.ListByRuntime = make(chan *message.Movies)
 	self.SearchMovies = make(chan *message.SearchMovies)
 	self.CheckMovie = make(chan *message.CheckMovie)
+	self.FixMovies = make(chan int)
+	self.GetMoviesToFix = make(chan *message.Movies)
+	self.RescrapeMovies = make(chan []*message.Movie)
 
 	self.StoreMovie = make(chan *message.Movie)
 	self.DeleteMovie = make(chan *message.Movie)
 	self.CacheMedia = make(chan *message.Media)
-
-	// self.UpdateMovie = make(chan *message.Picture)
+	self.UpdateMovie = make(chan *message.Movie)
 
 	self.Log = make(chan string)
 }

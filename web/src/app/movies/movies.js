@@ -53,6 +53,10 @@ angular.module( 'mediabase.movies', [
 		core.pruneMovies()
 	}
 
+	$scope.fix = function() {
+		core.fixMovies()
+	}
+
 	$scope.list = function() {
 		core.listMovies()
 			.success(function(data, status, headers, config) {
