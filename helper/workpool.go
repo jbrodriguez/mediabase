@@ -4,7 +4,7 @@ import (
 	"apertoire.net/mediabase/message"
 	"container/heap"
 	"fmt"
-	"github.com/goinggo/tracelog"
+	// "github.com/apertoire/mlog"
 )
 
 type Workpool struct {
@@ -45,24 +45,24 @@ func (wp *Workpool) Balance() {
 
 func (wp *Workpool) dispatch(req Request) {
 	// fmt.Printf("dispatch request->%v\n", req)
-	tracelog.INFO("mb", "workpool", "inside dispatch for %s", req.Arg.Movie.Title)
+	// mlog.INFO("mb", "workpool", "inside dispatch for %s", req.Arg.Movie.Title)
 	// Grab the least loaded worker...
 	w := heap.Pop(&wp.Pool).(*Worker)
 	// ...send it the task.
 
-	tracelog.INFO("mb", "workpool", "[%d] dispatched for %s", w.id, req.Arg.Movie.Title)
+	// mlog.INFO("mb", "workpool", "[%d] dispatched for %s", w.id, req.Arg.Movie.Title)
 	w.requests <- req
 	// One more in its work queue.
 	w.pending++
 	// Put it into its place on the heap.
 	heap.Push(&wp.Pool, w)
-	tracelog.INFO("mb", "workpool", "[%d] completed dispatch for %s", w.id, req.Arg.Movie.Title)
+	// mlog.INFO("mb", "workpool", "[%d] completed dispatch for %s", w.id, req.Arg.Movie.Title)
 	// fmt.Printf("end dispatch request->%v\n", req)
 }
 
 func (wp *Workpool) completed(w *Worker) {
 	// fmt.Printf("[%d] completed worker->%s\n", w)
-	tracelog.INFO("mb", "workpool", "[%d] completed worker", w.id)
+	// mlog.INFO("mb", "workpool", "[%d] completed worker", w.id)
 	// One fewer in the queue.
 	w.pending--
 	// Remove it from heap.
@@ -71,7 +71,7 @@ func (wp *Workpool) completed(w *Worker) {
 	// Put it into its place on the heap.
 	heap.Push(&wp.Pool, w)
 	// fmt.Printf("done completed worker->%s\n", w)
-	tracelog.INFO("mb", "workpool", "[%d] done completed worker", w.id)
+	// mlog.INFO("mb", "workpool", "[%d] done completed worker", w.id)
 }
 
 type Request struct {
@@ -91,19 +91,19 @@ func (w *Worker) work(done chan *Worker) {
 	for {
 		req := <-w.requests
 
-		tracelog.INFO("mb", "workpool", "[%d] after getting work from the channel for %s", w.id, req.Arg.Movie.Title)
+		// mlog.INFO("mb", "workpool", "[%d] after getting work from the channel for %s", w.id, req.Arg.Movie.Title)
 
 		msg := req.Fn(req.Arg)
 
-		tracelog.INFO("mb", "workpool", "[%d] finished function for %s (runtime: %d | poster: %s)", w.id, req.Arg.Movie.Title, req.Arg.Movie.Runtime, req.Arg.Movie.Cover)
+		// mlog.INFO("mb", "workpool", "[%d] finished function for %s (runtime: %d | poster: %s)", w.id, req.Arg.Movie.Title, req.Arg.Movie.Runtime, req.Arg.Movie.Cover)
 
 		req.Ch <- msg
 
-		tracelog.INFO("mb", "workpool", "[%d] sent results to repley channel for %s (runtime: %d | poster: %s)", w.id, req.Arg.Movie.Title, req.Arg.Movie.Runtime, req.Arg.Movie.Cover)
+		// mlog.INFO("mb", "workpool", "[%d] sent results to repley channel for %s (runtime: %d | poster: %s)", w.id, req.Arg.Movie.Title, req.Arg.Movie.Runtime, req.Arg.Movie.Cover)
 
 		done <- w
 
-		tracelog.INFO("mb", "workpool", "[%d] after done is sent for %s (runtime: %d | poster: %s)", w.id, req.Arg.Movie.Title, req.Arg.Movie.Runtime, req.Arg.Movie.Cover)
+		// mlog.INFO("mb", "workpool", "[%d] after done is sent for %s (runtime: %d | poster: %s)", w.id, req.Arg.Movie.Title, req.Arg.Movie.Runtime, req.Arg.Movie.Cover)
 	}
 }
 

@@ -47,6 +47,7 @@ Icon
 .log
 *.txt
 mediabase
+log
 
 ### grunt stuff
 *.sw*

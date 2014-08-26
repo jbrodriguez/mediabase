@@ -4,9 +4,7 @@ import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
-	"fmt"
-	"github.com/goinggo/tracelog"
-	"log"
+	"github.com/apertoire/mlog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -22,9 +20,9 @@ type Scanner struct {
 }
 
 func (self *Scanner) Start() {
-	log.Printf("starting scanner service ...")
+	mlog.Info("starting scanner service ...")
 
-	log.Printf("compiling regular expressions ...")
+	mlog.Info("compiling regular expressions ...")
 
 	// test:="I am leaving from home in a while"
 	// prepositionsRegex := make([]*regexp.Regexp, len(preps))
@@ -46,12 +44,12 @@ func (self *Scanner) Start() {
 
 	go self.react()
 
-	log.Printf("scanner service started")
+	mlog.Info("scanner service started")
 }
 
 func (self *Scanner) Stop() {
 	// nothing right now
-	log.Printf("scanner service stopped")
+	mlog.Info("scanner service stopped")
 }
 
 func (self *Scanner) react() {
@@ -65,13 +63,13 @@ func (self *Scanner) react() {
 
 func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 	if err != nil {
-		log.Printf("from-start err: %s", err)
+		mlog.Info("from-start err: %s", err)
 	}
 
-	// log.Printf("maldito: %s", path)
+	// mlog.Info("maldito: %s", path)
 
 	if !strings.Contains(self.includedMask, strings.ToLower(filepath.Ext(path))) {
-		// log.Printf("[%s] excluding %s", filepath.Ext(path), path)
+		// mlog.Info("[%s] excluding %s", filepath.Ext(path), path)
 		return nil
 	}
 
@@ -86,7 +84,7 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 		}
 
 		movie := &message.Movie{Title: rmap["Name"], File_Title: rmap["Name"], Year: rmap["Year"], Resolution: rmap["Resolution"], FileType: rmap["FileType"], Location: path}
-		tracelog.TRACE("mb", "scanner", fmt.Sprintf("FOUND [%s] (%s))", movie.Title, movie.Location))
+		mlog.Info("FOUND [%s] (%s)", movie.Title, movie.Location)
 
 		self.Bus.MovieFound <- movie
 
@@ -97,21 +95,21 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 }
 
 func (self *Scanner) doScanMovies(reply chan string) {
-	log.Printf("inside ScanMovies")
+	mlog.Info("inside ScanMovies")
 
 	// reply <- "Movie scanning process started ..."
 
 	err := filepath.Walk("/Volumes/hal-films", self.visit)
 	if err != nil {
-		log.Println("err: %s", err)
+		mlog.Info("err: %s", err)
 	}
 
-	log.Printf("completed scanning hal for movies")
+	mlog.Info("completed scanning hal for movies")
 
 	err = filepath.Walk("/Volumes/wopr-films", self.visit)
 	if err != nil {
-		log.Println("err: %s", err)
+		mlog.Info("err: %s", err)
 	}
 
-	log.Printf("completed scanning wopr for movies")
+	mlog.Info("completed scanning wopr for movies")
 }

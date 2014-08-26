@@ -5,10 +5,8 @@ import (
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
 	"database/sql"
-	"fmt"
-	"github.com/goinggo/tracelog"
+	"github.com/apertoire/mlog"
 	_ "github.com/mattn/go-sqlite3"
-	"log"
 	"path/filepath"
 )
 
@@ -41,52 +39,28 @@ type Dal struct {
 func (self *Dal) prepare(sql string) *sql.Stmt {
 	stmt, err := self.db.Prepare(sql)
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("prepare sql: %s (%s)", err, sql)
 	}
 	return stmt
 }
 
 func (self *Dal) Start() {
-	log.Printf("starting dal service ...")
+	mlog.Info("starting dal service ...")
 
 	self.dbase = filepath.Join(self.Config.AppDir, "/db/mediabase.db")
 	self.db, self.err = sql.Open("sqlite3", self.dbase)
 	if self.err != nil {
-		log.Fatal(self.err)
+		mlog.Fatal("open database: %s (%s)", self.err, self.dbase)
 	}
 
 	self.cnt = 0
 
-	// self.exists = self.prepare("select id from item where name = ?")
-
-	// self.storeMovie = self.prepare("insert or ignore into movie(title, year, resolution, filetype, location) values (?, ?, ?, ?, ?)")
-	// // self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title")
-	// self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, moviefts vt where vt.moviefts match ? and dt.rowid = vt.docid order by dt.title")
-	// self.searchMovies = self.prepare("select dt.rowid, dt.title from movie dt, moviefts vt where vt.moviefts match ? and dt.rowid = vt.docid order by dt.title")
-	// self.searchMovies = self.prepare("select * from movietitle where movietitle match 'k';")
 	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
 	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by title")
 	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by runtime")
 	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie where original_title = 'FIXMOV23'")
-	// self.listMovies = self.prepare("select title from movie where title in (select title from movie group by title having count(*) > 1)")
 
-	// self.searchMovies = self.prepare("create virtual table oso using fts4(content='movie', name)")
-
-	// self.authenticate = self.prepare("select id, password from account where email = $1")
-	// self.getUserDataById = self.prepare("select name, email from account where id = $1")
-	// getAssets, err := self.db.Prepare("select asset.id, asset.name, asset.category, asset.created, asset.modified, assetCategory.name as categoryName from asset, assetCategory where asset.account_id = ? and assetCategory.id = asset.category order by asset.created desc")
-	// getRevisions, err := self.db.Prepare("select id, asset_id, index, created from revision where asset_id = ? order by index desc")
-	// getItems, err := self.db.Prepare("select prod.id, prod.name, prod.asin, prod.upc, it.id as typeId, it.name as typeName,  itm.quantity, itm.price, itm.reference from itemtype it, product prod, item itm, asset ast, revision rev where ast.id = ? and rev.id = ? and itm.revision_id = rev.id and prod.id = itm.product_id and it.id = prod.itemtype_id order by prod.itemtype_id asc")
-	// getCategories, err := self.db.Prepare("select id, name from itemtype")
-	// getLastRevision, err := self.db.Prepare("select max(index) as index from revision where asset_id = ?")
-	// getAsset, err := self.db.Prepare("select asset.id, asset.name, asset.category, asset.created, asset.modified, assetCategory.name as categoryName from asset, assetCategory where asset.id = ? and asset.account_id = ? and assetCategory.id = asset.category order by asset.created desc")
-
-	// putAsset, err := self.db.Prepare("insert into asset (account_id, name, category, created, modified) values (?, ?, ?, ?, ?)")
-	// putProduct, err := self.db.Prepare("insert into product (itemtype_id, name, asin, sku, upc, ean) VALUES (?, ?, ?, ?, ?, ?)")
-	// putRevision, err := self.db.Prepare("insert into revision (asset_id, index, created) values (?, ?, ?)")
-	// putItem, err := self.db.Prepare("insert into item (revision_id, product_id, reference, quantity, price) values (?, ?, ?, ?, ?)")
-
-	log.Printf("connected to database")
+	mlog.Info("connected to database")
 
 	go self.react()
 }
@@ -99,7 +73,7 @@ func (self *Dal) Stop() {
 	self.storeMovie.Close()
 	self.db.Close()
 
-	log.Printf("dal service stopped")
+	mlog.Info("dal service stopped")
 }
 
 func (self *Dal) react() {
@@ -132,13 +106,13 @@ func (self *Dal) react() {
 func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatalf("at begin: %s", err)
+		mlog.Fatal("at begin: %s", err)
 	}
 
 	stmt, err := tx.Prepare("select rowid from movie where location = ?")
 	if err != nil {
 		tx.Rollback()
-		log.Fatalf("at prepare: %s", err)
+		mlog.Fatal("at prepare: %s", err)
 	}
 	defer stmt.Close()
 
@@ -146,13 +120,13 @@ func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
 	err = stmt.QueryRow(msg.Movie.Location).Scan(&id)
 
 	// if err == sql.ErrNoRows {
-	// 	log.Fatalf("id = %d, err = %d", id, err)
+	// 	mlog.Fatal("id = %d, err = %d", id, err)
 	// }
 
-	// log.Fatal("gone and done")
+	// mlog.Fatal("gone and done")
 	if err != sql.ErrNoRows && err != nil {
 		tx.Rollback()
-		log.Fatalf("at queryrow: %s", err)
+		mlog.Fatal("at queryrow: %s", err)
 	}
 
 	tx.Commit()
@@ -163,11 +137,11 @@ func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
 func (self *Dal) doStoreMovie(movie *message.Movie) {
 	self.cnt++
 
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("STARTED SAVING %s [%d]", movie.Title, self.cnt))
+	mlog.Info("STARTED SAVING %s [%d]", movie.Title, self.cnt)
 
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatalf("at begin: %s", err)
+		mlog.Fatal("at begin: %s", err)
 	}
 
 	// stmt, err := tx.Prepare("insert into movie(title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, director, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
@@ -175,7 +149,7 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 	stmt, err := tx.Prepare("insert into movie(title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		tx.Rollback()
-		log.Fatalf("at prepare: %s", err)
+		mlog.Fatal("at prepare: %s", err)
 	}
 	defer stmt.Close()
 
@@ -183,31 +157,31 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 		movie.Genres, movie.Vote_Average, movie.Vote_Count, movie.Production_Countries, movie.Added, movie.Modified, movie.Last_Watched, movie.All_Watched, movie.Count_Watched)
 	if err != nil {
 		tx.Rollback()
-		log.Fatalf("at exec: %s", err)
+		mlog.Fatal("at exec: %s", err)
 	}
 
-	// log.Printf("Movie is %v", movie)
+	// mlog.Info("Movie is %v", movie)
 
 	// _, self.err = self.storeMovie.Exec(movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
 	// if self.err != nil {
-	// 	log.Fatalf("at storemovie: %s", self.err)
+	// 	mlog.Fatal("at storemovie: %s", self.err)
 	// }
 
 	tx.Commit()
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("FINISHED SAVING %s [%d]", movie.Title, self.cnt))
+	mlog.Info("FINISHED SAVING %s [%d]", movie.Title, self.cnt)
 
 	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
 	// if self.err != nil {
-	// 	log.Fatal(self.err)
+	// 	mlog.Fatal(self.err)
 	// }
 }
 
 func (self *Dal) doDeleteMovie(movie *message.Movie) {
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("STARTED DELETING [%d] %s", movie.Id, movie.Title))
+	mlog.Info("STARTED DELETING [%d] %s", movie.Id, movie.Title)
 
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatalf("at begin: %s", err)
+		mlog.Fatal("at begin: %s", err)
 	}
 
 	// stmt, err := tx.Prepare("insert into movie(title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, director, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
@@ -215,72 +189,72 @@ func (self *Dal) doDeleteMovie(movie *message.Movie) {
 	stmt, err := tx.Prepare("delete from movie where rowid = ?")
 	if err != nil {
 		tx.Rollback()
-		log.Fatalf("at prepare: %s", err)
+		mlog.Fatal("at prepare: %s", err)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(movie.Id)
 	if err != nil {
 		tx.Rollback()
-		log.Fatalf("at exec: %s", err)
+		mlog.Fatal("at exec: %s", err)
 	}
 
-	// log.Printf("Movie is %v", movie)
+	// mlog.Info("Movie is %v", movie)
 
 	// _, self.err = self.storeMovie.Exec(movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
 	// if self.err != nil {
-	// 	log.Fatalf("at storemovie: %s", self.err)
+	// 	mlog.Fatal("at storemovie: %s", self.err)
 	// }
 
 	tx.Commit()
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("FINISHED DELETING [%d] %s", movie.Id, movie.Title))
+	mlog.Info("FINISHED DELETING [%d] %s", movie.Id, movie.Title)
 
 	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
 	// if self.err != nil {
-	// 	log.Fatal(self.err)
+	// 	mlog.Fatal(self.err)
 	// }
 }
 
 func (self *Dal) doUpdateMovie(movie *message.Movie) {
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("STARTED UPDATING %s [%d]", movie.Title, self.cnt))
+	mlog.Info("STARTED UPDATING %s [%d]", movie.Title, self.cnt)
 
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatalf("at begin: %s", err)
+		mlog.Fatal("at begin: %s", err)
 	}
 
 	stmt, err := tx.Prepare("update movie set title = ?, original_title = ?, file_title = ?, year = ?, runtime = ?, imdb_id = ?, overview = ?, tagline = ?, cover = ?, backdrop = ?, genres = ?, vote_average = ?, vote_count = ?, countries = ?, modified = ? where tmdb_id = ?")
 	if err != nil {
 		tx.Rollback()
-		log.Fatalf("at prepare: %s", err)
+		mlog.Fatal("at prepare: %s", err)
 	}
 	defer stmt.Close()
 
 	_, err = stmt.Exec(movie.Title, movie.Original_Title, movie.File_Title, movie.Year, movie.Runtime, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Cover, movie.Backdrop, movie.Genres, movie.Vote_Average, movie.Vote_Count, movie.Production_Countries, movie.Modified, movie.Tmdb_Id)
 	if err != nil {
 		tx.Rollback()
-		log.Fatalf("at exec: %s", err)
+		mlog.Fatal("at exec: %s", err)
 	}
 
 	tx.Commit()
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("FINISHED UPDATING %s", movie.Title))
+	mlog.Info("FINISHED UPDATING %s", movie.Title)
 }
 
 func (self *Dal) doGetMovies(msg *message.GetMovies) {
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("unable to begin transaction: %s", err)
 	}
 
 	stmt, err := tx.Prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by added desc limit ?")
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("unable to prepare transaction: %s", err)
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(30)
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("unable to run transaction: %s", err)
 	}
 
 	var items []*message.Movie
@@ -300,12 +274,12 @@ func (self *Dal) doGetMovies(msg *message.GetMovies) {
 func (self *Dal) doListMovies(msg *message.ListMovies) {
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("unable to begin transaction: %s", err)
 	}
 
 	rows, err := self.listMovies.Query()
 	if err != nil {
-		log.Fatal(self.err)
+		mlog.Fatal("unable to prepare transaction: %s", self.err)
 	}
 
 	var items []*message.Movie
@@ -322,7 +296,7 @@ func (self *Dal) doListMovies(msg *message.ListMovies) {
 
 	tx.Commit()
 
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("Listed %d movies", self.cnt))
+	mlog.Info("Listed %d movies", self.cnt)
 
 	msg.Reply <- items
 }
@@ -330,12 +304,12 @@ func (self *Dal) doListMovies(msg *message.ListMovies) {
 func (self *Dal) doListByRuntime(msg *message.Movies) {
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("unable to begin transaction: %s", err)
 	}
 
 	rows, err := self.listByRuntime.Query()
 	if err != nil {
-		log.Fatal(self.err)
+		mlog.Fatal("unable to prepare transaction: %s", self.err)
 	}
 
 	var items []*message.Movie
@@ -352,28 +326,28 @@ func (self *Dal) doListByRuntime(msg *message.Movies) {
 
 	tx.Commit()
 
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("Listed (runtime) %d movies", self.cnt))
+	mlog.Info("Listed (runtime) %d movies", self.cnt)
 
 	msg.Reply <- items
 }
 
 func (self *Dal) doShowDuplicates(msg *message.Movies) {
-	tracelog.TRACE("mb", "dal", "started from the bottom now we're here")
+	mlog.Info("started from the bottom now we're here")
 
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("unable to begin transaction: %s", err)
 	}
 
 	// rows, err := self.listMovies.Query()
 	// if err != nil {
-	// 	log.Fatal(self.err)
+	// 	mlog.Fatal("unable to prepare transaction: %s", err)
 	// }
 
 	// rows, err := self.db.Query("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie where title in (select title from movie group by title having count(*) > 1);")
 	rows, err := self.db.Query("select a.rowid, a.title, a.original_title, a.file_title, a.year, a.runtime, a.tmdb_id, a.imdb_id, a.overview, a.tagline, a.resolution, a.filetype, a.location, a.cover, a.backdrop, a.genres, a.vote_average, a.vote_count, a.countries, a.added, a.modified, a.last_watched, a.all_watched, a.count_watched from movie a join (select title, year from movie group by title, year having count(*) > 1) b on a.title = b.title and a.year = b.year;")
 	if err != nil {
-		log.Fatal(self.err)
+		mlog.Fatal("unable to prepare transaction: %s", self.err)
 	}
 
 	var items []*message.Movie
@@ -390,7 +364,7 @@ func (self *Dal) doShowDuplicates(msg *message.Movies) {
 
 	tx.Commit()
 
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("Found %d duplicate movies", self.cnt))
+	mlog.Info("Found %d duplicate movies", self.cnt)
 
 	msg.Reply <- items
 }
@@ -408,7 +382,7 @@ func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
 	// defer stmt.Close()
 
 	// term := "%" + msg.Term + "%"
-	// log.Printf("this is: %s", term)
+	// mlog.Info("this is: %s", term)
 
 	// rows, err := stmt.Query(term)
 	// if err != nil {
@@ -420,11 +394,11 @@ func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
 	// term := "*" + msg.Term + "*"
 	// term := msg.Term + "* OR " + msg.Term
 	term := msg.Term + "*"
-	log.Printf("this is: %s", term)
+	mlog.Info("this is: %s", term)
 
 	rows, err := self.searchMovies.Query(term)
 	if err != nil {
-		log.Fatal(self.err)
+		mlog.Fatal("unable to begin transaction: %s", self.err)
 	}
 
 	var items []*message.Movie
@@ -442,12 +416,12 @@ func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
 func (self *Dal) doGetMoviesToFix(msg *message.Movies) {
 	tx, err := self.db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("unable to begin transaction: %s", err)
 	}
 
 	rows, err := self.listMoviesToFix.Query()
 	if err != nil {
-		log.Fatal(self.err)
+		mlog.Fatal("unable to begin transaction: %s", self.err)
 	}
 
 	var items []*message.Movie
@@ -464,7 +438,7 @@ func (self *Dal) doGetMoviesToFix(msg *message.Movies) {
 
 	tx.Commit()
 
-	tracelog.TRACE("mb", "dal", fmt.Sprintf("Listed %d movies to fix", self.cnt))
+	mlog.Info("Listed %d movies to fix", self.cnt)
 
 	msg.Reply <- items
 }

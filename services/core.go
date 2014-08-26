@@ -4,11 +4,7 @@ import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
-	// // "crypto/sha1"
-	// // "encoding/hex"
-	"fmt"
-	"github.com/goinggo/tracelog"
-	"log"
+	"github.com/apertoire/mlog"
 )
 
 type Core struct {
@@ -17,18 +13,18 @@ type Core struct {
 }
 
 func (self *Core) Start() {
-	log.Printf("starting core service ...")
+	mlog.Info("starting core service ...")
 
 	// some initialization
 
 	go self.react()
 
-	log.Printf("core service started")
+	mlog.Info("core service started")
 }
 
 func (self *Core) Stop() {
 	// some deinitialization
-	log.Printf("core service stopped")
+	mlog.Info("core service stopped")
 }
 
 func (self *Core) react() {
@@ -47,8 +43,8 @@ func (self *Core) react() {
 }
 
 func (self *Core) doMovieFound(movie *message.Movie) {
-	// log.Printf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
-	// tracelog.INFO("mb", "core", fmt.Sprintf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location))
+	// mlog.Info("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
+	// mlog.INFO("mb", "core", fmt.Sprintf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location))
 	// calculate hex sha1 for the full movie path
 	// h := sha1.New()
 	// h.Write([]byte(fmt.Sprintf("%s|%s", movie.Title, movie.Year)))
@@ -68,7 +64,7 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 	exists := <-c
 
 	if exists {
-		tracelog.TRACE("mb", "core", fmt.Sprintf("SKIPPED: present in db [%s] (%s)", movie.Title, movie.Location))
+		mlog.Info("SKIPPED: present in db [%s] (%s)", movie.Title, movie.Location)
 		return
 	}
 
@@ -81,12 +77,12 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 
 func (self *Core) doMovieScraped(media *message.Media) {
 	go func() {
-		tracelog.TRACE("mb", "core", fmt.Sprintf("STORING MOVIE [%s]", media.Movie.Title))
+		mlog.Info("STORING MOVIE [%s]", media.Movie.Title)
 		self.Bus.StoreMovie <- media.Movie
 	}()
 
 	go func() {
-		tracelog.TRACE("mb", "core", fmt.Sprintf("CACHING MEDIA [%s]", media.Movie.Title))
+		mlog.Info("CACHING MEDIA [%s]", media.Movie.Title)
 		media.BasePath = self.Config.AppDir
 		self.Bus.CacheMedia <- media
 	}()
@@ -94,12 +90,12 @@ func (self *Core) doMovieScraped(media *message.Media) {
 
 func (self *Core) doMovieRescraped(media *message.Media) {
 	go func() {
-		tracelog.TRACE("mb", "core", fmt.Sprintf("UPDATING MOVIE [%s]", media.Movie.Title))
+		mlog.Info("UPDATING MOVIE [%s]", media.Movie.Title)
 		self.Bus.UpdateMovie <- media.Movie
 	}()
 
 	go func() {
-		tracelog.TRACE("mb", "core", fmt.Sprintf("CACHING MEDIA [%s]", media.Movie.Title))
+		mlog.Info("CACHING MEDIA [%s]", media.Movie.Title)
 		media.BasePath = self.Config.AppDir
 		self.Bus.CacheMedia <- media
 	}()
@@ -109,11 +105,11 @@ func (self *Core) doFixMovies(flag int) {
 	msg := message.Movies{make(chan []*message.Movie)}
 	self.Bus.GetMoviesToFix <- &msg
 
-	tracelog.TRACE("mb", "core", fmt.Sprintf("AFTER GET MOVIES TO FIX [%v]", msg.Reply))
+	mlog.Info("AFTER GET MOVIES TO FIX [%v]", msg.Reply)
 
 	reply := <-msg.Reply
 
-	tracelog.TRACE("mb", "core", fmt.Sprintf("WAITING FOR REPLY [%v]", reply))
+	mlog.Info("WAITING FOR REPLY [%v]", reply)
 
 	self.Bus.RescrapeMovies <- reply
 }

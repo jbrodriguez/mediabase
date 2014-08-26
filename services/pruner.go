@@ -4,13 +4,8 @@ import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
-	"fmt"
-	"github.com/goinggo/tracelog"
-	"log"
+	"github.com/apertoire/mlog"
 	"os"
-	// "path/filepath"
-	// "regexp"
-	// "strings"
 )
 
 type Pruner struct {
@@ -19,16 +14,16 @@ type Pruner struct {
 }
 
 func (self *Pruner) Start() {
-	log.Printf("starting Pruner service ...")
+	mlog.Info("starting Pruner service ...")
 
 	go self.react()
 
-	log.Printf("Pruner service started")
+	mlog.Info("Pruner service started")
 }
 
 func (self *Pruner) Stop() {
 	// nothing right now
-	log.Printf("Pruner service stopped")
+	mlog.Info("Pruner service stopped")
 }
 
 func (self *Pruner) react() {
@@ -41,7 +36,7 @@ func (self *Pruner) react() {
 }
 
 func (self *Pruner) doPruneMovies(reply chan string) {
-	tracelog.TRACE("mb", "pruner", "Looking for something to prune")
+	mlog.Info("Looking for something to prune")
 
 	msg := message.ListMovies{make(chan []*message.Movie)}
 	self.Bus.ListMovies <- &msg
@@ -51,7 +46,7 @@ func (self *Pruner) doPruneMovies(reply chan string) {
 
 		if _, err := os.Stat(item.Location); err != nil {
 			if os.IsNotExist(err) {
-				tracelog.TRACE("mb", "pruner", fmt.Sprintf("UP FOR DELETION: [%d] %s (%s))", item.Id, item.Title, item.Location))
+				mlog.Info("UP FOR DELETION: [%d] %s (%s))", item.Id, item.Title, item.Location)
 				self.Bus.DeleteMovie <- item
 			}
 		}

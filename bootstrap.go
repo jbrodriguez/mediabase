@@ -5,17 +5,17 @@ import (
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/services"
 	"fmt"
-	"log"
+	"github.com/apertoire/mlog"
 )
 
 func main() {
-	log.Printf("starting up ...")
+	mlog.Start(mlog.LevelInfo, "./log/mediabase.log")
+	mlog.Info("starting up ...")
 
 	config := helper.Config{}
 	config.Init()
 
 	bus := bus.Bus{}
-	logger := services.Logger{Bus: &bus, Config: &config}
 	dal := services.Dal{Bus: &bus, Config: &config}
 	server := services.Server{Bus: &bus, Config: &config}
 	scanner := services.Scanner{Bus: &bus}
@@ -25,7 +25,6 @@ func main() {
 	core := services.Core{Bus: &bus, Config: &config}
 
 	bus.Start()
-	logger.Start()
 	dal.Start()
 	server.Start()
 	scanner.Start()
@@ -34,7 +33,7 @@ func main() {
 	cache.Start()
 	core.Start()
 
-	log.Printf("press enter to stop ...")
+	mlog.Info("press enter to stop ...")
 	var input string
 	fmt.Scanln(&input)
 
@@ -45,6 +44,5 @@ func main() {
 	scanner.Stop()
 	server.Stop()
 	dal.Stop()
-	logger.Stop()
 	// bus.Stop()
 }

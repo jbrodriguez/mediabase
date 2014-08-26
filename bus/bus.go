@@ -2,7 +2,7 @@ package bus
 
 import (
 	"apertoire.net/mediabase/message"
-	"log"
+	"github.com/apertoire/mlog"
 )
 
 type Bus struct {
@@ -28,11 +28,10 @@ type Bus struct {
 	DeleteMovie chan *message.Movie
 	CacheMedia  chan *message.Media
 	UpdateMovie chan *message.Movie
-	Log         chan string
 }
 
 func (self *Bus) Start() {
-	log.Println("bus starting up ...")
+	mlog.Info("bus starting up ...")
 
 	self.ScanMovies = make(chan *message.ScanMovies)
 	self.ScrapeMovie = make(chan *message.Movie)
@@ -56,8 +55,6 @@ func (self *Bus) Start() {
 	self.DeleteMovie = make(chan *message.Movie)
 	self.CacheMedia = make(chan *message.Media)
 	self.UpdateMovie = make(chan *message.Movie)
-
-	self.Log = make(chan string)
 }
 
 // type Msg struct {

@@ -4,11 +4,9 @@ import (
 	"apertoire.net/mediabase/bus"
 	"apertoire.net/mediabase/helper"
 	"apertoire.net/mediabase/message"
-	"fmt"
 	"github.com/apertoire/go-tmdb"
-	"github.com/goinggo/tracelog"
+	"github.com/apertoire/mlog"
 	"github.com/goinggo/workpool"
-	"log"
 	"time"
 )
 
@@ -20,12 +18,12 @@ type Scraper struct {
 }
 
 func (self *Scraper) Start() {
-	log.Println("starting scraper service ...")
+	mlog.Info("starting scraper service ...")
 
 	var err error
 	self.tmdb, err = tmdb.NewClient("e610ded10c3f47d05fe797961d90fea6", false)
 	if err != nil {
-		log.Fatal(err)
+		mlog.Fatal("unable to create tmdb client: %s", err)
 	}
 
 	self.workpool = workpool.New(12, 4000)
@@ -34,12 +32,12 @@ func (self *Scraper) Start() {
 
 	// go self.workpool.Balance()
 
-	log.Println("scraper service started")
+	mlog.Info("scraper service started")
 }
 
 func (self *Scraper) Stop() {
 	self.workpool.Shutdown("scraper")
-	log.Printf("scraper service stopped")
+	mlog.Info("scraper service stopped")
 }
 
 func (self *Scraper) react() {
@@ -56,7 +54,7 @@ func (self *Scraper) react() {
 }
 
 func (self *Scraper) fixMoviesWork(movies []*message.Movie) {
-	tracelog.TRACE("mb", "scraper", "FIX MOVIES WORK REQUESTED FOR [%d] movies", len(movies))
+	mlog.Info("FIX MOVIES WORK REQUESTED FOR [%d] movies", len(movies))
 
 	c := make(chan *message.Media)
 
@@ -70,18 +68,18 @@ func (self *Scraper) fixMoviesWork(movies []*message.Movie) {
 
 		self.workpool.PostWork("fixMovieGig", gig)
 
-		// tracelog.TRACE("mb", "scraper", "[%s] RUNNING SCRAPING [%s]", movie.Title)
+		// mlog.Info("[%s] RUNNING SCRAPING [%s]", movie.Title)
 		media := <-c
 
-		// tracelog.TRACE("mb", "scraper", "[%s] FINISHED SCRAPING", media.Movie.Title)
+		// mlog.Info("[%s] FINISHED SCRAPING", media.Movie.Title)
 		self.Bus.MovieRescraped <- media
 	}
 
-	tracelog.TRACE("mb", "scraper", "FIX MOVIES WORK COMPLETED FOR [%d]", len(movies))
+	mlog.Info("FIX MOVIES WORK COMPLETED FOR [%d]", len(movies))
 }
 
 func (self *Scraper) requestWork(movie *message.Movie) {
-	tracelog.TRACE("mb", "scraper", "WORK REQUESTED [%s]", movie.Title)
+	mlog.Info("WORK REQUESTED [%s]", movie.Title)
 
 	c := make(chan *message.Media)
 
@@ -94,13 +92,13 @@ func (self *Scraper) requestWork(movie *message.Movie) {
 
 	self.workpool.PostWork("gig", gig)
 
-	// tracelog.TRACE("mb", "scraper", "[%s] RUNNING SCRAPING [%s]", movie.Title)
+	// mlog.Info("[%s] RUNNING SCRAPING [%s]", movie.Title)
 	media := <-c
 
-	// tracelog.TRACE("mb", "scraper", "[%s] FINISHED SCRAPING", media.Movie.Title)
+	// mlog.Info("[%s] FINISHED SCRAPING", media.Movie.Title)
 	self.Bus.MovieScraped <- media
 
-	tracelog.TRACE("mb", "scraper", "WORK COMPLETED [%s]", movie.Title)
+	mlog.Info("WORK COMPLETED [%s]", movie.Title)
 }
 
 type Gig struct {
@@ -119,27 +117,27 @@ func (self *Gig) DoWork(workRoutine int) {
 
 	result = self.media
 
-	tracelog.TRACE("mb", "scraper", "STARTED SCRAPING [%s]", self.media.Movie.Title)
+	mlog.Info("STARTED SCRAPING [%s]", self.media.Movie.Title)
 	movies, err := self.tmdb.SearchMovie(self.media.Movie.Title)
 	if err != nil {
-		log.Println(err)
+		mlog.Error(err)
 		return
 	}
 
 	if movies.Total_Results == 0 {
-		tracelog.TRACE("mb", "scraper", fmt.Sprintf("TMDB: NO MATCH FOUND [%s]", self.media.Movie.Title))
+		mlog.Info("TMDB: NO MATCH FOUND [%s]", self.media.Movie.Title)
 		return
 	} else if movies.Total_Results > 1 {
-		tracelog.TRACE("mb", "scraper", fmt.Sprintf("TMDB: MORE THAN ONE [%s]", self.media.Movie.Title))
+		mlog.Info("TMDB: MORE THAN ONE [%s]", self.media.Movie.Title)
 	}
 
 	id := movies.Results[0].Id
 
 	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
-	// tracelog.TRACE("mb", "scraper", "[%s] before getmovie [%s]", self.media.Movie.Title)
+	// mlog.Info("[%s] before getmovie [%s]", self.media.Movie.Title)
 	gmr, err := self.tmdb.GetMovie(id)
 	if err != nil {
-		tracelog.TRACE("mb", "scraper", fmt.Sprintf("FAILED GETTING MOVIE [%s]", self.media.Movie.Title))
+		mlog.Info("FAILED GETTING MOVIE [%s]", self.media.Movie.Title)
 		return
 	}
 
@@ -181,7 +179,7 @@ func (self *Gig) DoWork(workRoutine int) {
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
 
-	tracelog.TRACE("mb", "scraper", "FINISHED SCRAPING [%s]", self.media.Movie.Title)
+	mlog.Info("FINISHED SCRAPING [%s]", self.media.Movie.Title)
 	// return media
 	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}
 }
@@ -200,16 +198,16 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 		self.ret <- result
 	}()
 
-	tracelog.TRACE("mb", "scraper", "FIXMOVIE: STARTED SCRAPING [%s]", self.media.Movie.Title)
+	mlog.Info("FIXMOVIE: STARTED SCRAPING [%s]", self.media.Movie.Title)
 	result = self.media
 
 	id := self.media.Movie.Tmdb_Id
 
 	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
-	// tracelog.TRACE("mb", "scraper", "[%s] before getmovie [%s]", self.media.Movie.Title)
+	// mlog.Info("[%s] before getmovie [%s]", self.media.Movie.Title)
 	gmr, err := self.tmdb.GetMovie(id)
 	if err != nil {
-		tracelog.TRACE("mb", "scraper", fmt.Sprintf("FIXMOVIE: FAILED GETTING MOVIE [%s]", self.media.Movie.Title))
+		mlog.Info("FIXMOVIE: FAILED GETTING MOVIE [%s]", self.media.Movie.Title)
 		return
 	}
 
@@ -250,7 +248,7 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
 
-	tracelog.TRACE("mb", "scraper", "FIXMOVIE: FINISHED SCRAPING [%s]", self.media.Movie.Title)
+	mlog.Info("FIXMOVIE: FINISHED SCRAPING [%s]", self.media.Movie.Title)
 	// return media
 	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}
 }
