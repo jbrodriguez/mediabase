@@ -1,9 +1,9 @@
 package services
 
 import (
-	"apertoire.net/mediabase/bus"
-	"apertoire.net/mediabase/helper"
-	"apertoire.net/mediabase/message"
+	"apertoire.net/mediabase/server/bus"
+	"apertoire.net/mediabase/server/helper"
+	"apertoire.net/mediabase/server/message"
 	"github.com/apertoire/go-tmdb"
 	"github.com/apertoire/mlog"
 	"github.com/goinggo/workpool"
@@ -23,7 +23,7 @@ func (self *Scraper) Start() {
 	var err error
 	self.tmdb, err = tmdb.NewClient("e610ded10c3f47d05fe797961d90fea6", false)
 	if err != nil {
-		mlog.Fatal("unable to create tmdb client: %s", err)
+		mlog.Fatalf("unable to create tmdb client: %s", err)
 	}
 
 	self.workpool = workpool.New(12, 4000)
@@ -62,7 +62,7 @@ func (self *Scraper) fixMoviesWork(movies []*message.Movie) {
 		gig := &FixMovieGig{
 			self.Bus,
 			self.tmdb,
-			&message.Media{"", "", "", movies[i], true},
+			&message.Media{BaseUrl: "", SecureBaseUrl: "", BasePath: "", Movie: movies[i], Forced: true},
 			c,
 		}
 
@@ -86,7 +86,7 @@ func (self *Scraper) requestWork(movie *message.Movie) {
 	gig := &Gig{
 		self.Bus,
 		self.tmdb,
-		&message.Media{"", "", "", movie, false},
+		&message.Media{BaseUrl: "", SecureBaseUrl: "", BasePath: "", Movie: movie, Forced: false},
 		c,
 	}
 

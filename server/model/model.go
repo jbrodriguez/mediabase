@@ -1,11 +1,11 @@
 package model
 
 type ScanMovieReq struct {
-	Start bool `json: start`
+	Start bool `json:"start"`
 }
 
 type ScanMovieRep struct {
-	Started bool `json: started`
+	Started bool `json:"started"`
 }
 
 // type UserAuthReq struct {

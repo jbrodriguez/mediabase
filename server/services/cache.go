@@ -1,9 +1,9 @@
 package services
 
 import (
-	"apertoire.net/mediabase/bus"
-	"apertoire.net/mediabase/helper"
-	"apertoire.net/mediabase/message"
+	"apertoire.net/mediabase/server/bus"
+	"apertoire.net/mediabase/server/helper"
+	"apertoire.net/mediabase/server/message"
 	"github.com/apertoire/mlog"
 	"github.com/goinggo/workpool"
 	"github.com/nfnt/resize"

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"apertoire.net/mediabase/bus"
-	"apertoire.net/mediabase/helper"
-	// "apertoire.net/mediabase/message"
-	"apertoire.net/mediabase/services"
+	"apertoire.net/mediabase/server/bus"
+	"apertoire.net/mediabase/server/helper"
+	// "apertoire.net/mediabase/server/message"
+	"apertoire.net/mediabase/server/services"
 	"fmt"
 	"log"
 	"runtime"

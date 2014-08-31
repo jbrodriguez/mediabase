@@ -1,9 +1,9 @@
 package services
 
 import (
-	"apertoire.net/mediabase/bus"
-	"apertoire.net/mediabase/helper"
-	"apertoire.net/mediabase/message"
+	"apertoire.net/mediabase/server/bus"
+	"apertoire.net/mediabase/server/helper"
+	"apertoire.net/mediabase/server/message"
 	"github.com/apertoire/mlog"
 	"os"
 	"path/filepath"
@@ -36,9 +36,9 @@ func (self *Scanner) Start() {
 	// fmt.Println(test[loc[0]:loc[1]], "found at: ", loc[0])
 	// break
 
-	self.re[0] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*bdmv/index.(?P<FileType>bdmv)$`)}
-	self.re[1] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*.*\.(?P<FileType>iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms|mdf|wmv)$`)}
-	self.re[2] = &helper.Rexp{regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*(?:video_ts|hv000i01)\.(?P<FileType>ifo)$`)}
+	self.re[0] = &helper.Rexp{Exp: regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*bdmv/index.(?P<FileType>bdmv)$`)}
+	self.re[1] = &helper.Rexp{Exp: regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*.*\.(?P<FileType>iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms|mdf|wmv)$`)}
+	self.re[2] = &helper.Rexp{Exp: regexp.MustCompile(`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\s\((?P<Year>\d\d\d\d)\)/(?:.*/)*(?:video_ts|hv000i01)\.(?P<FileType>ifo)$`)}
 
 	self.includedMask = ".bdmv|.iso|.img|.nrg|.mkv|.avi|.xvid|.ts|.mpg|.dvr-ms|.mdf|.wmv|.ifo"
 

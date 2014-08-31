@@ -1,9 +1,9 @@
 package services
 
 import (
-	"apertoire.net/mediabase/bus"
-	"apertoire.net/mediabase/helper"
-	"apertoire.net/mediabase/message"
+	"apertoire.net/mediabase/server/bus"
+	"apertoire.net/mediabase/server/helper"
+	"apertoire.net/mediabase/server/message"
 	"github.com/apertoire/mlog"
 )
 
@@ -60,7 +60,7 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 
 	c := make(chan bool)
 
-	self.Bus.CheckMovie <- &message.CheckMovie{movie, c}
+	self.Bus.CheckMovie <- &message.CheckMovie{Movie: movie, Result: c}
 	exists := <-c
 
 	if exists {
@@ -102,7 +102,7 @@ func (self *Core) doMovieRescraped(media *message.Media) {
 }
 
 func (self *Core) doFixMovies(flag int) {
-	msg := message.Movies{make(chan []*message.Movie)}
+	msg := message.Movies{Reply: make(chan []*message.Movie)}
 	self.Bus.GetMoviesToFix <- &msg
 
 	mlog.Info("AFTER GET MOVIES TO FIX [%v]", msg.Reply)

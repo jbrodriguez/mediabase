@@ -1,9 +1,9 @@
 package services
 
 import (
-	"apertoire.net/mediabase/bus"
-	"apertoire.net/mediabase/helper"
-	"apertoire.net/mediabase/message"
+	"apertoire.net/mediabase/server/bus"
+	"apertoire.net/mediabase/server/helper"
+	"apertoire.net/mediabase/server/message"
 	"github.com/apertoire/mlog"
 	"os"
 )
@@ -38,7 +38,7 @@ func (self *Pruner) react() {
 func (self *Pruner) doPruneMovies(reply chan string) {
 	mlog.Info("Looking for something to prune")
 
-	msg := message.ListMovies{make(chan []*message.Movie)}
+	msg := message.ListMovies{Reply: make(chan []*message.Movie)}
 	self.Bus.ListMovies <- &msg
 	items := <-msg.Reply
 

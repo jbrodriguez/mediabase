@@ -1,7 +1,7 @@
 package bus
 
 import (
-	"apertoire.net/mediabase/message"
+	"apertoire.net/mediabase/server/message"
 	"github.com/apertoire/mlog"
 )
 

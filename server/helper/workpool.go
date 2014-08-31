@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"apertoire.net/mediabase/message"
+	"apertoire.net/mediabase/server/message"
 	"container/heap"
 	"fmt"
 	// "github.com/apertoire/mlog"

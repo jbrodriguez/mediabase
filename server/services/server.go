@@ -1,9 +1,9 @@
 package services
 
 import (
-	"apertoire.net/mediabase/bus"
-	"apertoire.net/mediabase/helper"
-	"apertoire.net/mediabase/message"
+	"apertoire.net/mediabase/server/bus"
+	"apertoire.net/mediabase/server/helper"
+	"apertoire.net/mediabase/server/message"
 	"fmt"
 	"github.com/apertoire/mlog"
 	"github.com/gorilla/mux"
@@ -42,7 +42,7 @@ func (self *Server) scanMovies(w http.ResponseWriter, req *http.Request) {
 	// }{0, "all is good"}
 	// helper.WriteJson(w, 200, &data)
 
-	msg := message.ScanMovies{make(chan string)}
+	msg := message.ScanMovies{Reply: make(chan string)}
 	self.Bus.ScanMovies <- &msg
 	reply := <-msg.Reply
 
@@ -59,7 +59,7 @@ func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
 	// }{0, "all is good"}
 	// helper.WriteJson(w, 200, &data)
 
-	msg := message.PruneMovies{make(chan string)}
+	msg := message.PruneMovies{Reply: make(chan string)}
 	self.Bus.PruneMovies <- &msg
 	reply := <-msg.Reply
 
@@ -69,7 +69,7 @@ func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
 }
 
 func (self *Server) getMovies(w http.ResponseWriter, req *http.Request) {
-	msg := message.GetMovies{make(chan []*message.Movie)}
+	msg := message.GetMovies{Reply: make(chan []*message.Movie)}
 	self.Bus.GetMovies <- &msg
 	reply := <-msg.Reply
 
@@ -79,7 +79,7 @@ func (self *Server) getMovies(w http.ResponseWriter, req *http.Request) {
 }
 
 func (self *Server) listMovies(w http.ResponseWriter, req *http.Request) {
-	msg := message.ListMovies{make(chan []*message.Movie)}
+	msg := message.ListMovies{Reply: make(chan []*message.Movie)}
 	self.Bus.ListMovies <- &msg
 	reply := <-msg.Reply
 
@@ -89,7 +89,7 @@ func (self *Server) listMovies(w http.ResponseWriter, req *http.Request) {
 }
 
 func (self *Server) showDuplicates(w http.ResponseWriter, req *http.Request) {
-	msg := message.Movies{make(chan []*message.Movie)}
+	msg := message.Movies{Reply: make(chan []*message.Movie)}
 	self.Bus.ShowDuplicates <- &msg
 	reply := <-msg.Reply
 	mlog.Info("never returned")
@@ -100,7 +100,7 @@ func (self *Server) showDuplicates(w http.ResponseWriter, req *http.Request) {
 }
 
 func (self *Server) listByRuntime(w http.ResponseWriter, req *http.Request) {
-	msg := message.Movies{make(chan []*message.Movie)}
+	msg := message.Movies{Reply: make(chan []*message.Movie)}
 	self.Bus.ListByRuntime <- &msg
 	reply := <-msg.Reply
 
@@ -119,7 +119,7 @@ func (self *Server) searchMovies(w http.ResponseWriter, r *http.Request) {
 
 	mlog.Info("the mother is: %s", term)
 
-	msg := message.SearchMovies{term, make(chan []*message.Movie)}
+	msg := message.SearchMovies{Term: term, Reply: make(chan []*message.Movie)}
 	self.Bus.SearchMovies <- &msg
 	reply := <-msg.Reply
 
@@ -134,7 +134,7 @@ func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {
 }
 
 func (self *Server) testScan() {
-	msg := message.ScanMovies{make(chan string)}
+	msg := message.ScanMovies{Reply: make(chan string)}
 	self.Bus.ScanMovies <- &msg
 	// reply := <-msg.Reply
 }

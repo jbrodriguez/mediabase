@@ -49,6 +49,7 @@ Icon
 mediabase
 log
 bin/
+dist/
 
 ### grunt stuff
 *.sw*
