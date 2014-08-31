@@ -1,9 +1,0 @@
-{
-	"name": "mediabase",
-	"version": "0.1.0",
-	"devDependencies": {
-		"angular": "~1.2.2",
-		"angular-ui-router": "~0.2.0",
-		"angular-ui-utils": "~0.0.4"
-	}
-}
