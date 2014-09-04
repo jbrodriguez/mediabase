@@ -37,8 +37,7 @@ header {
 
 .top-bar .name h1 a {
 	color: #32BD44;
-/*	color: #27ae60;
-*/	font-family: Lato, Helvetica;
+	font-family: Lato, Helvetica;
 	font-size: 110%;
 	text-transform: uppercase;
 }
@@ -71,17 +70,23 @@ header {
 
 main {
 	background: #EFF2F4;
-	padding: 10px 0;
-}
+/*	padding: 10px 0;
+*/}
 
 main h4 {
-	color: #2c3e50;
-	margin: 0;
+	color: #C14242;
+/*	color: #2c3e50;
+*/	margin: 0;
 }
 
 main .overview {
 	padding: 5px 0 5px 0;
 	color: #8D9DA9;
+}
+
+article {
+	padding: 15px 0;
+	border-bottom: 1px solid #E6EAEE;
 }
 
 nav .menu {
