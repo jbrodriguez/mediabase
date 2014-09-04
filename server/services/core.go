@@ -51,7 +51,7 @@ func (self *Core) doPrepareScanMovies(status *message.Status) {
 	self.Bus.ScanMovies <- &msg
 	reply := <-msg.Reply
 
-	status.Reply <- &message.Context{Message: reply, Backdrop: "/1AG4zhL1MPdJGwAp3GODLG1j1LY.jpg", Completed: false}
+	status.Reply <- &message.Context{Message: reply, Backdrop: "/mAwd34SAC8KqBKRm2MwHPLhLDU5.jpg", Completed: false}
 }
 
 func (self *Core) doMovieFound(movie *message.Movie) {
