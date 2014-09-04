@@ -20,6 +20,15 @@ lint:
 test:
 	go test ./...
 
+clean:
+	rm -rf dist
+
+run: clean build
+	cp -r client/ dist
+	ln -s "/Volumes/Users/kayak/Library/Application Support/net.apertoire.mediabase/web/img" dist/img
+	ln -s "/Volumes/Users/kayak/Library/Application Support/net.apertoire.mediabase/db" dist/db
+	cd dist && ./mediabase
+
 vendor_clean:
 	rm -dRf ./_vendor/src
 

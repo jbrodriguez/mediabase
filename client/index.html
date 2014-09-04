@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html>
+<html data-ng-app="app">
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -44,56 +44,7 @@
 		</nav>
 	</header>
 
-	<main>
-		<article class="container row">
-			<div class="large-2 column">
-				<img src="img/rsz_1fc87E3ppCq6xBnZJ63Sa9FKRUd.jpg">
-			</div>
-
-			<div class="large-7 column">
-				<div class="row collapse">
-					<div class="large-12 column">
-						<h4>Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1998)</h4>
-					</div>
-				</div>
-	
-				<div class="row">
-					<div class="large-12 column">
-						<span class="label">Bluray</span>
-						<span class="label secondary">195 min</span>
-						<span class="label watched">Watched: June 23, 2014</span>
-					</div>
-				</div>
-	
-				<div class="row collapse">
-					<div class="large-12 column overview">
-					Cult classic starring Ralph Macchio as a want-to-be blues guitar virtuoso who seeks a long-lost song by legendary musician Robert Johnson.
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="large-6 column">
-						<div class="row collapse">
-						    <div class="small-10 large-10 column">
-						    	<input type="text" placeholder="Enter TMDB Id">
-						    </div>
-						    <div class="small-2 large-2 column">
-								<a href="#" class="button postfix">Fix</a>
-          				    </div>
-						</div>					
-					</div>
-					<div class="large-6 column">
-						<input type="text" value="06/23/2014" id="dtpicker" >					
-					</div>
-				</div>
-			</div>
-
-			<div class="large-3 column">
-				<img src="img/1A2qOz9zgfG51LCZivXKLPbO88u.jpg">
-				<small>/Volumes/wopr-films/bluray/Galapagos (2006)/BDMV/index.bdmv</small>
-			</div>
-		</article>
-	</main>
+	<main ui-view></main>
 
 	<footer>
 		<section class="container row">
@@ -103,8 +54,34 @@
 		</section>
 	</footer>
 
+    <!-- inject-vendor:js -->
 	<script src="http://code.jquery.com/jquery.min.js"></script>
 	<script src="js/vendor/jquery.datetimepicker.js"></script>
+	<script src="http://code.angularjs.org/1.2.9/angular.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.min.js"></script>
+    <!-- endinject -->
+
+
+    <!-- inject:js -->
+    <!-- Bootstrapping -->
+	<script type="text/javascript" src="app/app.module.js"></script>
+
+    <!-- Reusable Blocks/Modules -->
+    <script src="app/blocks/exception/exception.module.js"></script>
+    <script src="app/blocks/exception/exception-handler.js"></script>
+    <script src="app/blocks/exception/exception.js"></script>
+    <script src="app/blocks/logger/logger.module.js"></script>
+    <script src="app/blocks/logger/logger.js"></script>
+
+    <!-- core module -->
+    <script src="app/core/core.module.js"></script>
+    <script src="app/core/api.js"></script>
+
+    <!-- recent -->
+    <script src="app/recent/recent.module.js"></script>
+    <script src="app/recent/config.route.js"></script>
+    <script src="app/recent/recent.js"></script>
+
 
 	<script>
 		$('#dtpicker').datetimepicker({
