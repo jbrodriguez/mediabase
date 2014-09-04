@@ -28,6 +28,8 @@ func (self *Core) Stop() {
 }
 
 func (self *Core) react() {
+	mlog.Info("and this one time , at band camp")
+
 	for {
 		select {
 		case msg := <-self.Bus.MovieFound:
@@ -38,8 +40,18 @@ func (self *Core) react() {
 			go self.doMovieRescraped(msg)
 		case msg := <-self.Bus.FixMovies:
 			go self.doFixMovies(msg)
+		case msg := <-self.Bus.PrepareScanMovies:
+			go self.doPrepareScanMovies(msg)
 		}
 	}
+}
+
+func (self *Core) doPrepareScanMovies(status *message.Status) {
+	msg := message.ScanMovies{Reply: make(chan string)}
+	self.Bus.ScanMovies <- &msg
+	reply := <-msg.Reply
+
+	status.Reply <- &message.Context{Message: reply, Backdrop: "/1AG4zhL1MPdJGwAp3GODLG1j1LY.jpg", Completed: false}
 }
 
 func (self *Core) doMovieFound(movie *message.Movie) {

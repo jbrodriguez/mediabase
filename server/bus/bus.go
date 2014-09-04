@@ -10,6 +10,8 @@ type Bus struct {
 	ScrapeMovie chan *message.Movie
 	PruneMovies chan *message.PruneMovies
 
+	PrepareScanMovies chan *message.Status
+
 	MovieFound     chan *message.Movie
 	MovieScraped   chan *message.Media
 	MovieRescraped chan *message.Media
@@ -37,6 +39,8 @@ func (self *Bus) Start() {
 	self.ScrapeMovie = make(chan *message.Movie)
 	self.PruneMovies = make(chan *message.PruneMovies)
 
+	self.PrepareScanMovies = make(chan *message.Status)
+
 	self.MovieFound = make(chan *message.Movie)
 	self.MovieScraped = make(chan *message.Media)
 	self.MovieRescraped = make(chan *message.Media)
@@ -55,6 +59,8 @@ func (self *Bus) Start() {
 	self.DeleteMovie = make(chan *message.Movie)
 	self.CacheMedia = make(chan *message.Media)
 	self.UpdateMovie = make(chan *message.Movie)
+
+	mlog.Info("bus started ...")
 }
 
 // type Msg struct {

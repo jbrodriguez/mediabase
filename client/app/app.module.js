@@ -20,6 +20,7 @@
          * Feature areas
          */
         'app.recent',
+        'app.scan',
     ]);
 
     angular

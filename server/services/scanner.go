@@ -97,7 +97,7 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 func (self *Scanner) doScanMovies(reply chan string) {
 	mlog.Info("inside ScanMovies")
 
-	// reply <- "Movie scanning process started ..."
+	reply <- "Movie scanning process started ..."
 
 	err := filepath.Walk("/Volumes/hal-films", self.visit)
 	if err != nil {

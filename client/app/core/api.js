@@ -12,7 +12,9 @@
     	var ep = "/api/v1/";
 
     	var service = {
-    		getRecentMovies: getRecentMovies
+    		getRecentMovies: getRecentMovies,
+            startScan: startScan,
+            getStatus: getStatus
     	};
 
     	return service;
@@ -30,6 +32,32 @@
     			return data;
     		}
     	}
+
+        function startScan() {
+            return $http.get(ep + '/scan')
+                .then(startScanEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for startScan')(message);
+                    $location.url('/');
+                });
+
+            function startScanEnd(data, status, headers, config) {
+                return data;
+            }
+        }
+
+        function getStatus() {
+            return $http.get(ep + '/status')
+                .then(getStatusEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for getStatus')(message);
+                    $location.url('/');
+                });
+
+            function getStatusEnd(data, status, headers, config) {
+                return data;
+            }
+        }        
     }
 
 })();
