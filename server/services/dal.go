@@ -70,7 +70,7 @@ func (self *Dal) Stop() {
 	self.listByRuntime.Close()
 	self.listMovies.Close()
 	self.searchMovies.Close()
-	self.storeMovie.Close()
+	// self.storeMovie.Close()
 	self.db.Close()
 
 	mlog.Info("dal service stopped")

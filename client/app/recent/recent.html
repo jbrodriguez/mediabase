@@ -1,0 +1,48 @@
+		<article data-ng-repeat="movie in vm.movies" class="container row">
+			<div class="large-2 column">
+				<img src="img/p{{movie.cover}}">
+			</div>
+
+			<div class="large-7 column">
+				<div class="row collapse">
+					<div class="large-12 column">
+						<h4>{{ movie.title }}</h4>
+					</div>
+				</div>
+	
+				<div class="row">
+					<div class="large-12 column">
+						<span class="label">{{ movie.resolution }}</span>
+						<span class="label secondary">{{movie.runtime}} min</span>
+						<span class="label watched">Watched: June 23, 2014</span>
+					</div>
+				</div>
+	
+				<div class="row collapse">
+					<div class="large-12 column overview">
+					{{movie.tagline}}
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="large-6 column">
+						<div class="row collapse">
+						    <div class="small-10 large-10 column">
+						    	<input type="text" placeholder="Enter TMDB Id">
+						    </div>
+						    <div class="small-2 large-2 column">
+								<a href="#" class="button postfix">Fix</a>
+          				    </div>
+						</div>					
+					</div>
+					<div class="large-6 column">
+						<input type="text" value="06/23/2014" id="dtpicker" >					
+					</div>
+				</div>
+			</div>
+
+			<div class="large-3 column">
+				<img src="img/b{{movie.backdrop}}">
+				<small>{{movie.location}}</small>
+			</div>
+		</article>
