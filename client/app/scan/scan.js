@@ -32,7 +32,7 @@
 
         function getStatus() {
             return api.getStatus().then(function (data) {
-                vm.context = data.data;
+                vm.context = data;
                 return vm.context;
             });
         }

@@ -31,7 +31,7 @@
         function getRecentMovies() {
             return api.getRecentMovies().then(function (data) {
                 logger.info('what is: ', data)
-                vm.movies = data.data;
+                vm.movies = data;
                 return vm.movies;
             });
         }

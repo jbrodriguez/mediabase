@@ -29,7 +29,7 @@
 
     		function getRecentMoviesEnd(data, status, headers, config) {
                 logger.info('this is what i got: ', data);
-    			return data;
+    			return data.data;
     		}
     	}
 
@@ -42,7 +42,7 @@
                 });
 
             function startScanEnd(data, status, headers, config) {
-                return data;
+                return data.data;
             }
         }
 
@@ -55,7 +55,7 @@
                 });
 
             function getStatusEnd(data, status, headers, config) {
-                return data;
+                return data.data;
             }
         }        
     }
