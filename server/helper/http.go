@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	// "io/ioutil"
+	// "github.com/apertoire/mlog"
 	"io"
-	"log"
 	"net/http"
 	"os"
 )
@@ -50,7 +50,7 @@ func WriteJson(resp http.ResponseWriter, status int, respD interface{}) {
 }
 
 func WriteJsonErr(resp http.ResponseWriter, err error) {
-	log.Println("error:", err)
+	// mlog.Info("error:", err)
 	WriteJson(resp, 500, &StringMap{"message": "Internal server error"})
 }
 
@@ -66,24 +66,26 @@ func qvar(req *http.Request, name string) string {
 	return req.FormValue(name)
 }
 
-func Download(url, dst string) {
+func Download(url, dst string) (err error) {
 	out, err := os.Create(dst)
 	if err != nil {
-		log.Printf("Unable to create: %s", dst)
-		return
+		// mlog.Info("Unable to create: %s", dst)
+		return err
 	}
 	defer out.Close()
 
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Printf("Unable to download %s", url)
-		return
+		// mlog.Info("Unable to download %s", url)
+		return err
 	}
 	defer resp.Body.Close()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		log.Printf("unable to save to %s", dst)
-		return
+		// mlog.Info("unable to save to %s", dst)
+		return err
 	}
+
+	return err
 }

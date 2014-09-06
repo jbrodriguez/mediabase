@@ -21,11 +21,11 @@ type Server struct {
 	r, s   *gin.Engine
 }
 
-func (self *Server) scanMovies(c *gin.Context) {
-	mlog.Info("scanMovies: you know .. i got here")
+func (self *Server) importMovies(c *gin.Context) {
+	mlog.Info("importMovies: you know .. i got here")
 
 	msg := message.Status{Reply: make(chan *message.Context)}
-	self.Bus.PrepareScanMovies <- &msg
+	self.Bus.ImportMovies <- &msg
 	reply := <-msg.Reply
 
 	// msg := message.ScanMovies{Reply: make(chan string)}
@@ -121,16 +121,13 @@ func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {
 	helper.WriteJson(w, 200, "ok")
 }
 
-func (self *Server) testScan() {
-	msg := message.ScanMovies{Reply: make(chan string)}
-	self.Bus.ScanMovies <- &msg
-	// reply := <-msg.Reply
-}
-
 func (self *Server) Start() {
 	mlog.Info("starting server service")
 
-	self.r = gin.Default()
+	self.r = gin.New()
+
+	self.r.Use(gin.Recovery())
+	self.r.Use(helper.Logging())
 
 	self.r.Use(static.Serve("./"))
 	self.r.NoRoute(static.Serve("./"))
@@ -138,7 +135,7 @@ func (self *Server) Start() {
 	api := self.r.Group(apiVersion)
 	{
 		api.GET("/movies", self.getMovies)
-		api.GET("/scan", self.scanMovies)
+		api.GET("/import", self.importMovies)
 	}
 
 	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)

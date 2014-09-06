@@ -13,7 +13,8 @@
 
     	var service = {
     		getRecentMovies: getRecentMovies,
-            startScan: startScan,
+            startImport: startImport,
+            searchMovies: searchMovies,
             getStatus: getStatus
     	};
 
@@ -31,20 +32,33 @@
                 logger.info('this is what i got: ', data);
     			return data.data;
     		}
-    	}
+    	};
 
-        function startScan() {
-            return $http.get(ep + '/scan')
-                .then(startScanEnd)
+        function startImport() {
+            return $http.get(ep + '/import')
+                .then(startImportEnd)
                 .catch(function(message) {
-                    exception.catcher('XHR Failed for startScan')(message);
+                    exception.catcher('XHR Failed for startImport')(message);
                     $location.url('/');
                 });
 
-            function startScanEnd(data, status, headers, config) {
+            function startImportEnd(data, status, headers, config) {
                 return data.data;
             }
-        }
+        };
+
+        function searchMovies(term) {
+            return $http.get(ep + '/search&q=' + term)
+                .then(searchMoviesEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for searchMovies')(message);
+                    $location.url('/');
+                });
+
+            function searchMoviesEnd(data, status, headers, config) {
+                return data.data;
+            }
+        };        
 
         function getStatus() {
             return $http.get(ep + '/status')
@@ -57,7 +71,7 @@
             function getStatusEnd(data, status, headers, config) {
                 return data.data;
             }
-        }        
+        };   
     }
 
 })();

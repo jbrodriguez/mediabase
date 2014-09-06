@@ -2,13 +2,12 @@
     'use strict';
 
     angular
-        .module('app.scan')
-        .controller('Scan', Scan);
+        .module('app.import')
+        .controller('Import', Import);
 
-    // Recent.$inject = ['$q', 'api', 'logger'];
+    Import.$inject = ['$q', 'api', 'logger'];
 
-    /* @ngInject */
-    function Scan($q, api, logger) {
+    function Import($q, api, logger) {
 
         /*jshint validthis: true */
         var vm = this;
@@ -18,14 +17,15 @@
         activate();
 
         function activate() {
-            return startScan().then(function() {
-                logger.info('started scanning function');
+            logger.info('trying to import');
+            return startImport().then(function() {
+                logger.info('started import function');
             });
         }
 
-        function startScan() {
-            return api.startScan().then(function (data) {
-                vm.context = data.data;
+        function startImport() {
+            return api.startImport().then(function (data) {
+                vm.context = data;
                 return vm.context;
             });
         }

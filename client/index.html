@@ -18,7 +18,7 @@
 </head>
 
 <body>
-	<header class="sticky">
+	<header class="sticky" ng-controller="Home as home">
 		<nav class="top-bar container row">
 			<ul class="title-area">
 				<li class="name">
@@ -28,14 +28,14 @@
 
 			<section class="top-bar-section">
 				<ul class="left">
-					<li><a ui-sref="scan">Scan</a></li>
+					<li><a ui-sref="import">Import</a></li>
 				</ul>
 
 				<ul class="right">
 					<li class="has-form">
 						<div class="row collapse">
 							<div class="large-12 small-12 columns">
-								<input type="text" placeholder="filter" height="5px;">
+								<input type="text" placeholder="Enter search string" height="5px;" ng-model="home.searchTerm">
 							</div>
 						</div>
 					</li>
@@ -82,10 +82,15 @@
     <script src="app/recent/config.route.js"></script>
     <script src="app/recent/recent.js"></script>
 
-    <!-- scan -->
-    <script src="app/scan/scan.module.js"></script>
-    <script src="app/scan/config.route.js"></script>
-    <script src="app/scan/scan.js"></script>
+    <!-- import -->
+    <script src="app/import/import.module.js"></script>
+    <script src="app/import/config.route.js"></script>
+    <script src="app/import/import.js"></script>
+
+    <!-- search -->
+    <script src="app/search/search.module.js"></script>
+    <script src="app/search/config.route.js"></script>
+    <script src="app/search/search.js"></script>
 
 	<script>
 		$('#dtpicker').datetimepicker({
