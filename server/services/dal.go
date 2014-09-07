@@ -62,6 +62,8 @@ func (self *Dal) Start() {
 
 	mlog.Info("connected to database")
 
+	// self.initSchema()
+
 	go self.react()
 }
 
@@ -101,6 +103,78 @@ func (self *Dal) react() {
 			go self.doGetMoviesToFix(msg)
 		}
 	}
+}
+
+func (self *Dal) initSchema() {
+	sql := `
+DROP TABLE IF EXISTS movie;
+DROP TABLE IF EXISTS movietitle;
+DROP INDEX IF EXISTS movie_filetype_idx;
+DROP INDEX IF EXISTS movie_location_idx;
+DROP INDEX IF EXISTS movie_title_idx;
+
+DROP TRIGGER IF EXISTS movie_ai;
+DROP TRIGGER IF EXISTS movie_au;
+DROP TRIGGER IF EXISTS movie_bd;
+DROP TRIGGER IF EXISTS movie_bu;
+
+CREATE TABLE movie
+(
+  title text,
+  original_title text,
+  file_title text,
+  year integer,
+  runtime integer,
+  tmdb_id integer,
+  imdb_id text,
+  overview text,
+  tagline text,
+  resolution text,
+  filetype text,
+  location text,
+  cover text,
+  backdrop text,
+  genres text,
+  vote_average integer,
+  vote_count integer,
+  countries text,
+  added text,
+  modified text,
+  last_watched text,
+  all_watched text,
+  count_watched integer,
+  score integer
+);
+CREATE INDEX movie_title_idx ON movie (title);
+CREATE INDEX movie_location_idx ON movie (location);
+CREATE INDEX movie_filetype_idx ON movie (filetype);
+
+CREATE VIRTUAL TABLE movietitle USING fts4(content="movie", title, original_title, file_title);
+CREATE TRIGGER movie_bu BEFORE UPDATE ON movie BEGIN
+	DELETE FROM movietitle WHERE docid=old.rowid;
+END;
+
+CREATE TRIGGER movie_bd BEFORE DELETE ON movie BEGIN
+	DELETE FROM movietitle WHERE docid=old.rowid;
+END;
+
+CREATE TRIGGER movie_au AFTER UPDATE ON movie BEGIN
+	INSERT INTO movietitle(docid, title, original_title, file_title) VALUES (new.rowid, new.title, new.original_title, new.file_title);
+END;
+
+CREATE TRIGGER movie_ai AFTER INSERT ON movie BEGIN
+	INSERT INTO movietitle(docid, title, original_title, file_title) VALUES (new.rowid, new.title, new.original_title, new.file_title);
+END;
+
+	`
+
+	_, err := self.db.Exec(sql)
+	if err != nil {
+		mlog.Info("%q: %s", err, sql)
+		return
+	}
+
+	mlog.Info("inited schema")
 }
 
 func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
@@ -405,7 +479,10 @@ func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
 
 	for rows.Next() {
 		movie := message.Movie{}
-		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop)
+		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched, &movie.Score)
+		// movie := &message.Movie{}
+		// rows.Scan(movie.Id, movie.Title, movie.Original_Title, movie.Year, movie.Runtime, movie.Tmdb_Id, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Resolution, movie.FileType, movie.Location, movie.Cover, movie.Backdrop)
+		// mlog.Info("title: (%s)", movie.Title)
 		items = append(items, &movie)
 	}
 	rows.Close()
