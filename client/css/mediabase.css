@@ -37,10 +37,10 @@ header {
 
 .top-bar .name h1 a {
 	color: #32BD44;
-	font-family: Lato, Helvetica;
-	font-size: 110%;
-	text-transform: uppercase;
-}
+	font-family: 'Amaranth', Lato, Helvetica;
+	font-size: 175%;
+/*	text-transform: uppercase;
+*/}
 
 .top-bar-section li a:not(.button) {
     background: #E6EAEE !important;   

@@ -21,6 +21,45 @@ type Server struct {
 	r, s   *gin.Engine
 }
 
+func (self *Server) Start() {
+	mlog.Info("starting server service")
+
+	self.r = gin.New()
+
+	self.r.Use(gin.Recovery())
+	self.r.Use(helper.Logging())
+
+	self.r.Use(static.Serve("./"))
+	self.r.NoRoute(static.Serve("./"))
+
+	api := self.r.Group(apiVersion)
+	{
+		api.GET("/movies", self.getMovies)
+		api.GET("/import", self.importMovies)
+		api.GET("/search/:term", self.searchMovies)
+	}
+
+	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
+
+	go self.r.Run(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port))
+}
+
+func (self *Server) Stop() {
+	mlog.Info("server service stopped")
+	// nothing here
+}
+
+func (self *Server) getMovies(c *gin.Context) {
+	msg := message.GetMovies{Reply: make(chan []*message.Movie)}
+	self.Bus.GetMovies <- &msg
+	reply := <-msg.Reply
+
+	// mlog.Info("response is: %s", reply)
+
+	// helper.WriteJson(w, 200, &reply)
+	c.JSON(200, &reply)
+}
+
 func (self *Server) importMovies(c *gin.Context) {
 	mlog.Info("importMovies: you know .. i got here")
 
@@ -35,6 +74,17 @@ func (self *Server) importMovies(c *gin.Context) {
 	mlog.Info("response is: %+v", reply)
 
 	// helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
+	c.JSON(200, &reply)
+}
+
+func (self *Server) searchMovies(c *gin.Context) {
+	mlog.Info("searchMovies: are you a head honcho ?")
+	term := c.Params.ByName("term")
+
+	msg := message.SearchMovies{Term: term, Reply: make(chan []*message.Movie)}
+	self.Bus.SearchMovies <- &msg
+	reply := <-msg.Reply
+
 	c.JSON(200, &reply)
 }
 
@@ -53,17 +103,6 @@ func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
 	mlog.Info("response is: %s", reply)
 
 	helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
-}
-
-func (self *Server) getMovies(c *gin.Context) {
-	msg := message.GetMovies{Reply: make(chan []*message.Movie)}
-	self.Bus.GetMovies <- &msg
-	reply := <-msg.Reply
-
-	// mlog.Info("response is: %s", reply)
-
-	// helper.WriteJson(w, 200, &reply)
-	c.JSON(200, &reply)
 }
 
 func (self *Server) listMovies(w http.ResponseWriter, req *http.Request) {
@@ -119,31 +158,4 @@ func (self *Server) listByRuntime(w http.ResponseWriter, req *http.Request) {
 func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {
 	self.Bus.FixMovies <- 1
 	helper.WriteJson(w, 200, "ok")
-}
-
-func (self *Server) Start() {
-	mlog.Info("starting server service")
-
-	self.r = gin.New()
-
-	self.r.Use(gin.Recovery())
-	self.r.Use(helper.Logging())
-
-	self.r.Use(static.Serve("./"))
-	self.r.NoRoute(static.Serve("./"))
-
-	api := self.r.Group(apiVersion)
-	{
-		api.GET("/movies", self.getMovies)
-		api.GET("/import", self.importMovies)
-	}
-
-	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
-
-	go self.r.Run(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port))
-}
-
-func (self *Server) Stop() {
-	mlog.Info("server service stopped")
-	// nothing here
 }

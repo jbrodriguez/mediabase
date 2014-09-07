@@ -9,6 +9,7 @@
 
 
 	<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Amaranth' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="css/normalize.css">
 	<link rel="stylesheet" href="css/foundation.css">
 	<link rel="stylesheet" href="css/mediabase.css" />
@@ -18,11 +19,11 @@
 </head>
 
 <body>
-	<header class="sticky" ng-controller="Home as home">
+	<header class="sticky" data-ng-controller="Home as home">
 		<nav class="top-bar container row">
 			<ul class="title-area">
 				<li class="name">
-					<h1><a href="/">Mediabase</a></h1>
+					<h1><a href="/">mediabase</a></h1>
 				</li>
 			</ul>
 
@@ -35,7 +36,7 @@
 					<li class="has-form">
 						<div class="row collapse">
 							<div class="large-12 small-12 columns">
-								<input type="text" placeholder="Enter search string" height="5px;" ng-model="home.searchTerm">
+								<input type="search" placeholder="Enter search string" height="5px;" data-ng-model="home.searchTerm">
 							</div>
 						</div>
 					</li>

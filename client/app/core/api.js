@@ -48,7 +48,7 @@
         };
 
         function searchMovies(term) {
-            return $http.get(ep + '/search&q=' + term)
+            return $http.get(ep + '/search/' + term)
                 .then(searchMoviesEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for searchMovies')(message);
