@@ -71,7 +71,7 @@ func (self *Server) importMovies(c *gin.Context) {
 	// self.Bus.ScanMovies <- &msg
 	// reply := <-msg.Reply
 
-	mlog.Info("response is: %+v", reply)
+	// mlog.Info("response is: %+v", reply)
 
 	// helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
 	c.JSON(200, &reply)

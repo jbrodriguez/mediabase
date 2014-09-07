@@ -444,29 +444,6 @@ func (self *Dal) doShowDuplicates(msg *message.Movies) {
 }
 
 func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
-	// tx, err := self.db.Begin()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// stmt, err := tx.Prepare("select name, year, resolution, filetype, location, picture from movie where name like ?")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer stmt.Close()
-
-	// term := "%" + msg.Term + "%"
-	// mlog.Info("this is: %s", term)
-
-	// rows, err := stmt.Query(term)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// term := "%" + msg.Term + "%"
-	// term := msg.Term + "%"
-	// term := "*" + msg.Term + "*"
-	// term := msg.Term + "* OR " + msg.Term
 	term := msg.Term + "*"
 	mlog.Info("this is: %s", term)
 
