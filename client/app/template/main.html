@@ -31,12 +31,12 @@
 						    	<input type="text" placeholder="Enter TMDB Id">
 						    </div>
 						    <div class="small-2 large-2 column">
-								<a href="#" class="button postfix">Fix</a>
+								<a href="#" class="button postfix" data-ng-click="vm.fixMovie(movie)">Fix</a>
           				    </div>
 						</div>					
 					</div>
 					<div class="large-6 column">
-						<input type="text" value="06/23/2014" id="dtpicker" >					
+						<input type="text" value="06/23/2014" data-ng-model="movie.watched" dtpicker >					
 					</div>
 				</div>
 			</div>

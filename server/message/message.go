@@ -65,12 +65,12 @@ type Media struct {
 	Forced        bool
 }
 
-// type UserAuth struct {
-// 	Payload *model.UserAuthReq
-// 	Reply   chan *model.UserAuthRep
-// }
+type Context struct {
+	Message   string `json:"message"`
+	Backdrop  string `json:"backdrop"`
+	Completed bool   `json:"completed"`
+}
 
-// type UserData struct {
-// 	Payload *model.UserDataReq
-// 	Reply   chan *model.UserDataRep
-// }
+type Status struct {
+	Reply chan *Context
+}

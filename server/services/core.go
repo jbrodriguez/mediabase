@@ -4,18 +4,40 @@ import (
 	"apertoire.net/mediabase/server/bus"
 	"apertoire.net/mediabase/server/helper"
 	"apertoire.net/mediabase/server/message"
+	"fmt"
 	"github.com/apertoire/mlog"
+	"github.com/looplab/fsm"
 )
 
 type Core struct {
-	Bus    *bus.Bus
-	Config *helper.Config
+	Bus     *bus.Bus
+	Config  *helper.Config
+	fsm     *fsm.FSM
+	context message.Context
 }
 
 func (self *Core) Start() {
 	mlog.Info("starting core service ...")
 
 	// some initialization
+	self.fsm = fsm.NewFSM(
+		"idle",
+		fsm.Events{
+			{Name: "import", Src: []string{"idle", "scanning"}, Dst: "scanning"},
+			{Name: "found", Src: []string{"scanning"}, Dst: "scanning"},
+			{Name: "scraped", Src: []string{"scanning"}, Dst: "scanning"},
+			{Name: "status", Src: []string{"idle", "scanning"}, Dst: "scanning"},
+			{Name: "finish", Src: []string{"scanning"}, Dst: "idle"},
+		},
+		fsm.Callbacks{
+			"import":  self.importer,
+			"found":   self.found,
+			"scraped": self.scraped,
+			"finish":  self.finish,
+		},
+	)
+
+	self.context = message.Context{Message: "Idle", Backdrop: "/mAwd34SAC8KqBKRm2MwHPLhLDU5.jpg", Completed: false}
 
 	go self.react()
 
@@ -30,6 +52,9 @@ func (self *Core) Stop() {
 func (self *Core) react() {
 	for {
 		select {
+		case msg := <-self.Bus.ImportMovies:
+			go self.doImportMovies(msg)
+
 		case msg := <-self.Bus.MovieFound:
 			go self.doMovieFound(msg)
 		case msg := <-self.Bus.MovieScraped:
@@ -38,41 +63,64 @@ func (self *Core) react() {
 			go self.doMovieRescraped(msg)
 		case msg := <-self.Bus.FixMovies:
 			go self.doFixMovies(msg)
+
+		case msg := <-self.Bus.ImportMoviesFinished:
+			go self.doImportMoviesFinished(msg)
 		}
 	}
 }
 
+func (self *Core) doScrape(e *fsm.Event) {
+	movie, _ := e.Args[0].(*message.Movie)
+	self.context.Message = fmt.Sprintf("Scraping %s ", movie.Location)
+}
+
+func (self *Core) doImportMovies(status *message.Status) {
+	if err := self.fsm.Event("import", status); err != nil {
+		mlog.Info("error trying to trigger import event: %s", err)
+	}
+}
+
+func (self *Core) importer(e *fsm.Event) {
+	if e.Src == "idle" {
+		msg := message.ScanMovies{Reply: make(chan string)}
+		self.Bus.ScanMovies <- &msg
+		reply := <-msg.Reply
+
+		self.context.Message = reply
+	}
+
+	mlog.Info("Before sending some answers %s: %s", e.Event, e.FSM.Current())
+
+	status, _ := e.Args[0].(*message.Status)
+	status.Reply <- &self.context
+
+	mlog.Info("Event %s was fired, currently in state %s", e.Event, e.FSM.Current())
+}
+
 func (self *Core) doMovieFound(movie *message.Movie) {
-	// mlog.Info("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location)
-	// mlog.INFO("mb", "core", fmt.Sprintf("found: %s (%s) [%s, %s, %s]", movie.Title, movie.Year, movie.Resolution, movie.FileType, movie.Location))
-	// calculate hex sha1 for the full movie path
-	// h := sha1.New()
-	// h.Write([]byte(fmt.Sprintf("%s|%s", movie.Title, movie.Year)))
-	// movie.Picture = hex.EncodeToString(h.Sum(nil)) + ".jpg"
-
-	// go func() {
-	// 	self.Bus.StoreMovie <- movie
-	// }()
-
-	// go func() {
-	// 	self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture}
-	// }()
-
 	c := make(chan bool)
 
 	self.Bus.CheckMovie <- &message.CheckMovie{Movie: movie, Result: c}
 	exists := <-c
 
+	var text string
 	if exists {
-		mlog.Info("SKIPPED: present in db [%s] (%s)", movie.Title, movie.Location)
-		return
+		text = fmt.Sprintf("SKIPPED: present in db [%s] (%s)", movie.Title, movie.Location)
+		mlog.Info(text)
+	} else {
+		text = fmt.Sprintf("FOUND: [%s] (%s)", movie.Title, movie.Location)
+		self.Bus.ScrapeMovie <- movie
 	}
 
-	self.Bus.ScrapeMovie <- movie
+	if err := self.fsm.Event("found", text); err != nil {
+		mlog.Info("error trying to trigger found event: %s", err)
+	}
+}
 
-	// self.Bus.StoreMovie <- movie
-
-	// self.Bus.CachePicture <- &message.Picture{Path: movie.Path, Id: movie.Picture, Title: movie.Title}
+func (self *Core) found(e *fsm.Event) {
+	text, _ := e.Args[0].(string)
+	self.context.Message = text
 }
 
 func (self *Core) doMovieScraped(media *message.Media) {
@@ -85,7 +133,14 @@ func (self *Core) doMovieScraped(media *message.Media) {
 		mlog.Info("CACHING MEDIA [%s]", media.Movie.Title)
 		media.BasePath = self.Config.AppDir
 		self.Bus.CacheMedia <- media
+
+		self.fsm.Event("scrape", media.Movie)
 	}()
+}
+
+func (self *Core) scraped(e *fsm.Event) {
+	movie, _ := e.Args[0].(*message.Movie)
+	self.context.Message = fmt.Sprintf("Scraped %s ", movie.Location)
 }
 
 func (self *Core) doMovieRescraped(media *message.Media) {
@@ -112,4 +167,13 @@ func (self *Core) doFixMovies(flag int) {
 	mlog.Info("WAITING FOR REPLY [%v]", reply)
 
 	self.Bus.RescrapeMovies <- reply
+}
+
+func (self *Core) doImportMoviesFinished(completed int) {
+	self.fsm.Event("finish")
+}
+
+func (self *Core) finish(e *fsm.Event) {
+	self.context.Message = "Import completed"
+	self.context.Completed = true
 }

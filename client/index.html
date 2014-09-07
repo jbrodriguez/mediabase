@@ -9,6 +9,7 @@
 
 
 	<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Amaranth' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="css/normalize.css">
 	<link rel="stylesheet" href="css/foundation.css">
 	<link rel="stylesheet" href="css/mediabase.css" />
@@ -18,24 +19,24 @@
 </head>
 
 <body>
-	<header class="sticky">
+	<header class="sticky" data-ng-controller="Home as home">
 		<nav class="top-bar container row">
 			<ul class="title-area">
 				<li class="name">
-					<h1><a href="/">Mediabase</a></h1>
+					<h1><a href="/">mediabase</a></h1>
 				</li>
 			</ul>
 
 			<section class="top-bar-section">
 				<ul class="left">
-					<li><a href="/scan">Scan</a></li>
+					<li><a ui-sref="import">Import</a></li>
 				</ul>
 
 				<ul class="right">
 					<li class="has-form">
 						<div class="row collapse">
 							<div class="large-12 small-12 columns">
-								<input type="text" placeholder="filter" height="5px;">
+								<input type="search" placeholder="Enter search string" height="5px;" data-ng-model="home.searchTerm">
 							</div>
 						</div>
 					</li>
@@ -57,8 +58,8 @@
     <!-- inject-vendor:js -->
 	<script src="http://code.jquery.com/jquery.min.js"></script>
 	<script src="js/vendor/jquery.datetimepicker.js"></script>
-	<script src="http://code.angularjs.org/1.2.9/angular.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.min.js"></script>
+	<script src="http://code.angularjs.org/1.2.9/angular.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <!-- endinject -->
 
 
@@ -82,14 +83,16 @@
     <script src="app/recent/config.route.js"></script>
     <script src="app/recent/recent.js"></script>
 
+    <!-- import -->
+    <script src="app/import/import.module.js"></script>
+    <script src="app/import/config.route.js"></script>
+    <script src="app/import/import.js"></script>
 
-	<script>
-		$('#dtpicker').datetimepicker({
-			timepicker: false,
-			format:'m/d/Y',
-			dayOfWeekStart: 1
-		});
-	</script>
+    <!-- search -->
+    <script src="app/search/search.module.js"></script>
+    <script src="app/search/config.route.js"></script>
+    <script src="app/search/search.js"></script>
+
 </body>
 
 </html>

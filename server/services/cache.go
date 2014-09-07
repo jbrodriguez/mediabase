@@ -59,53 +59,62 @@ type CacheGig struct {
 }
 
 func (self *CacheGig) DoWork(workRoutine int) {
-	coverPath := filepath.Join(self.appDir, "/web/img/p", self.media.Movie.Cover)
+	coverPath := filepath.Join(self.appDir, "/img/p", self.media.Movie.Cover)
 	if _, err := os.Stat(coverPath); err == nil && !self.media.Forced {
 		// log.Printf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		// self.Bus.Log <- fmt.Sprintf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		mlog.Info("COVER DOWNLOAD SKIPPED [%s] (%s)", self.media.Movie.Title, self.media.Movie.Cover)
 	} else {
-		helper.Download(self.media.SecureBaseUrl+"original"+self.media.Movie.Cover, coverPath)
-		mlog.Info("COVER DOWNLOADED [%s] (%s)", self.media.Movie.Title, self.media.Movie.Cover)
+		if err := helper.Download(self.media.SecureBaseUrl+"original"+self.media.Movie.Cover, coverPath); err == nil {
+			mlog.Info("COVER DOWNLOADED [%s] (%s)", self.media.Movie.Title, self.media.Movie.Cover)
+		} else {
+			mlog.Info("UNABLE TO DOWNLOAD COVER [%s] (%s): %s", self.media.Movie.Title, self.media.Movie.Cover, err)
+		}
 	}
 
-	thumbPath := filepath.Join(self.appDir, "/web/img/t", self.media.Movie.Cover)
+	thumbPath := filepath.Join(self.appDir, "/img/t", self.media.Movie.Cover)
 	if _, err := os.Stat(thumbPath); err == nil && !self.media.Forced {
 		// log.Printf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		// self.Bus.Log <- fmt.Sprintf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		mlog.Info("THUMB GENERATION SKIPPED [%s] (%s)", self.media.Movie.Title, self.media.Movie.Cover)
 	} else {
-		doResize(coverPath, thumbPath)
-		mlog.Info("THUMB CREATED [%s] (%s)", self.media.Movie.Title, self.media.Movie.Cover)
+		if err := doResize(coverPath, thumbPath); err == nil {
+			mlog.Info("THUMB CREATED [%s] (%s)", self.media.Movie.Title, self.media.Movie.Cover)
+		} else {
+			mlog.Info("UNABLE TO CREATE THUMB [%s] (%s): %s", self.media.Movie.Title, self.media.Movie.Cover, err)
+		}
 	}
 
-	backdropPath := filepath.Join(self.appDir, "/web/img/b", self.media.Movie.Backdrop)
+	backdropPath := filepath.Join(self.appDir, "/img/b", self.media.Movie.Backdrop)
 	if _, err := os.Stat(backdropPath); err == nil && !self.media.Forced {
 		// log.Printf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		// self.Bus.Log <- fmt.Sprintf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		mlog.Info("BACKDROP DOWNLOAD SKIPPED [%s] (%s)", self.media.Movie.Title, self.media.Movie.Backdrop)
 	} else {
-		helper.Download(self.media.SecureBaseUrl+"original"+self.media.Movie.Backdrop, backdropPath)
-		mlog.Info("BACKDROP DOWNLOADED [%s] (%s)", self.media.Movie.Title, self.media.Movie.Backdrop)
+		if err := helper.Download(self.media.SecureBaseUrl+"original"+self.media.Movie.Backdrop, backdropPath); err == nil {
+			mlog.Info("BACKDROP DOWNLOADED [%s] (%s)", self.media.Movie.Title, self.media.Movie.Backdrop)
+		} else {
+			mlog.Info("UNABLE TO DOWNLOAD BACKDROP [%s] (%s): %s", self.media.Movie.Title, self.media.Movie.Backdrop, err)
+		}
 	}
-
 }
 
-func doResize(src, dst string) {
+func doResize(src, dst string) (err error) {
 	// open "test.jpg"
 	file, err := os.Open(src)
 	if err != nil {
-		mlog.Error(err)
-		return
+		// mlog.Error(err)
+		return err
 	}
+	defer file.Close()
 
 	// decode jpeg into image.Image
 	img, err := jpeg.Decode(file)
 	if err != nil {
-		mlog.Error(err)
-		return
+		// mlog.Error(err)
+		return err
 	}
-	file.Close()
+	// file.Close()
 
 	// resize to width 1000 using Lanczos resampling
 	// and preserve aspect ratio
@@ -113,11 +122,11 @@ func doResize(src, dst string) {
 
 	out, err := os.Create(dst)
 	if err != nil {
-		mlog.Error(err)
-		return
+		// mlog.Error(err)
+		return err
 	}
 	defer out.Close()
 
 	// write new image to file
-	jpeg.Encode(out, m, nil)
+	return jpeg.Encode(out, m, nil)
 }

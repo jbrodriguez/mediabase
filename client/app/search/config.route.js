@@ -2,13 +2,13 @@
     'use strict';
 
     angular
-        .module('app.recent')
+        .module('app.search')
         .config(function($stateProvider, $urlRouterProvider) {
             $stateProvider
-                .state('recent', {
-                    url: '/recent',
+                .state('search', {
+                    url: '/search',
                     templateUrl: 'app/template/main.html',
-                    controller: 'Recent as vm',
+                    controller: 'Search as vm',
                 })            
         });
 

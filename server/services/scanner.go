@@ -61,6 +61,28 @@ func (self *Scanner) react() {
 	}
 }
 
+func (self *Scanner) doScanMovies(reply chan string) {
+	mlog.Info("inside ScanMovies")
+
+	reply <- "Movie scannning process started ..."
+
+	err := filepath.Walk("/Volumes/hal-films", self.visit)
+	if err != nil {
+		mlog.Info("err: %s", err)
+	}
+
+	mlog.Info("completed scannning hal for movies")
+
+	err = filepath.Walk("/Volumes/wopr-films", self.visit)
+	if err != nil {
+		mlog.Info("err: %s", err)
+	}
+
+	mlog.Info("completed scannning wopr for movies")
+
+	self.Bus.ImportMoviesFinished <- 1
+}
+
 func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 	if err != nil {
 		mlog.Info("from-start err: %s", err)
@@ -92,24 +114,4 @@ func (self *Scanner) visit(path string, f os.FileInfo, err error) error {
 	}
 
 	return nil
-}
-
-func (self *Scanner) doScanMovies(reply chan string) {
-	mlog.Info("inside ScanMovies")
-
-	// reply <- "Movie scanning process started ..."
-
-	err := filepath.Walk("/Volumes/hal-films", self.visit)
-	if err != nil {
-		mlog.Info("err: %s", err)
-	}
-
-	mlog.Info("completed scanning hal for movies")
-
-	err = filepath.Walk("/Volumes/wopr-films", self.visit)
-	if err != nil {
-		mlog.Info("err: %s", err)
-	}
-
-	mlog.Info("completed scanning wopr for movies")
 }

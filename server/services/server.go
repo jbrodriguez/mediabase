@@ -21,35 +21,71 @@ type Server struct {
 	r, s   *gin.Engine
 }
 
-// func (self *Server) static(res http.ResponseWriter, req *http.Request) {
-// 	mlog.Info(req.URL.Path)
-// 	http.ServeFile(res, req, docPath+req.URL.Path)
-// }
+func (self *Server) Start() {
+	mlog.Info("starting server service")
 
-// func (self *Server) notFound(res http.ResponseWriter, req *http.Request) {
-// 	mlog.Info(req.URL.Path)
-// 	http.ServeFile(res, req, docPath+"404.html")
-// }
+	self.r = gin.New()
 
-// func (self *Server) status(w http.ResponseWriter, req *http.Request) {
-// 	io.WriteString(w, "Hello World")
-// }
+	self.r.Use(gin.Recovery())
+	self.r.Use(helper.Logging())
 
-func (self *Server) scanMovies(w http.ResponseWriter, req *http.Request) {
-	mlog.Info("you know .. i got here")
-	// data := struct {
-	// 	Code        int8
-	// 	Description string
-	// }{0, "all is good"}
-	// helper.WriteJson(w, 200, &data)
+	self.r.Use(static.Serve("./"))
+	self.r.NoRoute(static.Serve("./"))
 
-	msg := message.ScanMovies{Reply: make(chan string)}
-	self.Bus.ScanMovies <- &msg
+	api := self.r.Group(apiVersion)
+	{
+		api.GET("/movies", self.getMovies)
+		api.GET("/import", self.importMovies)
+		api.GET("/search/:term", self.searchMovies)
+	}
+
+	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
+
+	go self.r.Run(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port))
+}
+
+func (self *Server) Stop() {
+	mlog.Info("server service stopped")
+	// nothing here
+}
+
+func (self *Server) getMovies(c *gin.Context) {
+	msg := message.GetMovies{Reply: make(chan []*message.Movie)}
+	self.Bus.GetMovies <- &msg
 	reply := <-msg.Reply
 
-	mlog.Info("response is: %s", reply)
+	// mlog.Info("response is: %s", reply)
 
-	helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
+	// helper.WriteJson(w, 200, &reply)
+	c.JSON(200, &reply)
+}
+
+func (self *Server) importMovies(c *gin.Context) {
+	mlog.Info("importMovies: you know .. i got here")
+
+	msg := message.Status{Reply: make(chan *message.Context)}
+	self.Bus.ImportMovies <- &msg
+	reply := <-msg.Reply
+
+	// msg := message.ScanMovies{Reply: make(chan string)}
+	// self.Bus.ScanMovies <- &msg
+	// reply := <-msg.Reply
+
+	mlog.Info("response is: %+v", reply)
+
+	// helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
+	c.JSON(200, &reply)
+}
+
+func (self *Server) searchMovies(c *gin.Context) {
+	mlog.Info("searchMovies: are you a head honcho ?")
+	term := c.Params.ByName("term")
+
+	msg := message.SearchMovies{Term: term, Reply: make(chan []*message.Movie)}
+	self.Bus.SearchMovies <- &msg
+	reply := <-msg.Reply
+
+	c.JSON(200, &reply)
 }
 
 func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
@@ -67,27 +103,6 @@ func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
 	mlog.Info("response is: %s", reply)
 
 	helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
-}
-
-// func (self *Server) getMovies(w http.ResponseWriter, req *http.Request) {
-// 	msg := message.GetMovies{Reply: make(chan []*message.Movie)}
-// 	self.Bus.GetMovies <- &msg
-// 	reply := <-msg.Reply
-
-// 	// mlog.Info("response is: %s", reply)
-
-// 	helper.WriteJson(w, 200, &reply)
-// }
-
-func (self *Server) getMovies(c *gin.Context) {
-	msg := message.GetMovies{Reply: make(chan []*message.Movie)}
-	self.Bus.GetMovies <- &msg
-	reply := <-msg.Reply
-
-	mlog.Info("response is: %s", reply)
-
-	// helper.WriteJson(w, 200, &reply)
-	c.JSON(200, &reply)
 }
 
 func (self *Server) listMovies(w http.ResponseWriter, req *http.Request) {
@@ -143,99 +158,4 @@ func (self *Server) listByRuntime(w http.ResponseWriter, req *http.Request) {
 func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {
 	self.Bus.FixMovies <- 1
 	helper.WriteJson(w, 200, "ok")
-}
-
-func (self *Server) testScan() {
-	msg := message.ScanMovies{Reply: make(chan string)}
-	self.Bus.ScanMovies <- &msg
-	// reply := <-msg.Reply
-}
-
-// func (self *Server) postLogin(w http.ResponseWriter, req *http.Request) {
-// 	mlog.Info("life's rich")
-// 	user := &model.UserAuthReq{}
-// 	if !helper.ReadJson(w, req, user) {
-// 		data := struct {
-// 			Code        int8
-// 			Description string
-// 		}{0, "not authorized"}
-// 		helper.WriteJson(w, 304, &data)
-// 		return
-// 	}
-
-// 	mlog.Info("email: %s", user.Email)
-// 	mlog.Info("password: %s", user.Password)
-
-// 	if user.Email == "" || user.Password == "" {
-// 		helper.WriteJson(w, 400, &helper.StringMap{"error": "Invalid body"})
-// 		return
-// 	}
-
-// 	msg := message.UserAuth{user, make(chan *model.UserAuthRep)}
-// 	self.Bus.UserAuth <- &msg
-// 	reply := <-msg.Reply
-
-// 	helper.WriteJson(w, 200, &reply)
-// }
-
-// func (self *Server) getEvents(w http.ResponseWriter, req *http.Request) {
-// 	io.WriteString(w, "Nothing to see")
-// }
-
-// func (self *Server) Start() {
-// 	mlog.Info("starting server service")
-
-// 	self.r = mux.NewRouter()
-
-// 	// self.r.PathPrefix("/" + docPath).Handler(http.StripPrefix("/"+docPath, http.FileServer(http.Dir("./"+docPath))))
-// 	// self.r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./"))))
-
-// 	// self.r.HandleFunc("/", self.status).Methods("GET")
-// 	// self.r.HandleFunc("/api/v1/movies", self.getMovies).Methods("GET")
-
-// 	self.s = self.r.PathPrefix(apiVersion).Subrouter()
-// 	self.s.HandleFunc("/", self.status).Methods("GET")
-// 	self.s.HandleFunc("/movies", self.getMovies).Methods("GET")
-// 	self.s.HandleFunc("/movies/all", self.listMovies).Methods("GET")
-// 	self.s.HandleFunc("/movies/runtime", self.listByRuntime).Methods("GET")
-// 	self.s.HandleFunc("/movies/duplicates", self.showDuplicates).Methods("GET")
-// 	self.s.HandleFunc("/movies/scan", self.scanMovies).Methods("GET")
-// 	self.s.HandleFunc("/movies/prune", self.pruneMovies).Methods("GET")
-// 	self.s.HandleFunc("/movies/search&q={term}", self.searchMovies).Methods("GET")
-// 	self.s.HandleFunc("/movies/fix", self.fixMovies).Methods("GET")
-
-// 	// self.s.HandleFunc("/login", self.postLogin).Methods("POST")
-// 	// self.s.HandleFunc("/events", self.getEvents).Methods("GET")
-
-// 	// self.r.Handle("/", http.RedirectHandler("index.html", 302))
-
-// 	// mlog.Info("start listening on %s:%s", self.Config.Host, self.Config.Port)
-// 	// go http.ListenAndServe(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port), self.r)
-// 	mlog.Info("start listening on :%s", self.Config.Port)
-// 	go http.ListenAndServe(fmt.Sprintf(":%s", self.Config.Port), self.r)
-
-// 	// go self.testScan()
-// }
-
-func (self *Server) Start() {
-	mlog.Info("starting server service")
-
-	self.r = gin.Default()
-
-	self.r.Use(static.Serve("./"))
-	self.r.NoRoute(static.Serve("./"))
-
-	api := self.r.Group(apiVersion)
-	{
-		api.GET("/movies", self.getMovies)
-	}
-
-	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
-
-	self.r.Run(fmt.Sprintf("%s:%s", self.Config.Host, self.Config.Port))
-}
-
-func (self *Server) Stop() {
-	mlog.Info("server service stopped")
-	// nothing here
 }
