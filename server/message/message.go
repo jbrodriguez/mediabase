@@ -55,6 +55,7 @@ type Movie struct {
 	Last_Watched         string  `json:"last_watched"`
 	All_Watched          string  `json:"all_watched"`
 	Count_Watched        uint64  `json:"count_watched"`
+	Score                uint64  `json:"score"`
 }
 
 type Media struct {

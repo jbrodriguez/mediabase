@@ -25,18 +25,22 @@
 				</div>
 
 				<div class="row">
-					<div class="large-6 column">
+					<div class="large-4 column">
 						<div class="row collapse">
-						    <div class="small-10 large-10 column">
-						    	<input type="text" placeholder="Enter TMDB Id">
+						    <div class="small-8 large-8 column">
+						    	<input type="text" placeholder="TMDB Id">
 						    </div>
-						    <div class="small-2 large-2 column">
+						    <div class="small-4 large-4 column">
 								<a href="#" class="button postfix" data-ng-click="vm.fixMovie(movie)">Fix</a>
           				    </div>
 						</div>					
 					</div>
-					<div class="large-6 column">
+					<div class="large-3 column">
 						<input type="text" value="06/23/2014" data-ng-model="movie.watched" dtpicker >					
+					</div>
+					<div class="large-5 column">
+						<span class="label right score-numeral">{{movie.score}}</span>
+						<div rating score="movie.score" max="10" style="margin-top: 5px;" class="right"></div>
 					</div>
 				</div>
 			</div>

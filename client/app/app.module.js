@@ -41,7 +41,7 @@
         }])        
         .controller('Home', Home)
         .directive('dtpicker', DtPicker)
-        .directive('starRating', StarRating);
+        .directive('rating', Rating);
 
     /* @ngInject */
     function Home($state, $scope, $rootScope) {
@@ -81,7 +81,7 @@
         }
     };
 
-    function StarRating() {
+    function Rating() {
         var directive = {};
 
         directive.restrict = 'AE';
@@ -98,8 +98,8 @@
                 scope.stars = [];
                 for (idx = 0; idx < scope.max; idx += 1) {
                     scope.stars.push({
-                        full. scope.score > idx
-                    })
+                        full: scope.score > idx
+                    });
                 }
             };
 
