@@ -15,9 +15,11 @@
 
         vm.movies = [];
 
+        console.log('activated search view');
         $scope.$onRootScope('/local/search', doSearch);
 
         function doSearch(me, term) {
+            console.log('searching for me: '+me+'term: '+term)
             return api.searchMovies(term).then(function(data) {
                 vm.movies = data;
                 return vm.movies;

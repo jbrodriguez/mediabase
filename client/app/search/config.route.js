@@ -7,7 +7,7 @@
             $stateProvider
                 .state('search', {
                     url: '/search',
-                    templateUrl: 'app/layout/main.html',
+                    templateUrl: 'app/template/main.html',
                     controller: 'Search as vm',
                 })            
         });

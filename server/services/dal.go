@@ -257,7 +257,7 @@ func (self *Dal) doGetMovies(msg *message.GetMovies) {
 		mlog.Fatalf("unable to run transaction: %s", err)
 	}
 
-	var items []*message.Movie
+	items := make([]*message.Movie, 0)
 
 	for rows.Next() {
 		movie := message.Movie{}
@@ -282,7 +282,7 @@ func (self *Dal) doListMovies(msg *message.ListMovies) {
 		mlog.Fatalf("unable to prepare transaction: %s", self.err)
 	}
 
-	var items []*message.Movie
+	items := make([]*message.Movie, 0)
 
 	self.cnt = 0
 
@@ -312,7 +312,7 @@ func (self *Dal) doListByRuntime(msg *message.Movies) {
 		mlog.Fatalf("unable to prepare transaction: %s", self.err)
 	}
 
-	var items []*message.Movie
+	items := make([]*message.Movie, 0)
 
 	self.cnt = 0
 
@@ -350,7 +350,7 @@ func (self *Dal) doShowDuplicates(msg *message.Movies) {
 		mlog.Fatalf("unable to prepare transaction: %s", self.err)
 	}
 
-	var items []*message.Movie
+	items := make([]*message.Movie, 0)
 
 	self.cnt = 0
 
@@ -401,7 +401,7 @@ func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
 		mlog.Fatalf("unable to begin transaction: %s", self.err)
 	}
 
-	var items []*message.Movie
+	items := make([]*message.Movie, 0)
 
 	for rows.Next() {
 		movie := message.Movie{}
@@ -424,7 +424,7 @@ func (self *Dal) doGetMoviesToFix(msg *message.Movies) {
 		mlog.Fatalf("unable to begin transaction: %s", self.err)
 	}
 
-	var items []*message.Movie
+	items := make([]*message.Movie, 0)
 
 	self.cnt = 0
 

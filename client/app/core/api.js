@@ -9,7 +9,7 @@
 
     /* @ngInject */
     function api($http, $location, exception, logger) {
-    	var ep = "/api/v1/";
+    	var ep = "/api/v1";
 
     	var service = {
     		getRecentMovies: getRecentMovies,

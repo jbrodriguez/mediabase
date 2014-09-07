@@ -13,6 +13,7 @@
         var vm = this;
 
         vm.movies = [];
+        vm.fixMovie = fixMovie;
 
         activate();
 
@@ -34,6 +35,10 @@
                 vm.movies = data;
                 return vm.movies;
             });
+        }
+
+        function fixMovie(movie) {
+            console.log("this is the movie: ", movie.title)
         }
     }
 })();
