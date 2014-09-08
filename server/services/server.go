@@ -85,7 +85,7 @@ func (self *Server) searchMovies(c *gin.Context) {
 	self.Bus.SearchMovies <- &msg
 	reply := <-msg.Reply
 
-	mlog.Info("%s", reply)
+	// mlog.Info("%s", reply)
 
 	c.JSON(200, &reply)
 }
