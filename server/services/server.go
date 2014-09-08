@@ -35,6 +35,7 @@ func (self *Server) Start() {
 	api := self.r.Group(apiVersion)
 	{
 		api.GET("/movies", self.getMovies)
+		api.GET("/all", self.listMovies)
 		api.GET("/import", self.importMovies)
 		api.GET("/search/:term", self.searchMovies)
 	}
@@ -57,6 +58,16 @@ func (self *Server) getMovies(c *gin.Context) {
 	// mlog.Info("response is: %s", reply)
 
 	// helper.WriteJson(w, 200, &reply)
+	c.JSON(200, &reply)
+}
+
+func (self *Server) listMovies(c *gin.Context) {
+	msg := message.ListMovies{Reply: make(chan []*message.Movie)}
+	self.Bus.ListMovies <- &msg
+	reply := <-msg.Reply
+
+	// mlog.Info("response is: %s", reply)
+
 	c.JSON(200, &reply)
 }
 
@@ -107,16 +118,6 @@ func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
 	helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
 }
 
-func (self *Server) listMovies(w http.ResponseWriter, req *http.Request) {
-	msg := message.ListMovies{Reply: make(chan []*message.Movie)}
-	self.Bus.ListMovies <- &msg
-	reply := <-msg.Reply
-
-	// mlog.Info("response is: %s", reply)
-
-	helper.WriteJson(w, 200, &reply)
-}
-
 func (self *Server) showDuplicates(w http.ResponseWriter, req *http.Request) {
 	msg := message.Movies{Reply: make(chan []*message.Movie)}
 	self.Bus.ShowDuplicates <- &msg
@@ -137,25 +138,6 @@ func (self *Server) listByRuntime(w http.ResponseWriter, req *http.Request) {
 
 	helper.WriteJson(w, 200, &reply)
 }
-
-// func (self *Server) searchMovies(w http.ResponseWriter, r *http.Request) {
-// 	vars := mux.Vars(r)
-// 	term, ok := vars["term"]
-// 	if !ok {
-// 		// do some error handling
-// 		return
-// 	}
-
-// 	mlog.Info("the mother is: %s", term)
-
-// 	msg := message.SearchMovies{Term: term, Reply: make(chan []*message.Movie)}
-// 	self.Bus.SearchMovies <- &msg
-// 	reply := <-msg.Reply
-
-// 	// mlog.Info("response is: %s", reply)
-
-// 	helper.WriteJson(w, 200, &reply)
-// }
 
 func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {
 	self.Bus.FixMovies <- 1

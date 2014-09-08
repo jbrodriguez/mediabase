@@ -13,6 +13,7 @@
 
     	var service = {
     		getRecentMovies: getRecentMovies,
+            getAllMovies: getAllMovies,
             startImport: startImport,
             searchMovies: searchMovies,
             getStatus: getStatus
@@ -33,6 +34,20 @@
     			return data.data;
     		}
     	};
+
+        function getAllMovies() {
+            return $http.get(ep + '/all')
+                .then(getAllMoviesEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for getAllMovies')(message);
+                    $location.url('/');
+                });
+
+            function getAllMoviesEnd(data, status, headers, config) {
+                logger.info('allmovies > this is what i got: ', data);
+                return data.data;
+            }
+        };        
 
         function startImport() {
             return $http.get(ep + '/import')

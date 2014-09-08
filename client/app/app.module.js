@@ -22,6 +22,7 @@
         'app.recent',
         'app.import',
         'app.search',
+        'app.all',
     ]);
 
     angular
