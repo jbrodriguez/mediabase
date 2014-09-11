@@ -39,7 +39,7 @@
 					<li class="has-form">
 						<div class="row collapse">
 							<div class="large-12 small-12 columns">
-								<input type="search" placeholder="Enter search string" height="5px;" data-ng-model="home.searchTerm">
+								<input type="search" placeholder="Enter search string" height="5px;" data-ng-model="home.searchTerm" ng-model-options="{ debounce: 500 }">
 							</div>
 						</div>
 					</li>
@@ -61,7 +61,7 @@
     <!-- inject-vendor:js -->
 	<script src="http://code.jquery.com/jquery.min.js"></script>
 	<script src="js/vendor/jquery.datetimepicker.js"></script>
-	<script src="http://code.angularjs.org/1.2.9/angular.js"></script>
+	<script src="https://code.angularjs.org/1.3.0-rc.1/angular.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <!-- endinject -->
 
@@ -71,6 +71,7 @@
 	<script type="text/javascript" src="app/app.module.js"></script>
 	<script type="text/javascript" src="app/dtpicker.directive.js"></script>
 	<script type="text/javascript" src="app/rating.directive.js"></script>
+	<script type="text/javascript" src="app/truncate.filter.js"></script>
 	<script type="text/javascript" src="app/home.js"></script>
 
     <!-- Reusable Blocks/Modules -->

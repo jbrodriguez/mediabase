@@ -1,6 +1,6 @@
 		<article data-ng-repeat="movie in vm.movies" class="container row">
 			<div class="large-2 column">
-				<img src="img/pt{{movie.cover}}">
+				<img src="img/p{{movie.cover}}">
 			</div>
 
 			<div class="large-7 column">
@@ -20,7 +20,7 @@
 	
 				<div class="row collapse">
 					<div class="large-12 column overview">
-					{{ movie.overview }}
+					{{ movie.overview | truncate:200}}
 					</div>
 				</div>
 
@@ -36,7 +36,7 @@
 						</div>					
 					</div>
 					<div class="large-3 column">
-						<input type="text" value="06/23/2014" data-ng-model="movie.watched" dtpicker >					
+						<input type="text" data-ng-model="movie.last_watched" dtpicker >					
 					</div>
 					<div class="large-5 column">
 						<span class="label right score-numeral">{{movie.score}}</span>
