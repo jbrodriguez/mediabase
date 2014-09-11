@@ -7,7 +7,7 @@
             $stateProvider
                 .state('recent', {
                     url: '/recent',
-                    templateUrl: 'app/template/main.html',
+                    templateUrl: 'app/template/main2.html',
                     controller: 'Recent as vm',
                 })            
         });

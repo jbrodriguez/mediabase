@@ -1,0 +1,60 @@
+		<article data-ng-repeat="movie in vm.movies" class="container row">
+			<div class="large-12 column">
+				<h4>{{ movie.title }} ({{ movie.year }})</h4>
+			</div>
+
+			<div class="large-12 column">
+				<div class="row">
+					<div class="large-2 column">
+						<img src="img/p{{movie.cover}}">
+					</div>
+
+					<div class="large-10 column th-item">
+						<img class="transparent" src="img/b{{movie.backdrop}}" />
+					</div>
+				</div>
+			</div>
+
+			<div class="large-12 column">
+				<div class="row">
+					<div class="large-12 column">
+						<span class="label">{{ movie.resolution }}</span>
+						<span class="label secondary">{{ movie.runtime }} min</span>
+						<span class="label watched">Watched: June 23, 2014</span>
+					</div>
+				</div>			
+			</div>
+
+			<div class="large-12 column">
+				<div class="row collapse">
+					<div class="large-12 column overview">
+					{{ movie.overview }}
+					</div>
+				</div>
+			</div>
+
+			<div class="large-12 column">
+				<div class="row collapse">
+					<div class="large-3 column">
+						<div class="row collapse">
+						    <div class="small-8 large-8 column">
+						    	<input type="text" placeholder="TMDB Id">
+						    </div>
+						    <div class="small-4 large-4 column">
+								<a href="#" class="button postfix" data-ng-click="vm.fixMovie(movie)">Fix</a>
+          				    </div>
+						</div>					
+					</div>
+					<div class="large-4 column">
+						<input type="date" data-ng-model="movie.watched" placeholder="mm/dd/yyyy" class="watched">					
+					</div>
+					<div class="large-4 column">
+						<span class="label right score-numeral">{{movie.score}}</span>
+						<div rating score="movie.score" max="10" style="margin-top: 5px;" class="right"></div>
+					</div>
+				    <div class="large-1 column">
+						<a href="#" class="button tiny" data-ng-click="vm.saveMovie(movie)">Save</a>
+  				    </div>
+				</div>			
+			</div>
+		</article>	

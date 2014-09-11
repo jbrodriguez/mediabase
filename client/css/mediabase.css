@@ -126,3 +126,7 @@ article {
 input.watched {
 	margin-left: 10px;
 }
+
+.transparent {
+	opacity: 0.6;
+}
