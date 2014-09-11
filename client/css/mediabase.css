@@ -120,5 +120,9 @@ article {
 }
 
 .score-numeral {
-	margin: 5px 0 0 10px;
+	margin: 5px 5px 0 5px;
+}
+
+input.watched {
+	margin-left: 10px;
 }

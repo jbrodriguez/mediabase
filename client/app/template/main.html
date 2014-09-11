@@ -24,8 +24,8 @@
 					</div>
 				</div>
 
-				<div class="row">
-					<div class="large-4 column">
+				<div class="row collapse">
+					<div class="large-3 column">
 						<div class="row collapse">
 						    <div class="small-8 large-8 column">
 						    	<input type="text" placeholder="TMDB Id">
@@ -35,13 +35,16 @@
           				    </div>
 						</div>					
 					</div>
-					<div class="large-3 column">
-						<input type="text" data-ng-model="movie.last_watched" dtpicker >					
+					<div class="large-4 column">
+						<input type="date" data-ng-model="movie.watched" placeholder="mm/dd/yyyy" class="watched">					
 					</div>
-					<div class="large-5 column">
+					<div class="large-4 column">
 						<span class="label right score-numeral">{{movie.score}}</span>
 						<div rating score="movie.score" max="10" style="margin-top: 5px;" class="right"></div>
 					</div>
+				    <div class="large-1 column">
+						<a href="#" class="button tiny" data-ng-click="vm.saveMovie(movie)">Save</a>
+  				    </div>
 				</div>
 			</div>
 
