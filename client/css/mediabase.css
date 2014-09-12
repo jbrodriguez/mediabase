@@ -106,3 +106,32 @@ article {
 .import-status {
 	padding: 15px 0;
 }
+
+.rating {
+	font-size: 75%;
+}
+
+.rating .rating-highlight, .rating.rating-highlight:hover {
+  color: #F4914E;
+}
+
+.rating .rating-normal, .rating.rating-normal:hover {
+  color: #3C3C3C;
+}
+
+.score-numeral {
+	margin: 5px 5px 0 5px;
+}
+
+input.watched {
+	margin-left: 10px;
+}
+
+.transparent {
+	opacity: 0.6;
+}
+
+.movie-item {
+    height: 12.2em;
+    overflow: hidden;	
+}

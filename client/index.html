@@ -5,15 +5,17 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+	<base href="/">
+
 	<title>Mediabase</title>
 
-
-	<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-	<link href='http://fonts.googleapis.com/css?family=Amaranth' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" href="css/normalize.css">
-	<link rel="stylesheet" href="css/foundation.css">
-	<link rel="stylesheet" href="css/mediabase.css" />
-	<link rel="stylesheet" href="css/jquery.datetimepicker.css" />
+	<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css' />
+	<link href='http://fonts.googleapis.com/css?family=Amaranth' rel='stylesheet' type='text/css' />
+	<link rel='stylesheet' href='css/normalize.css' />
+	<link rel='stylesheet' href='css/foundation.css' />
+	<link rel='stylesheet' href='css/mediabase.css' />
+	<link rel='stylesheet' href='css/jquery.datetimepicker.css' />
+	<link href='//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css' rel='stylesheet' type='text/css' />
 
 	<script src="js/vendor/modernizr.js"></script>
 </head>
@@ -23,20 +25,21 @@
 		<nav class="top-bar container row">
 			<ul class="title-area">
 				<li class="name">
-					<h1><a href="/">mediabase</a></h1>
+					<h1><a ui-sref="recent"  ui-sref-active="active">mediabase</a></h1>
 				</li>
 			</ul>
 
 			<section class="top-bar-section">
 				<ul class="left">
-					<li><a ui-sref="import">Import</a></li>
+					<li><a ui-sref="import" ui-sref-active="active">Import</a></li>
+					<li><a ui-sref="all" ui-sref-active="active">All</a></li>
 				</ul>
 
 				<ul class="right">
 					<li class="has-form">
 						<div class="row collapse">
 							<div class="large-12 small-12 columns">
-								<input type="search" placeholder="Enter search string" height="5px;" data-ng-model="home.searchTerm">
+								<input type="search" placeholder="Enter search string" height="5px;" data-ng-model="home.searchTerm" ng-model-options="{ debounce: 500 }">
 							</div>
 						</div>
 					</li>
@@ -58,7 +61,7 @@
     <!-- inject-vendor:js -->
 	<script src="http://code.jquery.com/jquery.min.js"></script>
 	<script src="js/vendor/jquery.datetimepicker.js"></script>
-	<script src="http://code.angularjs.org/1.2.9/angular.js"></script>
+	<script src="https://code.angularjs.org/1.3.0-rc.1/angular.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <!-- endinject -->
 
@@ -66,6 +69,10 @@
     <!-- inject:js -->
     <!-- Bootstrapping -->
 	<script type="text/javascript" src="app/app.module.js"></script>
+	<script type="text/javascript" src="app/dtpicker.directive.js"></script>
+	<script type="text/javascript" src="app/rating.directive.js"></script>
+	<script type="text/javascript" src="app/truncate.filter.js"></script>
+	<script type="text/javascript" src="app/home.js"></script>
 
     <!-- Reusable Blocks/Modules -->
     <script src="app/blocks/exception/exception.module.js"></script>
@@ -82,6 +89,11 @@
     <script src="app/recent/recent.module.js"></script>
     <script src="app/recent/config.route.js"></script>
     <script src="app/recent/recent.js"></script>
+
+    <!-- all -->
+    <script src="app/all/all.module.js"></script>
+    <script src="app/all/config.route.js"></script>
+    <script src="app/all/all.js"></script>
 
     <!-- import -->
     <script src="app/import/import.module.js"></script>

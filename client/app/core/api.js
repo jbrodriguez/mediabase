@@ -13,9 +13,11 @@
 
     	var service = {
     		getRecentMovies: getRecentMovies,
+            getAllMovies: getAllMovies,
             startImport: startImport,
             searchMovies: searchMovies,
-            getStatus: getStatus
+            getStatus: getStatus,
+            saveMovie: saveMovie
     	};
 
     	return service;
@@ -33,6 +35,20 @@
     			return data.data;
     		}
     	};
+
+        function getAllMovies() {
+            return $http.get(ep + '/all')
+                .then(getAllMoviesEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for getAllMovies')(message);
+                    $location.url('/');
+                });
+
+            function getAllMoviesEnd(data, status, headers, config) {
+                logger.info('allmovies > this is what i got: ', data);
+                return data.data;
+            }
+        };        
 
         function startImport() {
             return $http.get(ep + '/import')
@@ -71,7 +87,22 @@
             function getStatusEnd(data, status, headers, config) {
                 return data.data;
             }
-        };   
+        };
+
+        function saveMovie(movie) {
+            // convert movie.watched to UTC and save it to last_watched
+
+            return $http.post(ep + '/movie/watched', movie)
+                .then(saveMovieEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for saveMovies')(message);
+                    $location.url('/');
+                });
+
+            function saveMovieEnd(data, status, headers, config) {
+                return data.data;
+            }          
+        }
     }
 
 })();

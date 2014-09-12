@@ -1,5 +1,13 @@
-DROP TABLE movie;
-DROP TABLE moviefts;
+DROP TABLE IF EXISTS movie;
+DROP TABLE IF EXISTS movietitle;
+DROP INDEX IF EXISTS movie_filetype_idx;
+DROP INDEX IF EXISTS movie_location_idx;
+DROP INDEX IF EXISTS movie_title_idx;
+
+DROP TRIGGER IF EXISTS movie_ai;
+DROP TRIGGER IF EXISTS movie_au;
+DROP TRIGGER IF EXISTS movie_bd;
+DROP TRIGGER IF EXISTS movie_bu;
 
 CREATE TABLE movie
 (
@@ -25,7 +33,8 @@ CREATE TABLE movie
   modified text,
   last_watched text,
   all_watched text,
-  count_watched integer
+  count_watched integer,
+  score integer
 );
 CREATE INDEX movie_title_idx ON movie (title);
 CREATE INDEX movie_location_idx ON movie (location);

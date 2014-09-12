@@ -55,12 +55,14 @@ func (self *Dal) Start() {
 
 	self.cnt = 0
 
-	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
-	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by title")
-	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by runtime")
-	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie where original_title = 'FIXMOV23'")
+	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
+	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie order by title")
+	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie order by runtime")
+	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie where original_title = 'FIXMOV23'")
 
 	mlog.Info("connected to database")
+
+	// self.initSchema()
 
 	go self.react()
 }
@@ -101,6 +103,78 @@ func (self *Dal) react() {
 			go self.doGetMoviesToFix(msg)
 		}
 	}
+}
+
+func (self *Dal) initSchema() {
+	sql := `
+DROP TABLE IF EXISTS movie;
+DROP TABLE IF EXISTS movietitle;
+DROP INDEX IF EXISTS movie_filetype_idx;
+DROP INDEX IF EXISTS movie_location_idx;
+DROP INDEX IF EXISTS movie_title_idx;
+
+DROP TRIGGER IF EXISTS movie_ai;
+DROP TRIGGER IF EXISTS movie_au;
+DROP TRIGGER IF EXISTS movie_bd;
+DROP TRIGGER IF EXISTS movie_bu;
+
+CREATE TABLE movie
+(
+  title text,
+  original_title text,
+  file_title text,
+  year integer,
+  runtime integer,
+  tmdb_id integer,
+  imdb_id text,
+  overview text,
+  tagline text,
+  resolution text,
+  filetype text,
+  location text,
+  cover text,
+  backdrop text,
+  genres text,
+  vote_average integer,
+  vote_count integer,
+  countries text,
+  added text,
+  modified text,
+  last_watched text,
+  all_watched text,
+  count_watched integer,
+  score integer
+);
+CREATE INDEX movie_title_idx ON movie (title);
+CREATE INDEX movie_location_idx ON movie (location);
+CREATE INDEX movie_filetype_idx ON movie (filetype);
+
+CREATE VIRTUAL TABLE movietitle USING fts4(content="movie", title, original_title, file_title);
+CREATE TRIGGER movie_bu BEFORE UPDATE ON movie BEGIN
+	DELETE FROM movietitle WHERE docid=old.rowid;
+END;
+
+CREATE TRIGGER movie_bd BEFORE DELETE ON movie BEGIN
+	DELETE FROM movietitle WHERE docid=old.rowid;
+END;
+
+CREATE TRIGGER movie_au AFTER UPDATE ON movie BEGIN
+	INSERT INTO movietitle(docid, title, original_title, file_title) VALUES (new.rowid, new.title, new.original_title, new.file_title);
+END;
+
+CREATE TRIGGER movie_ai AFTER INSERT ON movie BEGIN
+	INSERT INTO movietitle(docid, title, original_title, file_title) VALUES (new.rowid, new.title, new.original_title, new.file_title);
+END;
+
+	`
+
+	_, err := self.db.Exec(sql)
+	if err != nil {
+		mlog.Info("%q: %s", err, sql)
+		return
+	}
+
+	mlog.Info("inited schema")
 }
 
 func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
@@ -146,7 +220,7 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 
 	// stmt, err := tx.Prepare("insert into movie(title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, director, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 
-	stmt, err := tx.Prepare("insert into movie(title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmt, err := tx.Prepare("insert into movie(title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		tx.Rollback()
 		mlog.Fatalf("at prepare: %s", err)
@@ -154,7 +228,7 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(movie.Title, movie.Original_Title, movie.File_Title, movie.Year, movie.Runtime, movie.Tmdb_Id, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Resolution, movie.FileType, movie.Location, movie.Cover, movie.Backdrop,
-		movie.Genres, movie.Vote_Average, movie.Vote_Count, movie.Production_Countries, movie.Added, movie.Modified, movie.Last_Watched, movie.All_Watched, movie.Count_Watched)
+		movie.Genres, movie.Vote_Average, movie.Vote_Count, movie.Production_Countries, movie.Added, movie.Modified, movie.Last_Watched, movie.All_Watched, movie.Count_Watched, movie.Score)
 	if err != nil {
 		tx.Rollback()
 		mlog.Fatalf("at exec: %s", err)
@@ -288,7 +362,7 @@ func (self *Dal) doListMovies(msg *message.ListMovies) {
 
 	for rows.Next() {
 		movie := message.Movie{}
-		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched)
+		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched, &movie.Score)
 		items = append(items, &movie)
 		self.cnt++
 	}
@@ -370,29 +444,6 @@ func (self *Dal) doShowDuplicates(msg *message.Movies) {
 }
 
 func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
-	// tx, err := self.db.Begin()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// stmt, err := tx.Prepare("select name, year, resolution, filetype, location, picture from movie where name like ?")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer stmt.Close()
-
-	// term := "%" + msg.Term + "%"
-	// mlog.Info("this is: %s", term)
-
-	// rows, err := stmt.Query(term)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// term := "%" + msg.Term + "%"
-	// term := msg.Term + "%"
-	// term := "*" + msg.Term + "*"
-	// term := msg.Term + "* OR " + msg.Term
 	term := msg.Term + "*"
 	mlog.Info("this is: %s", term)
 
@@ -405,7 +456,10 @@ func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
 
 	for rows.Next() {
 		movie := message.Movie{}
-		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop)
+		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched, &movie.Score)
+		// movie := &message.Movie{}
+		// rows.Scan(movie.Id, movie.Title, movie.Original_Title, movie.Year, movie.Runtime, movie.Tmdb_Id, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Resolution, movie.FileType, movie.Location, movie.Cover, movie.Backdrop)
+		// mlog.Info("title: (%s)", movie.Title)
 		items = append(items, &movie)
 	}
 	rows.Close()

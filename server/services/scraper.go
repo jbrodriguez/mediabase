@@ -176,6 +176,8 @@ func (self *Gig) DoWork(workRoutine int) {
 	self.media.Movie.Added = now
 	self.media.Movie.Modified = now
 
+	self.media.Movie.Score = 0
+
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
 
