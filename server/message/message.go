@@ -30,6 +30,11 @@ type CheckMovie struct {
 	Result chan bool
 }
 
+type WatchedMovie struct {
+	Movie *Movie
+	Reply chan *Movie
+}
+
 type Movie struct {
 	Id                   uint64  `json:"id"`
 	Title                string  `json:"title"`

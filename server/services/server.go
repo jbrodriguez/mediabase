@@ -38,6 +38,8 @@ func (self *Server) Start() {
 		api.GET("/all", self.listMovies)
 		api.GET("/import", self.importMovies)
 		api.GET("/search/:term", self.searchMovies)
+
+		api.POST("/movie/watched", self.watchedMovie)
 	}
 
 	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
@@ -137,6 +139,18 @@ func (self *Server) listByRuntime(w http.ResponseWriter, req *http.Request) {
 	// mlog.Info("response is: %s", reply)
 
 	helper.WriteJson(w, 200, &reply)
+}
+
+func (self *Server) watchedMovie(c *gin.Context) {
+	var movie message.Movie
+
+	c.Bind(&movie)
+	mlog.Info("%+v", movie)
+	// msg := message.WatchedMovie{Movie: &movie, Reply: make(chan *message.Movie)}
+	// self.Bus.WatchedMovie <- &msg
+	// reply := <-msg.Reply
+
+	// c.JSON(200, &reply)
 }
 
 func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {

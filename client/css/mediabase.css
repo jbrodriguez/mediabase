@@ -130,3 +130,8 @@ input.watched {
 .transparent {
 	opacity: 0.6;
 }
+
+.movie-item {
+    height: 12.2em;
+    overflow: hidden;	
+}
