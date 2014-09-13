@@ -13,6 +13,7 @@
         var vm = this;
 
         vm.movies = [];
+        vm.setWatched = setWatched;
         vm.fixMovie = fixMovie;
 
         activate();
@@ -36,6 +37,13 @@
                 return vm.movies;
             });
         }
+
+        function setWatched(index) {
+            console.log("maldecido!!!!: ", index);
+            return api.setWatched(vm.movies[index]).then(function(data) {
+                logger.success("Movie was updated successfully", "", vm.movies[index].title);
+            })
+        };
 
         function fixMovie(movie) {
             console.log("this is the movie: ", movie.title)

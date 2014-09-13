@@ -117,6 +117,12 @@ func (self *Gig) DoWork(workRoutine int) {
 
 	result = self.media
 
+	now := time.Now().UTC().Format(time.RFC3339)
+	self.media.Movie.Added = now
+	self.media.Movie.Modified = now
+
+	self.media.Movie.Score = 0
+
 	mlog.Info("STARTED SCRAPING [%s]", self.media.Movie.Title)
 	movies, err := self.tmdb.SearchMovie(self.media.Movie.Title)
 	if err != nil {
@@ -171,12 +177,6 @@ func (self *Gig) DoWork(workRoutine int) {
 			self.media.Movie.Production_Countries += "|" + attr.Name
 		}
 	}
-
-	now := time.Now().Format(time.RFC3339)
-	self.media.Movie.Added = now
-	self.media.Movie.Modified = now
-
-	self.media.Movie.Score = 0
 
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
@@ -244,8 +244,7 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 		}
 	}
 
-	now := time.Now().Format(time.RFC3339)
-	self.media.Movie.Modified = now
+	self.media.Movie.Modified = time.Now().UTC().Format(time.RFC3339)
 
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl

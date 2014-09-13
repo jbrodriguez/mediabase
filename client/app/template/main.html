@@ -10,7 +10,7 @@
 					</div>
 
 					<div class="large-10 column movie-item">
-						<img class="transparent" src="img/b{{movie.backdrop}}" />
+						<img src="img/b{{movie.backdrop}}" />
 					</div>
 				</div>
 			</div>
@@ -20,7 +20,8 @@
 					<div class="large-12 column">
 						<span class="label">{{ movie.resolution }}</span>
 						<span class="label secondary">{{ movie.runtime }} min</span>
-						<span class="label watched">Watched: June 23, 2014</span>
+						<span class="label">added | {{ movie.added | date: 'MMM dd, yyyy HH:mm' }}</span>
+						<span class="label watched" data-ng-if="movie.last_watched != ''">watched | <b>{{ movie.last_watched | date: 'MMM dd, yyyy' }}</b></span>
 					</div>
 				</div>			
 			</div>
@@ -46,14 +47,14 @@
 						</div>					
 					</div>
 					<div class="large-4 column">
-						<input type="date" data-ng-model="movie.last_watched" placeholder="mm/dd/yyyy" class="watched">					
+						<input type="date" data-ng-model="movie.watched" placeholder="mm/dd/yyyy" class="watched">					
 					</div>
 					<div class="large-4 column">
+						<div rating data-ng-model="movie.score" score="movie.score" max="10" style="margin: 5px 10px 0;" class="right"></div>
 						<span class="label right score-numeral">{{movie.score}}</span>
-						<div rating score="movie.score" max="10" style="margin-top: 5px;" class="right"></div>
 					</div>
 				    <div class="large-1 column">
-						<a href="#" class="button tiny" data-ng-click="vm.saveMovie($index)">Save</a>
+						<a href="#" class="button tiny" data-ng-click="vm.setWatched($index)">Save</a>
   				    </div>
 				</div>			
 			</div>

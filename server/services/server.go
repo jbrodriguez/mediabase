@@ -146,11 +146,16 @@ func (self *Server) watchedMovie(c *gin.Context) {
 
 	c.Bind(&movie)
 	mlog.Info("%+v", movie)
-	// msg := message.WatchedMovie{Movie: &movie, Reply: make(chan *message.Movie)}
-	// self.Bus.WatchedMovie <- &msg
-	// reply := <-msg.Reply
 
-	// c.JSON(200, &reply)
+	msg := message.WatchedMovie{Movie: &movie, Reply: make(chan bool)}
+	self.Bus.WatchedMovie <- &msg
+	reply := <-msg.Reply
+
+	data := struct {
+		Status bool `json:"status"`
+	}{Status: reply}
+
+	c.JSON(200, &data)
 }
 
 func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {
