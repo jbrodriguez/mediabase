@@ -20,8 +20,8 @@
 					<div class="large-12 column">
 						<span class="label">{{ movie.resolution }}</span>
 						<span class="label secondary">{{ movie.runtime }} min</span>
-						<span class="label">{{ movie.added | date: 'MMM dd, yyyy HH:mm.sss Z' }}</span>
-						<span class="label watched" data-ng-if="movie.last_watched != ''">{{ movie.last_watched | date: 'MMM dd, yyyy HH:mm.sss Z' }}</span>
+						<span class="label">ADDED: {{ movie.added | date: 'MMM dd, yyyy HH:mm' }}</span>
+						<span class="label watched" data-ng-if="movie.last_watched != ''">WATCHED: {{ movie.last_watched | date: 'MMM dd, yyyy' }}</span>
 					</div>
 				</div>			
 			</div>
