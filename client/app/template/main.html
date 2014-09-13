@@ -22,6 +22,7 @@
 						<span class="label secondary">{{ movie.runtime }} min</span>
 						<span class="label">added | {{ movie.added | date: 'MMM dd, yyyy HH:mm' }}</span>
 						<span class="label watched" data-ng-if="movie.last_watched != ''">watched | <b>{{ movie.last_watched | date: 'MMM dd, yyyy' }}</b></span>
+						<span class="label">{{ movie.location }}</span>
 					</div>
 				</div>			
 			</div>
@@ -39,10 +40,10 @@
 					<div class="large-3 column">
 						<div class="row collapse">
 						    <div class="small-8 large-8 column">
-						    	<input type="text" placeholder="TMDB Id">
+						    	<input type="number" placeholder="TMDB Id" data-ng-model="movie.tmdbid_new">
 						    </div>
 						    <div class="small-4 large-4 column">
-								<a href="#" class="button postfix" data-ng-click="vm.fixMovie(movie)">Fix</a>
+								<a href="#" class="button postfix" data-ng-click="vm.fixMovie($index)">Fix</a>
           				    </div>
 						</div>					
 					</div>

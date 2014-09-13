@@ -63,6 +63,8 @@ func (self *Core) react() {
 			go self.doMovieRescraped(msg)
 		case msg := <-self.Bus.FixMovies:
 			go self.doFixMovies(msg)
+		case msg := <-self.Bus.FixMovie:
+			go self.doFixMovie(msg)
 
 		case msg := <-self.Bus.ImportMoviesFinished:
 			go self.doImportMoviesFinished(msg)
@@ -167,6 +169,13 @@ func (self *Core) doFixMovies(flag int) {
 	mlog.Info("WAITING FOR REPLY [%v]", reply)
 
 	self.Bus.RescrapeMovies <- reply
+}
+
+func (self *Core) doFixMovie(msg *message.SingleMovie) {
+	movies := make([]*message.Movie, 0)
+	movies = append(movies, msg.Movie)
+
+	self.Bus.RescrapeMovies <- movies
 }
 
 func (self *Core) doImportMoviesFinished(completed int) {

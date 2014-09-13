@@ -40,6 +40,7 @@ func (self *Server) Start() {
 		api.GET("/search/:term", self.searchMovies)
 
 		api.POST("/movie/watched", self.watchedMovie)
+		api.POST("/movie/fix", self.fixMovie)
 	}
 
 	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
@@ -145,9 +146,9 @@ func (self *Server) watchedMovie(c *gin.Context) {
 	var movie message.Movie
 
 	c.Bind(&movie)
-	mlog.Info("%+v", movie)
+	// mlog.Info("%+v", movie)
 
-	msg := message.WatchedMovie{Movie: &movie, Reply: make(chan bool)}
+	msg := message.SingleMovie{Movie: &movie, Reply: make(chan bool)}
 	self.Bus.WatchedMovie <- &msg
 	reply := <-msg.Reply
 
@@ -161,4 +162,20 @@ func (self *Server) watchedMovie(c *gin.Context) {
 func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {
 	self.Bus.FixMovies <- 1
 	helper.WriteJson(w, 200, "ok")
+}
+
+func (self *Server) fixMovie(c *gin.Context) {
+	var movie message.Movie
+
+	c.Bind(&movie)
+	mlog.Info("%+v", movie)
+
+	msg := message.SingleMovie{Movie: &movie, Reply: make(chan bool)}
+	self.Bus.FixMovie <- &msg
+
+	data := struct {
+		Status bool `json:"status"`
+	}{Status: true}
+
+	c.JSON(200, &data)
 }

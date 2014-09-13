@@ -5,9 +5,10 @@
         .module('app.recent')
         .controller('Recent', Recent);
 
-    Recent.$inject = ['$q', 'api', 'logger'];
+    // Recent.$inject = ['$q', 'api', 'logger'];
 
-    function Recent($q, api, logger) {
+    /* @ngInject */
+    function Recent($state, $q, api, logger) {
 
         /*jshint validthis: true */
         var vm = this;
@@ -45,8 +46,11 @@
             })
         };
 
-        function fixMovie(movie) {
-            console.log("this is the movie: ", movie.title)
-        }
+        function fixMovie(index) {
+            return api.fixMovie(vm.movies[index]).then(function(data) {
+                logger.success("Movie fixed successfully");
+                $state.go("recent")
+            })
+        };
     }
 })();

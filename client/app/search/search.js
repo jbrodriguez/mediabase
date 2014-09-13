@@ -8,13 +8,14 @@
     // Search.$inject = ['$q', 'api', 'logger'];
 
     /* @ngInject */
-    function Search($q, $scope, api, logger) {
+    function Search($state, $q, $scope, api, logger) {
 
         /*jshint validthis: true */
         var vm = this;
 
         vm.movies = [];
         vm.setWatched = setWatched;
+        vm.fixMovie = fixMovie;
 
         console.log('activated search view');
         $scope.$onRootScope('/local/search', doSearch);
@@ -31,6 +32,20 @@
             console.log("maldecido!!!!: ", index);
             return api.setWatched(vm.movies[index]).then(function(data) {
                 logger.success("Movie was updated successfully", "", vm.movies[index].title);
+            })
+        };
+
+        function fixMovie(index) {
+            var movie = vm.movies[index];
+            if (!movie.tmdbid_new) {
+                return
+            }
+
+            movie.tmdb_id = movie.tmdbid_new
+
+            return api.fixMovie(movie).then(function(data) {
+                logger.success("Movie fixed successfully");
+                // $state.go("recent")
             })
         };
 

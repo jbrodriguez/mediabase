@@ -301,14 +301,14 @@ func (self *Dal) doUpdateMovie(movie *message.Movie) {
 		mlog.Fatalf("at begin: %s", err)
 	}
 
-	stmt, err := tx.Prepare("update movie set title = ?, original_title = ?, file_title = ?, year = ?, runtime = ?, imdb_id = ?, overview = ?, tagline = ?, cover = ?, backdrop = ?, genres = ?, vote_average = ?, vote_count = ?, countries = ?, modified = ? where tmdb_id = ?")
+	stmt, err := tx.Prepare("update movie set title = ?, original_title = ?, year = ?, runtime = ?, tmdb_id = ?, imdb_id = ?, overview = ?, tagline = ?, cover = ?, backdrop = ?, genres = ?, vote_average = ?, vote_count = ?, countries = ?, modified = ? where rowid = ?")
 	if err != nil {
 		tx.Rollback()
 		mlog.Fatalf("at prepare: %s", err)
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(movie.Title, movie.Original_Title, movie.File_Title, movie.Year, movie.Runtime, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Cover, movie.Backdrop, movie.Genres, movie.Vote_Average, movie.Vote_Count, movie.Production_Countries, movie.Modified, movie.Tmdb_Id)
+	_, err = stmt.Exec(movie.Title, movie.Original_Title, movie.Year, movie.Runtime, movie.Tmdb_Id, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Cover, movie.Backdrop, movie.Genres, movie.Vote_Average, movie.Vote_Count, movie.Production_Countries, movie.Modified, movie.Id)
 	if err != nil {
 		tx.Rollback()
 		mlog.Fatalf("at exec: %s", err)
@@ -506,7 +506,7 @@ func (self *Dal) doGetMoviesToFix(msg *message.Movies) {
 	msg.Reply <- items
 }
 
-func (self *Dal) doWatchedMovie(msg *message.WatchedMovie) {
+func (self *Dal) doWatchedMovie(msg *message.SingleMovie) {
 	mlog.Info("STARTED UPDATING WATCHED MOVIE %s (%s)", msg.Movie.Title, msg.Movie.Last_Watched)
 
 	tx, err := self.db.Begin()

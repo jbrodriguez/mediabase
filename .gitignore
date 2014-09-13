@@ -45,6 +45,7 @@ Icon
 # misc
 .jpg
 .log
+*.log
 *.txt
 mediabase
 log

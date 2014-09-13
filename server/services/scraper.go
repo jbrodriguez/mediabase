@@ -206,7 +206,7 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 	id := self.media.Movie.Tmdb_Id
 
 	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
-	// mlog.Info("[%s] before getmovie [%s]", self.media.Movie.Title)
+	mlog.Info("[%s] before getmovie [%d]", self.media.Movie.Title, self.media.Movie.Tmdb_Id)
 	gmr, err := self.tmdb.GetMovie(id)
 	if err != nil {
 		mlog.Info("FIXMOVIE: FAILED GETTING MOVIE [%s]", self.media.Movie.Title)

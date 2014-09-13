@@ -30,7 +30,7 @@ type CheckMovie struct {
 	Result chan bool
 }
 
-type WatchedMovie struct {
+type SingleMovie struct {
 	Movie *Movie
 	Reply chan bool
 }

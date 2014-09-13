@@ -17,7 +17,8 @@
             startImport: startImport,
             searchMovies: searchMovies,
             getStatus: getStatus,
-            setWatched: setWatched
+            setWatched: setWatched,
+            fixMovie: fixMovie
     	};
 
     	return service;
@@ -98,7 +99,7 @@
             return $http.post(ep + '/movie/watched', movie)
                 .then(setWatchedEnd)
                 .catch(function(message) {
-                    exception.catcher('XHR Failed for saveMovies')(message);
+                    exception.catcher('XHR Failed for saveMovie')(message);
                     $location.url('/');
                 });
 
@@ -106,6 +107,19 @@
                 return data.data;
             }          
         }
+
+        function fixMovie(movie) {
+            return $http.post(ep + '/movie/fix', movie)
+                .then(fixMovieEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for fixMovie')(message);
+                    $location.url('/');
+                });
+
+            function fixMovieEnd(data, status, headers, config) {
+                return data.data;
+            }          
+        }        
     }
 
 })();
