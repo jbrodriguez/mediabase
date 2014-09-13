@@ -91,8 +91,10 @@
 
         function setWatched(movie) {
             // convert movie.watched to UTC and save it to last_watched
-            movie.last_watched = movie.watched.toISOString();
-
+            if (movie.watched) {
+                movie.last_watched = movie.watched.toISOString();
+            }
+                        
             return $http.post(ep + '/movie/watched', movie)
                 .then(setWatchedEnd)
                 .catch(function(message) {

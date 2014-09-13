@@ -50,7 +50,7 @@
 						<input type="date" data-ng-model="movie.watched" placeholder="mm/dd/yyyy" class="watched">					
 					</div>
 					<div class="large-4 column">
-						<div rating score="movie.score" max="10" style="margin: 5px 10px 0;" class="right"></div>
+						<div rating data-ng-model="movie.score" score="movie.score" max="10" style="margin: 5px 10px 0;" class="right"></div>
 						<span class="label right score-numeral">{{movie.score}}</span>
 					</div>
 				    <div class="large-1 column">

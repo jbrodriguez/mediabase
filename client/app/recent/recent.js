@@ -38,13 +38,12 @@
             });
         }
 
-        function setWatched(idx) {
-            console.log("maldecido!!!!: ", idx);
-            var index = idx;
-            return api.setWatched(vm.movies[idx]).then(function(data) {
-                console.log('renacuajo!!!: ', vm.movies[index]);
+        function setWatched(index) {
+            console.log("maldecido!!!!: ", index);
+            return api.setWatched(vm.movies[index]).then(function(data) {
+                logger.success("Movie was updated successfully", "", "mediabase");
             })
-        };        
+        };
 
         function fixMovie(movie) {
             console.log("this is the movie: ", movie.title)

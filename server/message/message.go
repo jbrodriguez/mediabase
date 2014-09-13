@@ -32,7 +32,7 @@ type CheckMovie struct {
 
 type WatchedMovie struct {
 	Movie *Movie
-	Reply chan *Movie
+	Reply chan bool
 }
 
 type Movie struct {

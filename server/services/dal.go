@@ -8,6 +8,7 @@ import (
 	"github.com/apertoire/mlog"
 	_ "github.com/mattn/go-sqlite3"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -61,7 +62,7 @@ func (self *Dal) Start() {
 	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie order by runtime")
 	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie where original_title = 'FIXMOV23'")
 
-	mlog.Info("connected to database")
+	mlog.Info("connected to database (%s)", self.dbase)
 
 	// self.initSchema()
 
@@ -323,7 +324,7 @@ func (self *Dal) doGetMovies(msg *message.GetMovies) {
 		mlog.Fatalf("unable to begin transaction: %s", err)
 	}
 
-	stmt, err := tx.Prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched from movie order by added desc limit ?")
+	stmt, err := tx.Prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie order by added desc limit ?")
 	if err != nil {
 		mlog.Fatalf("unable to prepare transaction: %s", err)
 	}
@@ -338,7 +339,12 @@ func (self *Dal) doGetMovies(msg *message.GetMovies) {
 
 	for rows.Next() {
 		movie := message.Movie{}
-		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, movie.All_Watched, &movie.Count_Watched)
+		err := rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched, &movie.Score)
+		if err != nil {
+			mlog.Info("errored: %s", err)
+		}
+		// mlog.Info("%+v\n", movie)
+
 		items = append(items, &movie)
 	}
 	rows.Close()
@@ -508,7 +514,7 @@ func (self *Dal) doWatchedMovie(msg *message.WatchedMovie) {
 		mlog.Fatalf("at begin: %s", err)
 	}
 
-	stmt, err := tx.Prepare("update movie set last_watched = ?, score = ?, modified = ? where rowid = ?")
+	stmt, err := tx.Prepare("update movie set last_watched = ?, all_watched = ?, score = ?, modified = ? where rowid = ?")
 	if err != nil {
 		tx.Rollback()
 		mlog.Fatalf("at prepare: %s", err)
@@ -517,7 +523,16 @@ func (self *Dal) doWatchedMovie(msg *message.WatchedMovie) {
 
 	now := time.Now().UTC().Format(time.RFC3339)
 
-	_, err = stmt.Exec(msg.Movie.Last_Watched, msg.Movie.Score, now, msg.Movie.Id)
+	var all_watched string
+	if !strings.Contains(msg.Movie.All_Watched, msg.Movie.Last_Watched) {
+		if msg.Movie.All_Watched == "" {
+			all_watched = msg.Movie.Last_Watched
+		} else {
+			all_watched += "|" + msg.Movie.Last_Watched
+		}
+	}
+
+	_, err = stmt.Exec(msg.Movie.Last_Watched, all_watched, msg.Movie.Score, now, msg.Movie.Id)
 	if err != nil {
 		tx.Rollback()
 		mlog.Fatalf("at exec: %s", err)
@@ -526,5 +541,5 @@ func (self *Dal) doWatchedMovie(msg *message.WatchedMovie) {
 	tx.Commit()
 	mlog.Info("FINISHED UPDATING WATCHED MOVIE %s", msg.Movie.Title)
 
-	msg.Reply <- msg.Movie
+	msg.Reply <- true
 }
