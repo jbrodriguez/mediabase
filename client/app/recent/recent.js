@@ -41,7 +41,7 @@
         function setWatched(index) {
             console.log("maldecido!!!!: ", index);
             return api.setWatched(vm.movies[index]).then(function(data) {
-                logger.success("Movie was updated successfully", "", "mediabase");
+                logger.success("Movie was updated successfully", "", vm.movies[index].title);
             })
         };
 
