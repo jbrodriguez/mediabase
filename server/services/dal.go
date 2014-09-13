@@ -8,6 +8,7 @@ import (
 	"github.com/apertoire/mlog"
 	_ "github.com/mattn/go-sqlite3"
 	"path/filepath"
+	"time"
 )
 
 type Dal struct {
@@ -101,6 +102,8 @@ func (self *Dal) react() {
 			go self.doCheckMovie(msg)
 		case msg := <-self.Bus.GetMoviesToFix:
 			go self.doGetMoviesToFix(msg)
+		case msg := <-self.Bus.WatchedMovie:
+			go self.doWatchedMovie(msg)
 		}
 	}
 }
@@ -495,4 +498,33 @@ func (self *Dal) doGetMoviesToFix(msg *message.Movies) {
 	mlog.Info("Listed %d movies to fix", self.cnt)
 
 	msg.Reply <- items
+}
+
+func (self *Dal) doWatchedMovie(msg *message.WatchedMovie) {
+	mlog.Info("STARTED UPDATING WATCHED MOVIE %s (%s)", msg.Movie.Title, msg.Movie.Last_Watched)
+
+	tx, err := self.db.Begin()
+	if err != nil {
+		mlog.Fatalf("at begin: %s", err)
+	}
+
+	stmt, err := tx.Prepare("update movie set last_watched = ?, score = ?, modified = ? where rowid = ?")
+	if err != nil {
+		tx.Rollback()
+		mlog.Fatalf("at prepare: %s", err)
+	}
+	defer stmt.Close()
+
+	now := time.Now().UTC().Format(time.RFC3339)
+
+	_, err = stmt.Exec(msg.Movie.Last_Watched, msg.Movie.Score, now, msg.Movie.Id)
+	if err != nil {
+		tx.Rollback()
+		mlog.Fatalf("at exec: %s", err)
+	}
+
+	tx.Commit()
+	mlog.Info("FINISHED UPDATING WATCHED MOVIE %s", msg.Movie.Title)
+
+	msg.Reply <- msg.Movie
 }

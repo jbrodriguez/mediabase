@@ -13,6 +13,7 @@
         var vm = this;
 
         vm.movies = [];
+        vm.setWatched = setWatched;
         vm.fixMovie = fixMovie;
 
         activate();
@@ -36,6 +37,14 @@
                 return vm.movies;
             });
         }
+
+        function setWatched(idx) {
+            console.log("maldecido!!!!: ", idx);
+            var index = idx;
+            return api.setWatched(vm.movies[idx]).then(function(data) {
+                console.log('renacuajo!!!: ', vm.movies[index]);
+            })
+        };        
 
         function fixMovie(movie) {
             console.log("this is the movie: ", movie.title)

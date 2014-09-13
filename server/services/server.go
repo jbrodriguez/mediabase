@@ -150,6 +150,8 @@ func (self *Server) watchedMovie(c *gin.Context) {
 	// self.Bus.WatchedMovie <- &msg
 	// reply := <-msg.Reply
 
+	data := struct{ Status string }{Status: "ok"}
+	c.JSON(200, &data)
 	// c.JSON(200, &reply)
 }
 

@@ -14,7 +14,7 @@
         var vm = this;
 
         vm.movies = [];
-        vm.saveMovie = saveMovie;
+        vm.setWatched = setWatched;
 
         console.log('activated search view');
         $scope.$onRootScope('/local/search', doSearch);
@@ -25,15 +25,20 @@
                 vm.movies = data;
                 return vm.movies;
             })
-        }
+        };
 
-        function saveMovie(idx) {
-            console.log("maldecido!!!!: ", vm.movies[idx]);
+        function setWatched(idx) {
+            console.log("maldecido!!!!: ", idx);
             var index = idx;
-            return api.saveMovie(vm.movies[idx]).then(function(data) {
-                vm.movies[index] = data;
+            return api.setWatched(vm.movies[idx]).then(function(data) {
+                console.log('renacuajo!!!: ', vm.movies[index]);
             })
-        }
+        };
+
+        // function changeDate(movie, watchedDate) {
+        //     console.log("yist: ", watchedDate);
+
+        // };
 
 //         function activate() {
 //             return getRecentMovies().then(function() {

@@ -17,7 +17,7 @@
             startImport: startImport,
             searchMovies: searchMovies,
             getStatus: getStatus,
-            saveMovie: saveMovie
+            setWatched: setWatched
     	};
 
     	return service;
@@ -89,17 +89,18 @@
             }
         };
 
-        function saveMovie(movie) {
+        function setWatched(movie) {
             // convert movie.watched to UTC and save it to last_watched
+            movie.last_watched = movie.watched.toISOString();
 
             return $http.post(ep + '/movie/watched', movie)
-                .then(saveMovieEnd)
+                .then(setWatchedEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for saveMovies')(message);
                     $location.url('/');
                 });
 
-            function saveMovieEnd(data, status, headers, config) {
+            function setWatchedEnd(data, status, headers, config) {
                 return data.data;
             }          
         }
