@@ -514,7 +514,7 @@ func (self *Dal) doWatchedMovie(msg *message.SingleMovie) {
 		mlog.Fatalf("at begin: %s", err)
 	}
 
-	stmt, err := tx.Prepare("update movie set last_watched = ?, all_watched = ?, score = ?, modified = ? where rowid = ?")
+	stmt, err := tx.Prepare("update movie set last_watched = ?, all_watched = ?, count_watched = ?, score = ?, modified = ? where rowid = ?")
 	if err != nil {
 		tx.Rollback()
 		mlog.Fatalf("at prepare: %s", err)
@@ -524,7 +524,9 @@ func (self *Dal) doWatchedMovie(msg *message.SingleMovie) {
 	now := time.Now().UTC().Format(time.RFC3339)
 
 	var all_watched string
+	count_watched := msg.Movie.Count_Watched
 	if !strings.Contains(msg.Movie.All_Watched, msg.Movie.Last_Watched) {
+		count_watched++
 		if msg.Movie.All_Watched == "" {
 			all_watched = msg.Movie.Last_Watched
 		} else {
@@ -532,7 +534,7 @@ func (self *Dal) doWatchedMovie(msg *message.SingleMovie) {
 		}
 	}
 
-	_, err = stmt.Exec(msg.Movie.Last_Watched, all_watched, msg.Movie.Score, now, msg.Movie.Id)
+	_, err = stmt.Exec(msg.Movie.Last_Watched, all_watched, count_watched, msg.Movie.Score, now, msg.Movie.Id)
 	if err != nil {
 		tx.Rollback()
 		mlog.Fatalf("at exec: %s", err)
