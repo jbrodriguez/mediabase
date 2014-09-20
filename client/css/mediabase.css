@@ -74,9 +74,9 @@ main {
 */}
 
 main h4 {
-	color: #C14242;
-/*	color: #2c3e50;
-*/	margin: 0;
+/*	color: #C14242;
+*/	color: #2c3e50;
+	margin: 0;
 }
 
 main .overview {
@@ -134,4 +134,35 @@ input.watched {
 .movie-item {
     height: 12.2em;
     overflow: hidden;	
+}
+
+.overlay-container {
+	height: 12.2em;
+	overflow: hidden;
+/*	padding: 0;
+*/	position: relative;
+}
+
+.overlay-container .overlay {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	padding: 0.4rem 1.6rem 0.4rem 1.6rem;
+	font: 0/0 a;
+}
+
+.overlay-container .overlay:before {
+	content: ' ';
+	display: inline-block;
+	height: 100%;
+}
+
+.overlay-container .overlay span {
+	font: 24px/1 Lato, Helvetica, sans-serif;
+	color: white;
+	background-color: rgba(0, 0, 0, 0.4);
+	padding: 5px 15px 5px 15px;
+	display: inline-block;
 }

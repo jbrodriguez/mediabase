@@ -9,8 +9,12 @@
 						<img src="img/p{{movie.cover}}">
 					</div>
 
-					<div class="large-10 column movie-item">
+					<div class="large-10 column overlay-container">
 						<img src="img/b{{movie.backdrop}}" />
+						<div class="overlay">
+							<span class="left">{{movie.runtime | hourMinute}}</span>
+							<span class="right">{{movie.vote_average}}</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -18,11 +22,14 @@
 			<div class="large-12 column">
 				<div class="row">
 					<div class="large-12 column">
-						<span class="label">{{ movie.resolution }}</span>
-						<span class="label secondary">{{ movie.runtime }} min</span>
-						<span class="label">added | {{ movie.added | date: 'MMM dd, yyyy HH:mm' }}</span>
-						<span class="label watched" data-ng-if="movie.last_watched != ''">watched | <b>{{ movie.last_watched | date: 'MMM dd, yyyy' }}</b></span>
-						<span class="label">{{ movie.location }}</span>
+						<div class="left">
+							<span class="label">{{ movie.resolution }}</span>
+							<span class="label secondary">{{ movie.location }}</span>
+						</div>
+						<div class="right">
+							<span class="label">added | {{ movie.added | date: 'MMM dd, yyyy HH:mm' }}</span>
+							<span class="label watched" data-ng-if="movie.last_watched != ''">watched | <b>{{ movie.last_watched | date: 'MMM dd, yyyy' }}</b></span>
+						</div>
 					</div>
 				</div>			
 			</div>
