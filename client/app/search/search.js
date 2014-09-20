@@ -8,7 +8,7 @@
     // Search.$inject = ['$q', 'api', 'logger'];
 
     /* @ngInject */
-    function Search($state, $q, $scope, api, logger) {
+    function Search($state, $q, $scope, api, logger, options) {
 
         /*jshint validthis: true */
         var vm = this;
@@ -21,7 +21,7 @@
         $scope.$onRootScope('/local/search', doSearch);
 
         function doSearch(me, term) {
-            console.log('searching for me: '+me+'term: '+term);
+            console.log('searching for me: '+me+'term: '+term+'options.searchTerm: '+options.searchTerm);
             return api.searchMovies(term).then(function(data) {
                 vm.movies = data;
                 return vm.movies;
