@@ -18,7 +18,8 @@
             searchMovies: searchMovies,
             getStatus: getStatus,
             setWatched: setWatched,
-            fixMovie: fixMovie
+            fixMovie: fixMovie,
+            getDuplicateMovies: getDuplicateMovies
     	};
 
     	return service;
@@ -106,7 +107,7 @@
             function setWatchedEnd(data, status, headers, config) {
                 return data.data;
             }          
-        }
+        };
 
         function fixMovie(movie) {
             return $http.post(ep + '/movie/fix', movie)
@@ -119,7 +120,22 @@
             function fixMovieEnd(data, status, headers, config) {
                 return data.data;
             }          
-        }        
+        };
+
+        function getDuplicateMovies() {
+            return $http.get(ep + '/movies/duplicates')
+                .then(getDuplicateMoviesEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for getDuplicateMovies')(message);
+                    $location.url('/');
+                });
+
+            function getDuplicateMoviesEnd(data, status, headers, config) {
+                logger.info('this is what i got: ', data);
+                return data.data;
+            }
+        };
+
     }
 
 })();

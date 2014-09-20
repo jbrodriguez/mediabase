@@ -187,7 +187,7 @@ func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
 		mlog.Fatalf("at begin: %s", err)
 	}
 
-	stmt, err := tx.Prepare("select rowid from movie where location = ?")
+	stmt, err := tx.Prepare("select rowid from movie where upper(location) = ?")
 	if err != nil {
 		tx.Rollback()
 		mlog.Fatalf("at prepare: %s", err)
@@ -195,7 +195,7 @@ func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
 	defer stmt.Close()
 
 	var id int
-	err = stmt.QueryRow(msg.Movie.Location).Scan(&id)
+	err = stmt.QueryRow(strings.ToUpper(msg.Movie.Location)).Scan(&id)
 
 	// if err == sql.ErrNoRows {
 	// 	mlog.Fatalf("id = %d, err = %d", id, err)

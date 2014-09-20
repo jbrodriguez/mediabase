@@ -23,6 +23,7 @@
         'app.import',
         'app.search',
         'app.all',
+        'app.duplicates',
     ]);
 
     angular

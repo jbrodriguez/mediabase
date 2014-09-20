@@ -38,6 +38,7 @@ func (self *Server) Start() {
 		api.GET("/all", self.listMovies)
 		api.GET("/import", self.importMovies)
 		api.GET("/search/:term", self.searchMovies)
+		api.GET("/movies/duplicates", self.getDuplicates)
 
 		api.POST("/movie/watched", self.watchedMovie)
 		api.POST("/movie/fix", self.fixMovie)
@@ -121,15 +122,13 @@ func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
 	helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
 }
 
-func (self *Server) showDuplicates(w http.ResponseWriter, req *http.Request) {
+func (self *Server) getDuplicates(c *gin.Context) {
 	msg := message.Movies{Reply: make(chan []*message.Movie)}
 	self.Bus.ShowDuplicates <- &msg
 	reply := <-msg.Reply
-	mlog.Info("never returned")
 
 	// mlog.Info("response is: %s", reply)
-
-	helper.WriteJson(w, 200, &reply)
+	c.JSON(200, &reply)
 }
 
 func (self *Server) listByRuntime(w http.ResponseWriter, req *http.Request) {
