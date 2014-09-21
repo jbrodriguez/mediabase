@@ -43,7 +43,6 @@ func (self *Pruner) doPruneMovies(reply chan string) {
 	items := <-msg.Reply
 
 	for _, item := range items {
-
 		if _, err := os.Stat(item.Location); err != nil {
 			if os.IsNotExist(err) {
 				mlog.Info("UP FOR DELETION: [%d] %s (%s))", item.Id, item.Title, item.Location)
@@ -52,4 +51,6 @@ func (self *Pruner) doPruneMovies(reply chan string) {
 		}
 
 	}
+
+	reply <- "Tudo Bom"
 }

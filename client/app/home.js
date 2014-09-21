@@ -6,12 +6,13 @@
         .controller('Home', Home)
 
     /* @ngInject */
-    function Home($state, $scope, $rootScope, options) {
+    function Home($state, $scope, $rootScope, api, options) {
 
         /*jshint validthis: true */
         var vm = this;
 
         vm.options = options;
+        vm.pruneMovies = pruneMovies;
 
         $scope.$watch(angular.bind(this, function(searchTerm) {
             return vm.options.searchTerm;
@@ -23,6 +24,13 @@
                 console.log('emitted event');
             });
         })
+
+        function pruneMovies() {
+            return api.pruneMovies().then(function(data) {
+                console.log("are you ready for the fallout?");
+                $state.go("recent");
+            })
+        }
     };
 
 })();

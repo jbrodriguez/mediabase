@@ -42,6 +42,7 @@ func (self *Server) Start() {
 
 		api.POST("/movie/watched", self.watchedMovie)
 		api.POST("/movie/fix", self.fixMovie)
+		api.POST("/movies/prune", self.pruneMovies)
 	}
 
 	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
@@ -105,7 +106,7 @@ func (self *Server) searchMovies(c *gin.Context) {
 	c.JSON(200, &reply)
 }
 
-func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
+func (self *Server) pruneMovies(c *gin.Context) {
 	mlog.Info("pruning .. i got here")
 	// data := struct {
 	// 	Code        int8
@@ -117,9 +118,10 @@ func (self *Server) pruneMovies(w http.ResponseWriter, req *http.Request) {
 	self.Bus.PruneMovies <- &msg
 	reply := <-msg.Reply
 
-	mlog.Info("response is: %s", reply)
-
-	helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
+	data := struct {
+		Description string
+	}{Description: reply}
+	c.JSON(200, &data)
 }
 
 func (self *Server) getDuplicates(c *gin.Context) {

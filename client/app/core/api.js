@@ -19,7 +19,8 @@
             getStatus: getStatus,
             setWatched: setWatched,
             fixMovie: fixMovie,
-            getDuplicateMovies: getDuplicateMovies
+            getDuplicateMovies: getDuplicateMovies,
+            pruneMovies: pruneMovies,
     	};
 
     	return service;
@@ -135,6 +136,19 @@
                 return data.data;
             }
         };
+
+        function pruneMovies() {
+            return $http.post(ep + '/movies/prune')
+                .then(pruneMoviesEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for pruneMovies')(message);
+                    $location.url('/');
+                });
+
+            function pruneMoviesEnd(data, status, headers, config) {
+                return data.data;
+            }          
+        };        
 
     }
 
