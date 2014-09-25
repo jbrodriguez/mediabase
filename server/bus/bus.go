@@ -6,6 +6,8 @@ import (
 )
 
 type Bus struct {
+	GetConfig chan *message.GetConfig
+
 	ImportMovies chan *message.Status
 	ScanMovies   chan *message.ScanMovies
 	ScrapeMovie  chan *message.Movie
@@ -39,6 +41,8 @@ type Bus struct {
 
 func (self *Bus) Start() {
 	mlog.Info("bus starting up ...")
+
+	self.GetConfig = make(chan *message.GetConfig)
 
 	self.ImportMovies = make(chan *message.Status)
 	self.ScanMovies = make(chan *message.ScanMovies)

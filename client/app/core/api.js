@@ -12,6 +12,7 @@
     	var ep = "/api/v1";
 
     	var service = {
+            getConfig: getConfig,
     		getRecentMovies: getRecentMovies,
             getAllMovies: getAllMovies,
             startImport: startImport,
@@ -24,6 +25,19 @@
     	};
 
     	return service;
+
+        function getConfig() {
+            return $http.get(ep + '/config')
+                .then(getConfigEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for getConfig')(message);
+                    $location.url('/');
+                });
+
+            function getConfigEnd(data, status, header, config) {
+                return data.data
+            }
+        };        
 
     	function getRecentMovies() {
     		return $http.get(ep + '/movies')

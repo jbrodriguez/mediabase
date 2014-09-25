@@ -24,14 +24,15 @@
         'app.search',
         'app.all',
         'app.duplicates',
+        'app.settings',
     ]);
 
     angular
         .module('app')
-        .config(function($stateProvider, $urlRouterProvider, $locationProvider) {
-            $locationProvider.html5Mode(true);
-            $urlRouterProvider.otherwise('/recent');
-        })
+        // .config(function($stateProvider, $urlRouterProvider, $locationProvider) {
+        //     $locationProvider.html5Mode(true);
+        //     $urlRouterProvider.otherwise('/recent');
+        // })
         .config(['$provide', function($provide) {
           $provide.decorator('$rootScope', ['$delegate', function($delegate) {
             $delegate.constructor.prototype.$onRootScope = function(name, listener) {

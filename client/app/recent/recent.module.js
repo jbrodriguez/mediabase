@@ -1,7 +1,5 @@
 (function () {
     'use strict';
 
-    angular.module('app.recent', []
-
-    );
+    angular.module('app.recent', []);
 })();

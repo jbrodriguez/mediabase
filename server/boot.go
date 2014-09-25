@@ -2,7 +2,7 @@ package main
 
 import (
 	"apertoire.net/mediabase/server/bus"
-	"apertoire.net/mediabase/server/helper"
+	"apertoire.net/mediabase/server/model"
 	"apertoire.net/mediabase/server/services"
 	"fmt"
 	"github.com/apertoire/mlog"
@@ -12,8 +12,8 @@ func main() {
 	mlog.Start(mlog.LevelInfo, "./log/mediabase.log")
 	mlog.Info("starting up ...")
 
-	config := helper.Config{}
-	config.Init()
+	config := model.Config{}
+	config.Load()
 
 	bus := bus.Bus{}
 	dal := services.Dal{Bus: &bus, Config: &config}

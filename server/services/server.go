@@ -4,6 +4,7 @@ import (
 	"apertoire.net/mediabase/server/bus"
 	"apertoire.net/mediabase/server/helper"
 	"apertoire.net/mediabase/server/message"
+	"apertoire.net/mediabase/server/model"
 	"apertoire.net/mediabase/server/static"
 	"fmt"
 	"github.com/apertoire/mlog"
@@ -17,7 +18,7 @@ const docPath string = ""
 
 type Server struct {
 	Bus    *bus.Bus
-	Config *helper.Config
+	Config *model.Config
 	r, s   *gin.Engine
 }
 
@@ -34,6 +35,7 @@ func (self *Server) Start() {
 
 	api := self.r.Group(apiVersion)
 	{
+		api.GET("/config", self.getConfig)
 		api.GET("/movies", self.getMovies)
 		api.GET("/all", self.listMovies)
 		api.GET("/import", self.importMovies)
@@ -53,6 +55,14 @@ func (self *Server) Start() {
 func (self *Server) Stop() {
 	mlog.Info("server service stopped")
 	// nothing here
+}
+
+func (self *Server) getConfig(c *gin.Context) {
+	msg := message.GetConfig{Reply: make(chan *model.Config)}
+	self.Bus.GetConfig <- &msg
+
+	reply := <-msg.Reply
+	c.JSON(200, &reply)
 }
 
 func (self *Server) getMovies(c *gin.Context) {

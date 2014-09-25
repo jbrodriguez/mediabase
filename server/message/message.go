@@ -1,5 +1,9 @@
 package message
 
+import (
+	"apertoire.net/mediabase/server/model"
+)
+
 type ScanMovies struct {
 	Reply chan string
 }
@@ -79,4 +83,8 @@ type Context struct {
 
 type Status struct {
 	Reply chan *Context
+}
+
+type GetConfig struct {
+	Reply chan *model.Config
 }

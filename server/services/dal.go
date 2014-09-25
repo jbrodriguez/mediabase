@@ -2,8 +2,8 @@ package services
 
 import (
 	"apertoire.net/mediabase/server/bus"
-	"apertoire.net/mediabase/server/helper"
 	"apertoire.net/mediabase/server/message"
+	"apertoire.net/mediabase/server/model"
 	"database/sql"
 	"github.com/apertoire/mlog"
 	_ "github.com/mattn/go-sqlite3"
@@ -14,7 +14,7 @@ import (
 
 type Dal struct {
 	Bus    *bus.Bus
-	Config *helper.Config
+	Config *model.Config
 	db     *sql.DB
 	dbase  string
 	err    error

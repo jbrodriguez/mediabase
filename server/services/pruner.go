@@ -2,15 +2,15 @@ package services
 
 import (
 	"apertoire.net/mediabase/server/bus"
-	"apertoire.net/mediabase/server/helper"
 	"apertoire.net/mediabase/server/message"
+	"apertoire.net/mediabase/server/model"
 	"github.com/apertoire/mlog"
 	"os"
 )
 
 type Pruner struct {
 	Bus    *bus.Bus
-	Config *helper.Config
+	Config *model.Config
 }
 
 func (self *Pruner) Start() {

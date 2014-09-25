@@ -2,8 +2,8 @@ package services
 
 import (
 	"apertoire.net/mediabase/server/bus"
-	"apertoire.net/mediabase/server/helper"
 	"apertoire.net/mediabase/server/message"
+	"apertoire.net/mediabase/server/model"
 	"fmt"
 	"github.com/apertoire/mlog"
 	"github.com/looplab/fsm"
@@ -11,7 +11,7 @@ import (
 
 type Core struct {
 	Bus     *bus.Bus
-	Config  *helper.Config
+	Config  *model.Config
 	fsm     *fsm.FSM
 	context message.Context
 }
@@ -52,9 +52,10 @@ func (self *Core) Stop() {
 func (self *Core) react() {
 	for {
 		select {
+		case msg := <-self.Bus.GetConfig:
+			go self.doGetConfig(msg)
 		case msg := <-self.Bus.ImportMovies:
 			go self.doImportMovies(msg)
-
 		case msg := <-self.Bus.MovieFound:
 			go self.doMovieFound(msg)
 		case msg := <-self.Bus.MovieScraped:
@@ -70,6 +71,10 @@ func (self *Core) react() {
 			go self.doImportMoviesFinished(msg)
 		}
 	}
+}
+
+func (self *Core) doGetConfig(msg *message.GetConfig) {
+	msg.Reply <- self.Config
 }
 
 func (self *Core) doScrape(e *fsm.Event) {

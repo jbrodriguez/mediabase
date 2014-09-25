@@ -4,6 +4,7 @@ import (
 	"apertoire.net/mediabase/server/bus"
 	"apertoire.net/mediabase/server/helper"
 	"apertoire.net/mediabase/server/message"
+	"apertoire.net/mediabase/server/model"
 	"github.com/apertoire/mlog"
 	"github.com/goinggo/workpool"
 	"github.com/nfnt/resize"
@@ -14,7 +15,7 @@ import (
 
 type Cache struct {
 	Bus      *bus.Bus
-	Config   *helper.Config
+	Config   *model.Config
 	workpool *workpool.WorkPool
 }
 

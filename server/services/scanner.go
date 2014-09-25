@@ -4,6 +4,7 @@ import (
 	"apertoire.net/mediabase/server/bus"
 	"apertoire.net/mediabase/server/helper"
 	"apertoire.net/mediabase/server/message"
+	"apertoire.net/mediabase/server/model"
 	"github.com/apertoire/mlog"
 	"os"
 	"path/filepath"
@@ -13,7 +14,7 @@ import (
 
 type Scanner struct {
 	Bus    *bus.Bus
-	Config *helper.Config
+	Config *model.Config
 
 	re           [3]*helper.Rexp
 	includedMask string
