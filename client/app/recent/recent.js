@@ -49,7 +49,6 @@
         function fixMovie(index) {
             return api.fixMovie(vm.movies[index]).then(function(data) {
                 logger.success("Movie fixed successfully");
-                $state.go("recent")
             })
         };
     }

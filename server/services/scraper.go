@@ -206,7 +206,7 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 	id := self.media.Movie.Tmdb_Id
 
 	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
-	mlog.Info("[%s] before getmovie [%d]", self.media.Movie.Title, self.media.Movie.Tmdb_Id)
+	mlog.Info("[%s] before getmovie [%d]", self.media.Movie.Title, id)
 	gmr, err := self.tmdb.GetMovie(id)
 	if err != nil {
 		mlog.Info("FIXMOVIE: FAILED GETTING MOVIE [%s]", self.media.Movie.Title)
@@ -249,6 +249,7 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
 
+	mlog.Info("FIXMOVIE: %+v", self.media.Movie)
 	mlog.Info("FIXMOVIE: FINISHED SCRAPING [%s]", self.media.Movie.Title)
 	// return media
 	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}

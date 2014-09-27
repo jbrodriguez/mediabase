@@ -56,17 +56,9 @@
         };
 
         function fixMovie(index) {
-            var movie = vm.movies[index];
-            if (!movie.tmdbid_new) {
-                return
-            }
-
-            movie.tmdb_id = movie.tmdbid_new
-
-            return api.fixMovie(movie).then(function(data) {
+            return api.fixMovie(vm.movies[index]).then(function(data) {
                 logger.success("Movie fixed successfully");
-                // $state.go("recent")
             })
-        };        
+        };      
     }
 })();

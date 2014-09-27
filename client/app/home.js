@@ -37,7 +37,6 @@
             console.log("is there anybody out there");
             vm.options.sortOrder = vm.options.sortOrder === 'desc' ? 'asc' : 'desc';
             $rootScope.$emit('/movies/refresh');
-
         }
 
         function getConfig() {
@@ -65,6 +64,7 @@
         }), function(newVal, oldVal) {
             console.log('current: ', $state.$current.name);
             storage.set('sortBy', vm.options.sortBy);
+            $rootScope.$emit('/movies/refresh');
         }, true);        
 
         $scope.$watch(angular.bind(this, function() {
