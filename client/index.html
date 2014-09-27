@@ -35,7 +35,7 @@
 				<ul class="left">
 					<li><a ui-sref="import" ui-sref-active="active">Import</a></li>
 					<li><a ui-sref="duplicates" ui-sref-active="active">Duplicates</a></li>
-					<li><a href="#" ng-click="home.pruneMovies()" ui-sref-active="active">Prune</a></li>
+					<li><a href="#" data-ng-click="home.pruneMovies()" ui-sref-active="active">Prune</a></li>
 				</ul>
 
 				<ul class="right">
@@ -47,7 +47,7 @@
 								</select>
 							</div>
 							<div class="large-2 columns">
-								<a href="#"><i class="fa fa-chevron-circle-down"></i></a>
+								<a href="#" data-ng-click="home.sortOrder()"><i class="fa" data-ng-class="home.options.sortOrder === 'desc' ? 'fa-chevron-circle-down' : 'fa-chevron-circle-up'"></i></a>
 							</div>
 						</div>
 					</li>

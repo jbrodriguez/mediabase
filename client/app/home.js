@@ -13,6 +13,7 @@
 
         vm.options = options;
         vm.pruneMovies = pruneMovies;
+        vm.sortOrder = sortOrder;
 
         activate();
 
@@ -24,6 +25,20 @@
                 logger.info('initialized state');
             })
         };
+
+        function pruneMovies() {
+            return api.pruneMovies().then(function(data) {
+                console.log("are you ready for the fallout?");
+                $state.go("recent");
+            })
+        };
+
+        function sortOrder() {
+            console.log("is there anybody out there");
+            vm.options.sortOrder = vm.options.sortOrder === 'desc' ? 'asc' : 'desc';
+            $rootScope.$emit('/movies/refresh');
+
+        }
 
         function getConfig() {
             return api.getConfig().then(function(data) {
@@ -63,12 +78,6 @@
             });
         });
 
-        function pruneMovies() {
-            return api.pruneMovies().then(function(data) {
-                console.log("are you ready for the fallout?");
-                $state.go("recent");
-            })
-        }
     };
 
 })();

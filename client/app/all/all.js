@@ -8,7 +8,7 @@
     // All.$inject = ['$q', 'api', 'logger'];
 
     /* @ngInject */
-    function All($q, api, logger, options) {
+    function All($scope, api, logger, options) {
 
         /*jshint validthis: true */
         var vm = this;
@@ -16,6 +16,12 @@
         vm.movies = [];
         vm.current = 0;
         vm.limit = 50;
+
+        vm.setWatched = setWatched;
+        vm.fixMovie = fixMovie;
+
+
+        $scope.$onRootScope('/movies/refresh', doRefresh);
 
         activate();
 
@@ -27,6 +33,13 @@
             });
         } ;
 
+        function doRefresh() {
+            var args = {current: vm.current, limit: vm.limit, sortBy: options.sortBy, sortOrder: options.sortOrder};
+            return getAllMovies(args).then(function() {
+                logger.info('refreshed list');
+            });
+        };
+
         function getAllMovies(args) {
             console.log('args: ', args.current, args.limit, args.sortBy, args.sortOrder);
             return api.getAllMovies(args).then(function (data) {
@@ -34,5 +47,26 @@
                 return vm.movies;
             });
         };
+
+        function setWatched(index) {
+            console.log("maldecido!!!!: ", index);
+            return api.setWatched(vm.movies[index]).then(function(data) {
+                logger.success("Movie was updated successfully", "", vm.movies[index].title);
+            })
+        };
+
+        function fixMovie(index) {
+            var movie = vm.movies[index];
+            if (!movie.tmdbid_new) {
+                return
+            }
+
+            movie.tmdb_id = movie.tmdbid_new
+
+            return api.fixMovie(movie).then(function(data) {
+                logger.success("Movie fixed successfully");
+                // $state.go("recent")
+            })
+        };        
     }
 })();
