@@ -27,8 +27,8 @@
 							<span class="label secondary">{{ movie.location }}</span>
 						</div>
 						<div class="right">
-							<span class="label">added | {{ movie.added | date: 'MMM dd, yyyy HH:mm' }}</span>
-							<span class="label watched" data-ng-if="movie.last_watched != ''">watched | <b>{{ movie.last_watched | date: 'MMM dd, yyyy' }}</b></span>
+							<span class="label watched" data-ng-if="movie.last_watched != ''"><i class="fa fa-binoculars"></i> &nbsp; <b>{{ movie.last_watched | date: 'MMM dd, yyyy' }}</b></span>
+							<span class="label"><i class="fa fa-plus"></i> &nbsp; {{ movie.added | date: 'MMM dd, yyyy HH:mm' }}</span>
 						</div>
 					</div>
 				</div>			

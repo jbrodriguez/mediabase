@@ -35,7 +35,22 @@
                     $state.go('recent');
                 };
             });
-        };         
+        };
+
+        $scope.$watch(angular.bind(this, function() {
+            return vm.options.filterBy;
+        }), function(newVal, oldVal) {
+            console.log('current: ', $state.$current.name);
+            storage.set('filterBy', vm.options.filterBy);
+            $state.go('all');
+        }, true);
+
+        $scope.$watch(angular.bind(this, function() {
+            return vm.options.sortBy;
+        }), function(newVal, oldVal) {
+            console.log('current: ', $state.$current.name);
+            storage.set('sortBy', vm.options.sortBy);
+        }, true);        
 
         $scope.$watch(angular.bind(this, function() {
             return vm.options.searchTerm;
@@ -47,14 +62,6 @@
                 console.log('emitted event');
             });
         });
-
-        $scope.$watch(angular.bind(this, function() {
-            return vm.options
-        }), function(newVal, oldVal) {
-            console.log('current: ', $state.$current.name);
-            storage.set('filterBy', vm.options.filterBy);
-            storage.set('sortBy', vm.options.sortBy);
-        }, true);        
 
         function pruneMovies() {
             return api.pruneMovies().then(function(data) {

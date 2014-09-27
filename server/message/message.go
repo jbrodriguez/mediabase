@@ -17,7 +17,8 @@ type GetMovies struct {
 }
 
 type ListMovies struct {
-	Reply chan []*Movie
+	Options Options
+	Reply   chan []*Movie
 }
 
 type Movies struct {
@@ -87,4 +88,11 @@ type Status struct {
 
 type GetConfig struct {
 	Reply chan *model.Config
+}
+
+type Options struct {
+	Current   uint64 `json:"current"`
+	Limit     uint64 `json:"limit"`
+	SortBy    string `json:"sortBy"`
+	SortOrder string `json:"sortOrder"`
 }

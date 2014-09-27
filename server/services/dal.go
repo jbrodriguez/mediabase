@@ -5,6 +5,7 @@ import (
 	"apertoire.net/mediabase/server/message"
 	"apertoire.net/mediabase/server/model"
 	"database/sql"
+	"fmt"
 	"github.com/apertoire/mlog"
 	_ "github.com/mattn/go-sqlite3"
 	"path/filepath"
@@ -58,7 +59,7 @@ func (self *Dal) Start() {
 	self.cnt = 0
 
 	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
-	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie order by title")
+	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie order by ? desc limit ? offset ?")
 	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie order by runtime")
 	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie where original_title = 'FIXMOV23'")
 
@@ -360,7 +361,16 @@ func (self *Dal) doListMovies(msg *message.ListMovies) {
 		mlog.Fatalf("unable to begin transaction: %s", err)
 	}
 
-	rows, err := self.listMovies.Query()
+	options := msg.Options
+	mlog.Info("what is: %+v", options)
+
+	stmt, err := tx.Prepare(fmt.Sprintf("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score from movie order by %s %s limit ? offset ?", options.SortBy, options.SortOrder))
+	if err != nil {
+		mlog.Fatalf("unable to prepare transaction: %s", err)
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(options.Limit, options.Current)
 	if err != nil {
 		mlog.Fatalf("unable to prepare transaction: %s", self.err)
 	}

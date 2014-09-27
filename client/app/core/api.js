@@ -53,8 +53,10 @@
     		}
     	};
 
-        function getAllMovies() {
-            return $http.get(ep + '/all')
+        function getAllMovies(args) {
+            console.log('api: ', args.current, args.limit, args.sortBy, args.sortOrder);
+
+            return $http.post(ep + '/all', args)
                 .then(getAllMoviesEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for getAllMovies')(message);

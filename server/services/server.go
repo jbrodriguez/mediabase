@@ -37,11 +37,11 @@ func (self *Server) Start() {
 	{
 		api.GET("/config", self.getConfig)
 		api.GET("/movies", self.getMovies)
-		api.GET("/all", self.listMovies)
 		api.GET("/import", self.importMovies)
 		api.GET("/search/:term", self.searchMovies)
 		api.GET("/movies/duplicates", self.getDuplicates)
 
+		api.POST("/all", self.listMovies)
 		api.POST("/movie/watched", self.watchedMovie)
 		api.POST("/movie/fix", self.fixMovie)
 		api.POST("/movies/prune", self.pruneMovies)
@@ -77,7 +77,13 @@ func (self *Server) getMovies(c *gin.Context) {
 }
 
 func (self *Server) listMovies(c *gin.Context) {
-	msg := message.ListMovies{Reply: make(chan []*message.Movie)}
+	var options message.Options
+
+	c.Bind(&options)
+
+	mlog.Info("bocelli: %+v", options)
+
+	msg := message.ListMovies{Options: options, Reply: make(chan []*message.Movie)}
 	self.Bus.ListMovies <- &msg
 	reply := <-msg.Reply
 
