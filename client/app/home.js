@@ -36,8 +36,12 @@
         function sortOrder() {
             console.log("is there anybody out there");
             vm.options.sortOrder = vm.options.sortOrder === 'desc' ? 'asc' : 'desc';
-            $rootScope.$emit('/movies/refresh');
-        }
+            if ($state.$current.name === 'all') {
+                $rootScope.$emit('/movies/refresh');
+            } else {
+                $state.go('all');
+            };
+        };
 
         function getConfig() {
             return api.getConfig().then(function(data) {
@@ -64,7 +68,11 @@
         }), function(newVal, oldVal) {
             console.log('current: ', $state.$current.name);
             storage.set('sortBy', vm.options.sortBy);
-            $rootScope.$emit('/movies/refresh');
+            if ($state.$current.name === 'all') {
+                $rootScope.$emit('/movies/refresh');
+            } else {
+                $state.go('all');
+            };
         }, true);        
 
         $scope.$watch(angular.bind(this, function() {
