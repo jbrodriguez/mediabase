@@ -58,6 +58,16 @@ header {
     background: yellow !important;   
 }
 
+.top-bar-section ul li > a {
+	color: #2c3e50;
+	font-family: Lato, Helvetica;
+}
+
+.top-bar-section .divider {
+    border-right: solid 5px red;
+	margin-left: 10px;    
+}
+
 .top-bar-section .has-form {
     background: #E6EAEE !important;   
 }
@@ -66,10 +76,20 @@ header {
 	height: 30px;
 }
 
+.top-bar-section select {
+	height: 30px;
+	font-size: 75%;
+	margin-top: 7px;
+}
+
+.top-bar-section i {
+	margin: 15px 0 0 15px;
+}
 
 
 main {
 	background: #EFF2F4;
+	margin-top: 45px;
 /*	padding: 10px 0;
 */}
 
@@ -91,7 +111,7 @@ nav .menu {
 footer {
 	color: white;
 	background: #2c3e50;
-	height: 70px;
+	height: 150px;
 }
 
 article {
