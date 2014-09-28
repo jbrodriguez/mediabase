@@ -35,16 +35,18 @@ func (self *Server) Start() {
 
 	api := self.r.Group(apiVersion)
 	{
-		api.GET("/config", self.getConfig)
-		api.GET("/movies", self.getMovies)
-		api.GET("/import", self.importMovies)
-		api.GET("/search/:term", self.searchMovies)
+		api.GET("/movies/cover", self.getCover)
+		api.POST("/movies/", self.getMovies)
+
+		api.GET("/movies/search/:term", self.searchMovies)
 		api.GET("/movies/duplicates", self.getDuplicates)
 
-		api.POST("/all", self.listMovies)
-		api.POST("/movie/watched", self.watchedMovie)
-		api.POST("/movie/fix", self.fixMovie)
+		api.POST("/movies/watched", self.watchedMovie)
+		api.POST("/movies/fix", self.fixMovie)
 		api.POST("/movies/prune", self.pruneMovies)
+
+		api.GET("/import", self.importMovies)
+		api.GET("/config", self.getConfig)
 	}
 
 	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
@@ -65,9 +67,9 @@ func (self *Server) getConfig(c *gin.Context) {
 	c.JSON(200, &reply)
 }
 
-func (self *Server) getMovies(c *gin.Context) {
-	msg := message.GetMovies{Reply: make(chan []*message.Movie)}
-	self.Bus.GetMovies <- &msg
+func (self *Server) getCover(c *gin.Context) {
+	msg := message.Movies{Reply: make(chan []*message.Movie)}
+	self.Bus.GetCover <- &msg
 	reply := <-msg.Reply
 
 	// mlog.Info("response is: %s", reply)
@@ -76,15 +78,15 @@ func (self *Server) getMovies(c *gin.Context) {
 	c.JSON(200, &reply)
 }
 
-func (self *Server) listMovies(c *gin.Context) {
+func (self *Server) getMovies(c *gin.Context) {
 	var options message.Options
 
 	c.Bind(&options)
 
 	mlog.Info("bocelli: %+v", options)
 
-	msg := message.ListMovies{Options: options, Reply: make(chan []*message.Movie)}
-	self.Bus.ListMovies <- &msg
+	msg := message.Movies{Options: options, Reply: make(chan []*message.Movie)}
+	self.Bus.GetMovies <- &msg
 	reply := <-msg.Reply
 
 	// mlog.Info("response is: %s", reply)
@@ -111,9 +113,11 @@ func (self *Server) importMovies(c *gin.Context) {
 
 func (self *Server) searchMovies(c *gin.Context) {
 	mlog.Info("searchMovies: are you a head honcho ?")
-	term := c.Params.ByName("term")
 
-	msg := message.SearchMovies{Term: term, Reply: make(chan []*message.Movie)}
+	term := c.Params.ByName("term")
+	options := message.Options{SearchTerm: term}
+
+	msg := message.Movies{Options: options, Reply: make(chan []*message.Movie)}
 	self.Bus.SearchMovies <- &msg
 	reply := <-msg.Reply
 

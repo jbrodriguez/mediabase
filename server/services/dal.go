@@ -84,16 +84,17 @@ func (self *Dal) Stop() {
 func (self *Dal) react() {
 	for {
 		select {
+		case msg := <-self.Bus.GetCover:
+			go self.doGetCover(msg)
+		case msg := <-self.Bus.GetMovies:
+			go self.doGetMovies(msg)
+
 		case msg := <-self.Bus.StoreMovie:
 			self.doStoreMovie(msg)
 		case msg := <-self.Bus.DeleteMovie:
 			self.doDeleteMovie(msg)
 		case msg := <-self.Bus.UpdateMovie:
 			self.doUpdateMovie(msg)
-		case msg := <-self.Bus.GetMovies:
-			go self.doGetMovies(msg)
-		case msg := <-self.Bus.ListMovies:
-			go self.doListMovies(msg)
 		case msg := <-self.Bus.ShowDuplicates:
 			go self.doShowDuplicates(msg)
 		case msg := <-self.Bus.ListByRuntime:
@@ -319,7 +320,7 @@ func (self *Dal) doUpdateMovie(movie *message.Movie) {
 	mlog.Info("FINISHED UPDATING %s", movie.Title)
 }
 
-func (self *Dal) doGetMovies(msg *message.GetMovies) {
+func (self *Dal) doGetCover(msg *message.Movies) {
 	tx, err := self.db.Begin()
 	if err != nil {
 		mlog.Fatalf("unable to begin transaction: %s", err)
@@ -355,7 +356,7 @@ func (self *Dal) doGetMovies(msg *message.GetMovies) {
 	msg.Reply <- items
 }
 
-func (self *Dal) doListMovies(msg *message.ListMovies) {
+func (self *Dal) doGetMovies(msg *message.Movies) {
 	tx, err := self.db.Begin()
 	if err != nil {
 		mlog.Fatalf("unable to begin transaction: %s", err)
@@ -462,8 +463,8 @@ func (self *Dal) doShowDuplicates(msg *message.Movies) {
 	msg.Reply <- items
 }
 
-func (self *Dal) doSearchMovies(msg *message.SearchMovies) {
-	term := msg.Term + "*"
+func (self *Dal) doSearchMovies(msg *message.Movies) {
+	term := msg.Options.SearchTerm + "*"
 	mlog.Info("this is: %s", term)
 
 	rows, err := self.searchMovies.Query(term)

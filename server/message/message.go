@@ -12,23 +12,24 @@ type PruneMovies struct {
 	Reply chan string
 }
 
-type GetMovies struct {
-	Reply chan []*Movie
-}
+// type GetMovies struct {
+// 	Reply chan []*Movie
+// }
 
-type ListMovies struct {
+// type ListMovies struct {
+// 	Options Options
+// 	Reply   chan []*Movie
+// }
+
+type Movies struct {
 	Options Options
 	Reply   chan []*Movie
 }
 
-type Movies struct {
-	Reply chan []*Movie
-}
-
-type SearchMovies struct {
-	Term  string
-	Reply chan []*Movie
-}
+// type SearchMovies struct {
+// 	Term  string
+// 	Reply chan []*Movie
+// }
 
 type CheckMovie struct {
 	Movie  *Movie
@@ -91,8 +92,9 @@ type GetConfig struct {
 }
 
 type Options struct {
-	Current   uint64 `json:"current"`
-	Limit     uint64 `json:"limit"`
-	SortBy    string `json:"sortBy"`
-	SortOrder string `json:"sortOrder"`
+	SearchTerm string `json:"searchTerm"`
+	Current    uint64 `json:"current"`
+	Limit      uint64 `json:"limit"`
+	SortBy     string `json:"sortBy"`
+	SortOrder  string `json:"sortOrder"`
 }

@@ -2,13 +2,13 @@
     'use strict';
 
     angular
-        .module('app.all')
-        .controller('All', All);
+        .module('app.movies')
+        .controller('Movies', Movies);
 
-    // All.$inject = ['$q', 'api', 'logger'];
+    // Movies.$inject = ['$q', 'api', 'logger'];
 
     /* @ngInject */
-    function All($scope, api, logger, options) {
+    function Movies($scope, api, logger, options) {
 
         /*jshint validthis: true */
         var vm = this;
@@ -28,21 +28,21 @@
         function activate() {
             console.log('data: ', vm.current, vm.limit, options.sortBy, options.sortOrder);
             var args = {current: vm.current, limit: vm.limit, sortBy: options.sortBy, sortOrder: options.sortOrder};
-            return getAllMovies(args).then(function() {
-                logger.info('activated all view');
+            return getMovies(args).then(function() {
+                logger.info('activated movies view');
             });
         } ;
 
         function doRefresh() {
             var args = {current: vm.current, limit: vm.limit, sortBy: options.sortBy, sortOrder: options.sortOrder};
-            return getAllMovies(args).then(function() {
+            return getMovies(args).then(function() {
                 logger.info('refreshed list');
             });
         };
 
-        function getAllMovies(args) {
+        function getMovies(args) {
             console.log('args: ', args.current, args.limit, args.sortBy, args.sortOrder);
-            return api.getAllMovies(args).then(function (data) {
+            return api.getMovies(args).then(function (data) {
                 vm.movies = data;
                 return vm.movies;
             });

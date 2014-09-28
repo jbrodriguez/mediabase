@@ -2,13 +2,13 @@
     'use strict';
 
     angular
-        .module('app.recent')
-        .controller('Recent', Recent);
+        .module('app.cover')
+        .controller('Cover', Cover);
 
-    // Recent.$inject = ['$q', 'api', 'logger'];
+    // Cover.$inject = ['$q', 'api', 'logger'];
 
     /* @ngInject */
-    function Recent($state, $q, api, logger) {
+    function Cover($state, $q, api, logger) {
 
         /*jshint validthis: true */
         var vm = this;
@@ -20,19 +20,13 @@
         activate();
 
         function activate() {
-            return getRecentMovies().then(function() {
-                logger.info('activated recent view');
+            return getCover().then(function() {
+                logger.info('activated cover view');
             });
-//             var promises = [getAvengerCount(), getAvengersCast()];
-// //            Using a resolver on all routes or dataservice.ready in every controller
-// //            return dataservice.ready(promises).then(function(){
-//             return $q.all(promises).then(function(){
-//                 logger.info('Activated Dashboard View');
-//             });
         }
 
-        function getRecentMovies() {
-            return api.getRecentMovies().then(function (data) {
+        function getCover() {
+            return api.getCover().then(function (data) {
                 logger.info('what is: ', data)
                 vm.movies = data;
                 return vm.movies;

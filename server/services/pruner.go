@@ -38,8 +38,9 @@ func (self *Pruner) react() {
 func (self *Pruner) doPruneMovies(reply chan string) {
 	mlog.Info("Looking for something to prune")
 
-	msg := message.ListMovies{Reply: make(chan []*message.Movie)}
-	self.Bus.ListMovies <- &msg
+	options := message.Options{Current: 0, Limit: 99999999999999, SortBy: "title", SortOrder: "asc"}
+	msg := message.Movies{Options: options, Reply: make(chan []*message.Movie)}
+	self.Bus.GetMovies <- &msg
 	items := <-msg.Reply
 
 	for _, item := range items {
