@@ -25,6 +25,7 @@
 
         function getDuplicateMovies() {
             return api.getDuplicateMovies().then(function (data) {
+                vm.movies = null;
                 vm.movies = data;
                 return vm.movies;
             });

@@ -48,13 +48,13 @@
                 });
 
     		function getCoverEnd(data, status, headers, config) {
-                logger.info('this is what i got: ', data);
+                // logger.info('this is what i got: ', data);
     			return data.data;
     		}
     	};
 
         function getMovies(args) {
-            console.log('api: ', args.current, args.limit, args.sortBy, args.sortOrder);
+            // console.log('api: ', args.current, args.limit, args.sortBy, args.sortOrder);
 
             return $http.post(ep + '/movies/', args)
                 .then(getMoviesEnd)
@@ -147,7 +147,7 @@
                 });
 
             function getDuplicateMoviesEnd(data, status, headers, config) {
-                logger.info('this is what i got: ', data);
+                // logger.info('this is what i got: ', data);
                 return data.data;
             }
         };

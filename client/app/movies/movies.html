@@ -1,3 +1,4 @@
+	<div infinite-scroll="vm.scrollPage()" infinite-scroll-disabled="vm.busy" infinite-scroll-distance="1">
 		<article data-ng-repeat="movie in vm.movies" class="container row">
 			<div class="large-12 column">
 				<h4>{{ movie.title }} ({{ movie.year }})</h4>
@@ -66,4 +67,10 @@
   				    </div>
 				</div>			
 			</div>
-		</article>	
+		</article>
+		<article class="container row" data-ng-show="vm.busy">
+			<div class="large-12 column">
+				<h3>Loading data ...</h3>
+			</div>
+		</div>
+	</div>

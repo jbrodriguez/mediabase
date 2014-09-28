@@ -28,17 +28,19 @@
 
         function pruneMovies() {
             return api.pruneMovies().then(function(data) {
-                console.log("are you ready for the fallout?");
+                // console.log("are you ready for the fallout?");
                 $state.go("cover");
             })
         };
 
         function sortOrder() {
-            console.log("is there anybody out there");
+            // console.log("is there anybody out there: ", $state.$current.name);
             vm.options.sortOrder = vm.options.sortOrder === 'desc' ? 'asc' : 'desc';
             if ($state.$current.name === 'movies') {
+                // console.log("inside ===");
                 $rootScope.$emit('/movies/refresh');
             } else {
+                // console.log("inside go");
                 $state.go('movies');
             };
         };
@@ -58,7 +60,7 @@
         $scope.$watch(angular.bind(this, function() {
             return vm.options.filterBy;
         }), function(newVal, oldVal) {
-            console.log('current: ', $state.$current.name);
+            // console.log('current: ', $state.$current.name);
             storage.set('filterBy', vm.options.filterBy);
             $state.go('movies');
         }, true);
@@ -66,7 +68,7 @@
         $scope.$watch(angular.bind(this, function() {
             return vm.options.sortBy;
         }), function(newVal, oldVal) {
-            console.log('current: ', $state.$current.name);
+            // console.log('current: ', $state.$current.name);
             storage.set('sortBy', vm.options.sortBy);
             if ($state.$current.name === 'movies') {
                 $rootScope.$emit('/movies/refresh');
@@ -78,11 +80,11 @@
         $scope.$watch(angular.bind(this, function() {
             return vm.options.searchTerm;
         }), function(newVal) {
-             console.log('searching for either vm.searchTerm: '+vm.options.searchTerm + ' or newVal: '+newVal);
+             // console.log('searching for either vm.searchTerm: '+vm.options.searchTerm + ' or newVal: '+newVal);
             $state.go('search').then(function(current) {
-                console.log('after search state');
+                // console.log('after search state');
                 $rootScope.$emit('/movies/search', newVal);
-                console.log('emitted event');
+                // console.log('emitted event');
             });
         });
 

@@ -6,7 +6,7 @@
          * Angular modules
          */
         // 'ngAnimate', 'ui.router', 'ngSanitize',
-        'ui.router',
+        'ui.router', 'infinite-scroll',
         /*
          * Our reusable cross app code modules
          */

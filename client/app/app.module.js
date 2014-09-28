@@ -30,8 +30,8 @@
     angular
         .module('app')
         .config(function($stateProvider, $urlRouterProvider, $locationProvider) {
-            // $locationProvider.html5Mode(true);
-            $urlRouterProvider.otherwise('/cover');
+            $locationProvider.html5Mode(true);
+            // $urlRouterProvider.otherwise('/cover');
         })
         .config(['$provide', function($provide) {
           $provide.decorator('$rootScope', ['$delegate', function($delegate) {

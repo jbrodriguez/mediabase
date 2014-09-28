@@ -26,17 +26,18 @@ func (self *Server) Start() {
 	mlog.Info("starting server service")
 
 	self.r = gin.New()
+	// self.r.SetMode(gin.ReleaseMode)
 
 	self.r.Use(gin.Recovery())
 	self.r.Use(helper.Logging())
 
 	self.r.Use(static.Serve("./"))
-	self.r.NoRoute(static.Serve("./"))
+	self.r.NoRoute(self.redirect)
 
 	api := self.r.Group(apiVersion)
 	{
 		api.GET("/movies/cover", self.getCover)
-		api.POST("/movies/", self.getMovies)
+		api.POST("/movies", self.getMovies)
 
 		api.GET("/movies/search/:term", self.searchMovies)
 		api.GET("/movies/duplicates", self.getDuplicates)
@@ -57,6 +58,11 @@ func (self *Server) Start() {
 func (self *Server) Stop() {
 	mlog.Info("server service stopped")
 	// nothing here
+}
+
+func (self *Server) redirect(c *gin.Context) {
+	mlog.Info("desperado: %+v", c.Request)
+	c.Redirect(301, "/index.html")
 }
 
 func (self *Server) getConfig(c *gin.Context) {

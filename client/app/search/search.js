@@ -17,21 +17,23 @@
         vm.setWatched = setWatched;
         vm.fixMovie = fixMovie;
 
-        console.log('activated search view');
+        // console.log('activated search view');
         $scope.$onRootScope('/movies/search', doSearch);
 
         function doSearch(me, term) {
             console.log('searching for me: '+me+'term: '+term+'options.searchTerm: '+options.searchTerm);
             return api.searchMovies(term).then(function(data) {
+                vm.movies = null;
                 vm.movies = data;
                 return vm.movies;
             })
         };
 
         function setWatched(index) {
-            console.log("maldecido!!!!: ", index);
+            // console.log("maldecido!!!!: ", index);
             return api.setWatched(vm.movies[index]).then(function(data) {
-                logger.success("Movie was updated successfully", "", vm.movies[index].title);
+                var title = vm.movies[index].title;
+                logger.success("Movie was updated successfully", "", title);
             })
         };
 

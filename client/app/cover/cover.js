@@ -27,16 +27,18 @@
 
         function getCover() {
             return api.getCover().then(function (data) {
-                logger.info('what is: ', data)
+                // logger.info('what is: ', data)
+                vm.movies = null;
                 vm.movies = data;
                 return vm.movies;
             });
         }
 
         function setWatched(index) {
-            console.log("maldecido!!!!: ", index);
+            // console.log("maldecido!!!!: ", index);
             return api.setWatched(vm.movies[index]).then(function(data) {
-                logger.success("Movie was updated successfully", "", vm.movies[index].title);
+                var title = vm.movies[index].title;
+                logger.success("Movie was updated successfully", "", title);
             })
         };
 
