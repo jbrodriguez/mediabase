@@ -556,3 +556,112 @@ func (self *Dal) doWatchedMovie(msg *message.SingleMovie) {
 
 	msg.Reply <- true
 }
+
+type Omdb struct {
+	Director    string `json:"Director"`
+	Writer      string `json:"Writer"`
+	Actors      string `json:"Actors"`
+	Awards      string `json:"Awards"`
+	Imdb_Rating string `json:"imdbRating"`
+	Imdb_Vote   string `json:"imdbVotes"`
+}
+
+// func (self *Dal) ImportOmdb() {
+// 	mlog.Info("life goes on")
+
+// 	tx, err := self.db.Begin()
+// 	if err != nil {
+// 		mlog.Fatalf("unable to begin transaction: %s", err)
+// 	}
+
+// 	mlog.Info("life goes on 2")
+
+// 	rows, err := self.db.Query("select rowid, imdb_id, director from movie;")
+// 	if err != nil {
+// 		mlog.Fatalf("unable to prepare transaction: %s", self.err)
+// 	}
+
+// 	items := make([]*message.Movie, 0)
+
+// 	self.cnt = 0
+
+// 	for rows.Next() {
+// 		movie := message.Movie{}
+// 		rows.Scan(&movie.Id, &movie.Imdb_Id, &movie.Director)
+// 		items = append(items, &movie)
+// 		self.cnt++
+// 	}
+// 	rows.Close()
+
+// 	tx.Commit()
+
+// 	var omdb Omdb
+// 	allgood := true
+
+// 	for _, val := range items {
+// 		mlog.Info("before call to api")
+
+// 		imdbid := val.Imdb_Id
+
+// 		if imdbid == "" {
+// 			mlog.Info("skipped due to imdb_id empty: ", imdbid)
+// 			continue
+// 		}
+
+// 		// if val.Director != "" {
+// 		// 	mlog.Info("skipped due to director not empty: ", val.Director)
+// 		// 	continue
+// 		// }
+
+// 		err := helper.RestGet(fmt.Sprintf("http://www.omdbapi.com/?i=%s", imdbid), &omdb)
+// 		if err != nil {
+// 			mlog.Info("error", err)
+// 		}
+
+// 		mlog.Info("omdb: %+v", omdb)
+
+// 		vote := strings.Replace(omdb.Imdb_Vote, ",", "", -1)
+
+// 		imdb_rating, _ := strconv.ParseFloat(omdb.Imdb_Rating, 64)
+// 		imdb_vote, _ := strconv.ParseInt(vote, 0, 64)
+
+// 		mlog.Info("ir = %2f, iv = %d", imdb_rating, imdb_vote)
+
+// 		tx, err = self.db.Begin()
+// 		if err != nil {
+// 			mlog.Fatalf("unable to begin transaction: %s", err)
+// 		}
+
+// 		stmt, err := tx.Prepare("update movie set director = ?, writer = ?, actors = ?, awards = ?, imdb_rating = ?, imdb_votes = ? where rowid = ?")
+// 		if err != nil {
+// 			// tx.Rollback()
+// 			mlog.Info("at prepare: %s", err)
+// 			allgood = false
+// 			break
+// 		}
+// 		defer stmt.Close()
+
+// 		_, err = stmt.Exec(omdb.Director, omdb.Writer, omdb.Actors, omdb.Awards, imdb_rating, imdb_vote, val.Id)
+// 		if err != nil {
+// 			// tx.Rollback()
+// 			mlog.Info("at exec: %s", err)
+// 			allgood = false
+// 			break
+// 		}
+
+// 		if allgood {
+// 			tx.Commit()
+// 		} else {
+// 			tx.Rollback()
+// 		}
+
+// 		time.Sleep(5 * 1000 * time.Millisecond)
+// 	}
+
+// 	if allgood {
+// 		tx.Commit()
+// 	} else {
+// 		tx.Rollback()
+// 	}
+
+// }

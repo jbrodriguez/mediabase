@@ -2,11 +2,15 @@ package services
 
 import (
 	"apertoire.net/mediabase/server/bus"
+	"apertoire.net/mediabase/server/helper"
 	"apertoire.net/mediabase/server/message"
 	"apertoire.net/mediabase/server/model"
+	"fmt"
 	"github.com/apertoire/go-tmdb"
 	"github.com/apertoire/mlog"
 	"github.com/goinggo/workpool"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -178,6 +182,26 @@ func (self *Gig) DoWork(workRoutine int) {
 		}
 	}
 
+	var omdb model.Omdb
+
+	err = helper.RestGet(fmt.Sprintf("http://www.omdbapi.com/?i=%s", self.media.Movie.Imdb_Id), &omdb)
+	if err != nil {
+		mlog.Info("error", err)
+	}
+
+	mlog.Info("omdb: %+v", omdb)
+
+	vote := strings.Replace(omdb.Imdb_Vote, ",", "", -1)
+	imdb_rating, _ := strconv.ParseFloat(omdb.Imdb_Rating, 64)
+	imdb_vote, _ := strconv.ParseUint(vote, 0, 64)
+
+	self.media.Movie.Director = omdb.Director
+	self.media.Movie.Writer = omdb.Writer
+	self.media.Movie.Actors = omdb.Actors
+	self.media.Movie.Awards = omdb.Awards
+	self.media.Movie.Imdb_Rating = imdb_rating
+	self.media.Movie.Imdb_Votes = imdb_vote
+
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
 
@@ -243,6 +267,26 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 			self.media.Movie.Production_Countries += "|" + attr.Name
 		}
 	}
+
+	var omdb model.Omdb
+
+	err = helper.RestGet(fmt.Sprintf("http://www.omdbapi.com/?i=%s", self.media.Movie.Imdb_Id), &omdb)
+	if err != nil {
+		mlog.Info("error", err)
+	}
+
+	mlog.Info("omdb: %+v", omdb)
+
+	vote := strings.Replace(omdb.Imdb_Vote, ",", "", -1)
+	imdb_rating, _ := strconv.ParseFloat(omdb.Imdb_Rating, 64)
+	imdb_vote, _ := strconv.ParseUint(vote, 0, 64)
+
+	self.media.Movie.Director = omdb.Director
+	self.media.Movie.Writer = omdb.Writer
+	self.media.Movie.Actors = omdb.Actors
+	self.media.Movie.Awards = omdb.Awards
+	self.media.Movie.Imdb_Rating = imdb_rating
+	self.media.Movie.Imdb_Votes = imdb_vote
 
 	self.media.Movie.Modified = time.Now().UTC().Format(time.RFC3339)
 

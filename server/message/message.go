@@ -67,6 +67,12 @@ type Movie struct {
 	All_Watched          string  `json:"all_watched"`
 	Count_Watched        uint64  `json:"count_watched"`
 	Score                uint64  `json:"score"`
+	Director             string  `json:"director"`
+	Writer               string  `json:"writer"`
+	Actors               string  `json:"actors"`
+	Awards               string  `json:"awards"`
+	Imdb_Rating          float64 `json:"imdb_rating"`
+	Imdb_Votes           uint64  `json:"imdb_votes"`
 }
 
 type Media struct {
