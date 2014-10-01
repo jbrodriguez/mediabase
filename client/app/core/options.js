@@ -14,7 +14,7 @@
         var filterByOptions = [{value: 'title', display: 'Title'}, {value: 'genre', display: 'Genre'}];
         var filterBy = '';
 
-        var sortByOptions = [{value: 'title', display: 'Title'}, {value: 'runtime', display: 'Runtime'}, {value: 'added', display: 'Added'}, {value: 'last_watched', display: 'Watched'}, {value: 'year', display: 'Year'}, {value: 'vote_average', display: 'Rating'}];
+        var sortByOptions = [{value: 'title', display: 'Title'}, {value: 'runtime', display: 'Runtime'}, {value: 'added', display: 'Added'}, {value: 'last_watched', display: 'Watched'}, {value: 'year', display: 'Year'}, {value: 'imdb_rating', display: 'Rating'}];
         var sortBy = '';
 
         var sortOrderOptions = ['asc', 'desc'];

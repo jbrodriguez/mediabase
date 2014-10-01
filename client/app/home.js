@@ -20,6 +20,7 @@
         function activate() {
             vm.options.filterBy = storage.get('filterBy') || 'title';
             vm.options.sortBy = storage.get('sortBy') || 'added';
+            vm.options.sortOrder = storage.get('sortOrder') || 'asc';
 
             return getConfig().then(function() {
                 logger.info('initialized state');
@@ -36,6 +37,9 @@
         function sortOrder() {
             // console.log("is there anybody out there: ", $state.$current.name);
             vm.options.sortOrder = vm.options.sortOrder === 'desc' ? 'asc' : 'desc';
+
+            storage.set('filterBy', vm.options.filterBy);
+
             if ($state.$current.name === 'movies') {
                 // console.log("inside ===");
                 $rootScope.$emit('/movies/refresh');
@@ -75,7 +79,7 @@
             } else {
                 $state.go('movies');
             };
-        }, true);        
+        }, true);
 
         $scope.$watch(angular.bind(this, function() {
             return vm.options.searchTerm;
