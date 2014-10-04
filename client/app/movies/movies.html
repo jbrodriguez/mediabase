@@ -1,6 +1,6 @@
 		<div class="container row top-pager">
 			<div class="large-12 column">
-				<dir-pagination-controls template-url="app/template/pagination.html">
+				<dir-pagination-controls on-page-change="vm.scrollPage(newPageNumber)" max-size="15" boundary-links="true" template-url="app/template/pagination.html">
 				</dir-pagination-controls>
 			</div>
 		</div>
@@ -100,7 +100,7 @@
 
 		<div class="container row top-pager">
 			<div class="large-12 column">
-				<dir-pagination-controls template-url="app/template/pagination.html">
+				<dir-pagination-controls  on-page-change="scrollPage(newPageNumber)" max-size="15" boundary-links="true" template-url="app/template/pagination.html">
 				</dir-pagination-controls>
 			</div>
 		</div>

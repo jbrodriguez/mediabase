@@ -23,7 +23,7 @@
             vm.options.sortOrder = storage.get('sortOrder') || 'asc';
 
             return getConfig().then(function() {
-                logger.info('initialized state');
+                logger.info('initialized state home.js');
             })
         };
 
@@ -39,6 +39,7 @@
             vm.options.sortOrder = vm.options.sortOrder === 'desc' ? 'asc' : 'desc';
 
             storage.set('sortBy', vm.options.sortBy);
+            vm.options.mode = 'regular';
 
             if ($state.$current.name === 'movies') {
                 // console.log("inside ===");
@@ -74,6 +75,8 @@
         }), function(newVal, oldVal) {
             // console.log('current: ', $state.$current.name);
             storage.set('sortBy', vm.options.sortBy);
+            vm.options.mode = 'regular';
+
             if ($state.$current.name === 'movies') {
                 $rootScope.$emit('/movies/refresh');
             } else {
@@ -84,7 +87,8 @@
         $scope.$watch(angular.bind(this, function() {
             return vm.options.searchTerm;
         }), function(newVal) {
-             // console.log('searching for either vm.searchTerm: '+vm.options.searchTerm + ' or newVal: '+newVal);
+             console.log('searching for either vm.searchTerm: '+vm.options.searchTerm + ' or newVal: '+newVal);
+            vm.options.mode = 'search';
             if ($state.$current.name === 'movies') {
                 $rootScope.$emit('/movies/search');
             } else {

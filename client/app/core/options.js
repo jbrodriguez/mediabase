@@ -20,6 +20,8 @@
         var sortOrderOptions = ['asc', 'desc'];
         var sortOrder = 'desc';
 
+        var mode = 'regular';
+
     	var service = {
             searchTerm: searchTerm,
             filterByOptions: filterByOptions,
@@ -27,7 +29,8 @@
             sortByOptions: sortByOptions,
             sortBy: sortBy,
             sortOrderOptions: sortOrderOptions,
-            sortOrder: sortOrder
+            sortOrder: sortOrder,
+            mode: mode
     	};
 
     	return service;
