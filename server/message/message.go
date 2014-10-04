@@ -103,4 +103,5 @@ type Options struct {
 	Limit      uint64 `json:"limit"`
 	SortBy     string `json:"sortBy"`
 	SortOrder  string `json:"sortOrder"`
+	FilterBy   string `json:"filterBy"`
 }

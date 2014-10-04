@@ -39,7 +39,7 @@ func (self *Server) Start() {
 		api.GET("/movies/cover", self.getCover)
 		api.POST("/movies", self.getMovies)
 
-		api.GET("/movies/search/:term", self.searchMovies)
+		api.POST("/movies/search", self.searchMovies)
 		api.GET("/movies/duplicates", self.getDuplicates)
 
 		api.POST("/movies/watched", self.watchedMovie)
@@ -120,8 +120,11 @@ func (self *Server) importMovies(c *gin.Context) {
 func (self *Server) searchMovies(c *gin.Context) {
 	mlog.Info("searchMovies: are you a head honcho ?")
 
-	term := c.Params.ByName("term")
-	options := message.Options{SearchTerm: term}
+	var options message.Options
+
+	c.Bind(&options)
+
+	mlog.Info("anyway the wind blows: %+v", options)
 
 	msg := message.Movies{Options: options, Reply: make(chan []*message.Movie)}
 	self.Bus.SearchMovies <- &msg

@@ -14,6 +14,10 @@
         var vm = this;
 
         vm.movies = [];
+        vm.options = options;
+        vm.options.current = 0;
+        vm.options.limit = 50;
+
         vm.setWatched = setWatched;
         vm.fixMovie = fixMovie;
 
@@ -21,8 +25,10 @@
         $scope.$onRootScope('/movies/search', doSearch);
 
         function doSearch(me, term) {
-            console.log('searching for me: '+me+'term: '+term+'options.searchTerm: '+options.searchTerm);
-            return api.searchMovies(term).then(function(data) {
+            // console.log('searching for me: '+me+'term: '+term+'options.searchTerm: '+options.searchTerm);
+            // var args = {current: vm.current, limit: vm.limit, filterBy: options.filterBy, searchTerm: options.searchTerm};
+            return api.searchMovies(options).then(function(data) {
+                // console.log("what is?: ", data);
                 vm.movies = null;
                 vm.movies = data;
                 return vm.movies;

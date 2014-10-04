@@ -113,6 +113,10 @@ nav .menu {
 	padding-top: 5px;
 }
 
+.top-pager {
+	padding-top: 25px;
+}
+
 footer {
 	color: white;
 	background: #2c3e50;
@@ -120,8 +124,10 @@ footer {
 }
 
 article {
-	padding: 15px 0;
-	border-bottom: 1px solid #E6EAEE;
+	padding-bottom: 10px;
+	padding-top: 15px;
+	margin-top: 15px;
+	border-top: 1px solid #E6EAEE;
 }
 
 .import-cover {

@@ -56,7 +56,7 @@
         function getMovies(args) {
             // console.log('api: ', args.current, args.limit, args.sortBy, args.sortOrder);
 
-            return $http.post(ep + '/movies/', args)
+            return $http.post(ep + '/movies', args)
                 .then(getMoviesEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for getMovies')(message);
@@ -81,8 +81,8 @@
             }
         };
 
-        function searchMovies(term) {
-            return $http.get(ep + '/movies/search/' + term)
+        function searchMovies(args) {
+            return $http.post(ep + '/movies/search', args)
                 .then(searchMoviesEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for searchMovies')(message);

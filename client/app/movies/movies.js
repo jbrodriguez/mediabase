@@ -8,22 +8,29 @@
     // Movies.$inject = ['$q', 'api', 'logger'];
 
     /* @ngInject */
-    function Movies($scope, api, logger, options) {
+    function Movies($scope, $window, api, logger, options) {
 
         /*jshint validthis: true */
         var vm = this;
+        var mode = 'regular';
 
         vm.movies = [];
         vm.current = 0;
         vm.limit = 50;
 
+
+        vm.itemsPerPage = 50;
+        vm.currentPage = 1;
+
         vm.busy = false;
 
         vm.setWatched = setWatched;
         vm.fixMovie = fixMovie;
-        vm.scrollPage = scrollPage;
+        // vm.scrollPage = scrollPage;
+        vm.pageChanged = pageChanged;
 
-        $scope.$onRootScope('/movies/refresh', doRefresh);
+        $scope.$onRootScope('/movies/refresh', refresh);
+        $scope.$onRootScope('/movies/search', search);
 
         activate();
 
@@ -34,16 +41,53 @@
             // return getMovies(args).then(function() {
             //     logger.info('activated movies view');
             // });
-            doRefresh();
+            // doRefresh();
+            refresh();
         } ;
 
-        function doRefresh() {
+        function refresh() {
+            mode = 'regular';
             vm.current = 0;
-            var args = {current: vm.current, limit: vm.limit, sortBy: options.sortBy, sortOrder: options.sortOrder};
-            return getMovies(args).then(function() {
-                logger.info('refreshed list');
-            });
+            vm.currentPage = 1;
+            // load();
         };
+
+        function search() {
+            mode = 'search';
+            vm.current = 0;
+            vm.currentPage = 1;
+            // load();
+        };
+
+        $scope.$watch(angular.bind(this, function() {
+            return vm.currentPage;
+        }), function(newVal, oldVal) {
+            pageChanged(newVal);
+        }, true);
+
+        function pageChanged(pageNumber) {
+            console.log("we shall overcome: ", pageNumber);
+            vm.current = (pageNumber - 1) * vm.limit
+            load();
+            $window.scrollTo(0, 0);
+        };
+
+        function load() {
+            if (mode === 'regular') {
+                var args = {current: vm.current, limit: vm.limit, sortBy: options.sortBy, sortOrder: options.sortOrder};
+                return getMovies(args).then(function() {
+                    logger.info('refreshed list: ', args);
+                });
+            } else {
+                return api.searchMovies(options).then(function(data) {
+                    // console.log("what is?: ", data);
+                    vm.movies = null;
+                    vm.movies = data;
+                    return vm.movies;
+                })                
+            }
+        };
+
 
         function getMovies(args) {
             // console.log('args: ', args.current, args.limit, args.sortBy, args.sortOrder);
@@ -68,32 +112,34 @@
             })
         };
 
-        function scrollPage() {
-            if (vm.busy) return;
-            vm.busy = true;
-            vm.current += vm.limit;
+   
 
-            var args = {current: vm.current, limit: vm.limit, sortBy: options.sortBy, sortOrder: options.sortOrder};
-            return scrollMovies(args).then(function() {
-                logger.info('scrolled list');
-                vm.busy = false;
-            });
+        // function scrollPage() {
+        //     if (vm.busy) return;
+        //     vm.busy = true;
+        //     vm.current += vm.limit;
 
-            vm.busy = false;
-        };
+        //     var args = {current: vm.current, limit: vm.limit, sortBy: options.sortBy, sortOrder: options.sortOrder};
+        //     return scrollMovies(args).then(function() {
+        //         logger.info('scrolled list');
+        //         vm.busy = false;
+        //     });
 
-        function scrollMovies(args) {
-            return api.getMovies(args).then(function (data) {
-                if (vm.current === 0) {
-                    vm.movies = null;
-                    vm.movies = data;
-                } else {
-                    for (var i = 0; i < data.length; i++) {
-                        vm.movies.push(data[i]);
-                    };
-                };
-                return vm.movies;
-            });
-        };
+        //     vm.busy = false;
+        // };
+
+        // function scrollMovies(args) {
+        //     return api.getMovies(args).then(function (data) {
+        //         if (vm.current === 0) {
+        //             vm.movies = null;
+        //             vm.movies = data;
+        //         } else {
+        //             for (var i = 0; i < data.length; i++) {
+        //                 vm.movies.push(data[i]);
+        //             };
+        //         };
+        //         return vm.movies;
+        //     });
+        // };
     }
 })();

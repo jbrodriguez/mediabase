@@ -38,7 +38,7 @@
             // console.log("is there anybody out there: ", $state.$current.name);
             vm.options.sortOrder = vm.options.sortOrder === 'desc' ? 'asc' : 'desc';
 
-            storage.set('filterBy', vm.options.filterBy);
+            storage.set('sortBy', vm.options.sortBy);
 
             if ($state.$current.name === 'movies') {
                 // console.log("inside ===");
@@ -66,7 +66,7 @@
         }), function(newVal, oldVal) {
             // console.log('current: ', $state.$current.name);
             storage.set('filterBy', vm.options.filterBy);
-            $state.go('movies');
+            // $state.go('movies');
         }, true);
 
         $scope.$watch(angular.bind(this, function() {
@@ -85,12 +85,17 @@
             return vm.options.searchTerm;
         }), function(newVal) {
              // console.log('searching for either vm.searchTerm: '+vm.options.searchTerm + ' or newVal: '+newVal);
-            $state.go('search').then(function(current) {
-                // console.log('after search state');
-                $rootScope.$emit('/movies/search', newVal);
-                // console.log('emitted event');
-            });
-        });
+            if ($state.$current.name === 'movies') {
+                $rootScope.$emit('/movies/search');
+            } else {
+                $state.go('movies');
+            };             
+            // $state.go('search').then(function(current) {
+            //     // console.log('after search state');
+            //     $rootScope.$emit('/movies/search', newVal);
+            //     // console.log('emitted event');
+            // });
+        }, true);
 
     };
 

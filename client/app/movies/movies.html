@@ -1,5 +1,11 @@
-	<div infinite-scroll="vm.scrollPage()" infinite-scroll-disabled="vm.busy" infinite-scroll-distance="1">
-		<article data-ng-repeat="movie in vm.movies" class="container row">
+		<div class="container row top-pager">
+			<div class="large-12 column">
+				<dir-pagination-controls template-url="app/template/pagination.html">
+				</dir-pagination-controls>
+			</div>
+		</div>
+
+		<article dir-paginate="movie in vm.movies | itemsPerPage: 50" class="container row" total-items="2444" current-page="vm.currentPage">
 			<div class="large-12 column">
 				<h4>{{ movie.title }} ({{ movie.year }})</h4>
 			</div>
@@ -91,9 +97,10 @@
 				</div>			
 			</div>
 		</article>
-		<article class="container row" data-ng-show="vm.busy">
+
+		<div class="container row top-pager">
 			<div class="large-12 column">
-				<h3>Loading data ...</h3>
+				<dir-pagination-controls template-url="app/template/pagination.html">
+				</dir-pagination-controls>
 			</div>
 		</div>
-	</div>

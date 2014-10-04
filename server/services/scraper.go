@@ -272,7 +272,7 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 
 	err = helper.RestGet(fmt.Sprintf("http://www.omdbapi.com/?i=%s", self.media.Movie.Imdb_Id), &omdb)
 	if err != nil {
-		mlog.Info("error", err)
+		mlog.Info("error %s", err)
 	}
 
 	mlog.Info("omdb: %+v", omdb)

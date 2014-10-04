@@ -23,6 +23,7 @@ type Dal struct {
 
 	storeMovie      *sql.Stmt
 	searchMovies    *sql.Stmt
+	searchGenre     *sql.Stmt
 	listMovies      *sql.Stmt
 	listByRuntime   *sql.Stmt
 	listMoviesToFix *sql.Stmt
@@ -59,6 +60,7 @@ func (self *Dal) Start() {
 	self.cnt = 0
 
 	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
+	self.searchGenre = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes from movie dt, moviegenre vt where vt.moviegenre match ? and dt.rowid = vt.docid order by dt.title;")
 	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie order by ? desc limit ? offset ?")
 	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie order by runtime")
 	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie where original_title = 'FIXMOV23'")
@@ -433,10 +435,29 @@ func (self *Dal) doShowDuplicates(msg *message.Movies) {
 }
 
 func (self *Dal) doSearchMovies(msg *message.Movies) {
+	tx, err := self.db.Begin()
+	if err != nil {
+		mlog.Fatalf("unable to begin transaction: %s", err)
+	}
+
+	sql := fmt.Sprintf(`select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution,
+				dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, 
+				dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes
+				from movie dt, %s vt where vt.%s match ? and dt.rowid = vt.docid order by dt.%s %s limit ? offset ?`,
+		"movie"+msg.Options.FilterBy, "movie"+msg.Options.FilterBy, msg.Options.SortBy, msg.Options.SortOrder)
+
+	mlog.Info("my main man: %s", sql)
+
+	stmt, err := tx.Prepare(sql)
+	if err != nil {
+		mlog.Fatalf("unable to prepare transaction: %s", err)
+	}
+	defer stmt.Close()
+
 	term := msg.Options.SearchTerm + "*"
 	mlog.Info("this is: %s", term)
 
-	rows, err := self.searchMovies.Query(term)
+	rows, err := stmt.Query(term, msg.Options.Limit, msg.Options.Current)
 	if err != nil {
 		mlog.Fatalf("unable to begin transaction: %s", self.err)
 	}
@@ -452,6 +473,8 @@ func (self *Dal) doSearchMovies(msg *message.Movies) {
 		items = append(items, &movie)
 	}
 	rows.Close()
+
+	tx.Commit()
 
 	msg.Reply <- items
 }
