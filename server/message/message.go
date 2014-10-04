@@ -12,18 +12,14 @@ type PruneMovies struct {
 	Reply chan string
 }
 
-// type GetMovies struct {
-// 	Reply chan []*Movie
-// }
-
-// type ListMovies struct {
-// 	Options Options
-// 	Reply   chan []*Movie
-// }
+type MoviesDTO struct {
+	Count  uint64   `json:"count"`
+	Movies []*Movie `json:"movies"`
+}
 
 type Movies struct {
 	Options Options
-	Reply   chan []*Movie
+	Reply   chan *MoviesDTO
 }
 
 // type SearchMovies struct {

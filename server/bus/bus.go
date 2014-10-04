@@ -28,7 +28,7 @@ type Bus struct {
 	CheckMovie     chan *message.CheckMovie
 	FixMovies      chan int
 	GetMoviesToFix chan *message.Movies
-	RescrapeMovies chan []*message.Movie
+	RescrapeMovies chan *message.MoviesDTO
 
 	WatchedMovie chan *message.SingleMovie
 	FixMovie     chan *message.SingleMovie
@@ -63,8 +63,8 @@ func (self *Bus) Start() {
 	self.SearchMovies = make(chan *message.Movies)
 	self.CheckMovie = make(chan *message.CheckMovie)
 	self.FixMovies = make(chan int)
-	self.GetMoviesToFix = make(chan *message.Movies)
-	self.RescrapeMovies = make(chan []*message.Movie)
+	// self.GetMoviesToFix = make(chan *message.Movies)
+	self.RescrapeMovies = make(chan *message.MoviesDTO)
 
 	self.WatchedMovie = make(chan *message.SingleMovie)
 	self.FixMovie = make(chan *message.SingleMovie)

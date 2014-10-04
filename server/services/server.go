@@ -38,8 +38,8 @@ func (self *Server) Start() {
 	{
 		api.GET("/movies/cover", self.getCover)
 		api.POST("/movies", self.getMovies)
-
 		api.POST("/movies/search", self.searchMovies)
+
 		api.GET("/movies/duplicates", self.getDuplicates)
 
 		api.POST("/movies/watched", self.watchedMovie)
@@ -74,7 +74,7 @@ func (self *Server) getConfig(c *gin.Context) {
 }
 
 func (self *Server) getCover(c *gin.Context) {
-	msg := message.Movies{Reply: make(chan []*message.Movie)}
+	msg := message.Movies{Reply: make(chan *message.MoviesDTO)}
 	self.Bus.GetCover <- &msg
 	reply := <-msg.Reply
 
@@ -91,7 +91,7 @@ func (self *Server) getMovies(c *gin.Context) {
 
 	mlog.Info("bocelli: %+v", options)
 
-	msg := message.Movies{Options: options, Reply: make(chan []*message.Movie)}
+	msg := message.Movies{Options: options, Reply: make(chan *message.MoviesDTO)}
 	self.Bus.GetMovies <- &msg
 	reply := <-msg.Reply
 
@@ -126,7 +126,7 @@ func (self *Server) searchMovies(c *gin.Context) {
 
 	mlog.Info("anyway the wind blows: %+v", options)
 
-	msg := message.Movies{Options: options, Reply: make(chan []*message.Movie)}
+	msg := message.Movies{Options: options, Reply: make(chan *message.MoviesDTO)}
 	self.Bus.SearchMovies <- &msg
 	reply := <-msg.Reply
 
@@ -154,22 +154,12 @@ func (self *Server) pruneMovies(c *gin.Context) {
 }
 
 func (self *Server) getDuplicates(c *gin.Context) {
-	msg := message.Movies{Reply: make(chan []*message.Movie)}
+	msg := message.Movies{Reply: make(chan *message.MoviesDTO)}
 	self.Bus.ShowDuplicates <- &msg
 	reply := <-msg.Reply
 
 	// mlog.Info("response is: %s", reply)
 	c.JSON(200, &reply)
-}
-
-func (self *Server) listByRuntime(w http.ResponseWriter, req *http.Request) {
-	msg := message.Movies{Reply: make(chan []*message.Movie)}
-	self.Bus.ListByRuntime <- &msg
-	reply := <-msg.Reply
-
-	// mlog.Info("response is: %s", reply)
-
-	helper.WriteJson(w, 200, &reply)
 }
 
 func (self *Server) watchedMovie(c *gin.Context) {

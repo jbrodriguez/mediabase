@@ -19,8 +19,9 @@ type Dal struct {
 	db     *sql.DB
 	dbase  string
 	err    error
-	cnt    int
+	count  uint64
 
+	countRows       *sql.Stmt
 	storeMovie      *sql.Stmt
 	searchMovies    *sql.Stmt
 	searchGenre     *sql.Stmt
@@ -57,8 +58,9 @@ func (self *Dal) Start() {
 		mlog.Fatalf("open database: %s (%s)", self.err, self.dbase)
 	}
 
-	self.cnt = 0
+	self.count = 0
 
+	self.countRows = self.prepare("select count(*) from movie;")
 	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
 	self.searchGenre = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes from movie dt, moviegenre vt where vt.moviegenre match ? and dt.rowid = vt.docid order by dt.title;")
 	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie order by ? desc limit ? offset ?")
@@ -103,8 +105,8 @@ func (self *Dal) react() {
 			go self.doSearchMovies(msg)
 		case msg := <-self.Bus.CheckMovie:
 			go self.doCheckMovie(msg)
-		case msg := <-self.Bus.GetMoviesToFix:
-			go self.doGetMoviesToFix(msg)
+		// case msg := <-self.Bus.GetMoviesToFix:
+		// 	go self.doGetMoviesToFix(msg)
 		case msg := <-self.Bus.WatchedMovie:
 			go self.doWatchedMovie(msg)
 		}
@@ -215,9 +217,9 @@ func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
 }
 
 func (self *Dal) doStoreMovie(movie *message.Movie) {
-	self.cnt++
+	self.count = 0
 
-	mlog.Info("STARTED SAVING %s [%d]", movie.Title, self.cnt)
+	mlog.Info("STARTED SAVING %s [%d]", movie.Title)
 
 	tx, err := self.db.Begin()
 	if err != nil {
@@ -249,7 +251,7 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 	// }
 
 	tx.Commit()
-	mlog.Info("FINISHED SAVING %s [%d]", movie.Title, self.cnt)
+	mlog.Info("FINISHED SAVING %s", movie.Title)
 
 	// _, self.err = self.storeMovie.Exec(movie.Name, movie.Year, movie.Resolution, movie.Type, movie.Path, movie.Picture)
 	// if self.err != nil {
@@ -258,6 +260,8 @@ func (self *Dal) doStoreMovie(movie *message.Movie) {
 }
 
 func (self *Dal) doDeleteMovie(movie *message.Movie) {
+	self.count = 0
+
 	mlog.Info("STARTED DELETING [%d] %s", movie.Id, movie.Title)
 
 	tx, err := self.db.Begin()
@@ -297,7 +301,7 @@ func (self *Dal) doDeleteMovie(movie *message.Movie) {
 }
 
 func (self *Dal) doUpdateMovie(movie *message.Movie) {
-	mlog.Info("STARTED UPDATING %s [%d]", movie.Title, self.cnt)
+	mlog.Info("STARTED UPDATING %s", movie.Title)
 
 	tx, err := self.db.Begin()
 	if err != nil {
@@ -354,7 +358,7 @@ func (self *Dal) doGetCover(msg *message.Movies) {
 
 	tx.Commit()
 
-	msg.Reply <- items
+	msg.Reply <- &message.MoviesDTO{Movies: items}
 }
 
 func (self *Dal) doGetMovies(msg *message.Movies) {
@@ -379,21 +383,28 @@ func (self *Dal) doGetMovies(msg *message.Movies) {
 
 	items := make([]*message.Movie, 0)
 
-	self.cnt = 0
+	if self.count == 0 {
+		err = self.countRows.QueryRow().Scan(&self.count)
+		if err != nil {
+			mlog.Fatalf("unable to count rows: %s", err)
+		}
+	}
 
+	var count = 0
 	for rows.Next() {
 		movie := message.Movie{}
 		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched, &movie.Score, &movie.Director, &movie.Writer, &movie.Actors, &movie.Awards, &movie.Imdb_Rating, &movie.Imdb_Votes)
 		items = append(items, &movie)
-		self.cnt++
+		count++
 	}
 	rows.Close()
 
 	tx.Commit()
 
-	mlog.Info("Listed %d movies", self.cnt)
+	mlog.Info("Listed %d movies", count)
+	mlog.Info("Representing %d movies", self.count)
 
-	msg.Reply <- items
+	msg.Reply <- &message.MoviesDTO{Count: self.count, Movies: items}
 }
 
 func (self *Dal) doShowDuplicates(msg *message.Movies) {
@@ -417,21 +428,21 @@ func (self *Dal) doShowDuplicates(msg *message.Movies) {
 
 	items := make([]*message.Movie, 0)
 
-	self.cnt = 0
+	var count uint64 = 0
 
 	for rows.Next() {
 		movie := message.Movie{}
 		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched, &movie.Score, &movie.Director, &movie.Writer, &movie.Actors, &movie.Awards, &movie.Imdb_Rating, &movie.Imdb_Votes)
 		items = append(items, &movie)
-		self.cnt++
+		count++
 	}
 	rows.Close()
 
 	tx.Commit()
 
-	mlog.Info("Found %d duplicate movies", self.cnt)
+	mlog.Info("Found %d duplicate movies", count)
 
-	msg.Reply <- items
+	msg.Reply <- &message.MoviesDTO{Count: count, Movies: items}
 }
 
 func (self *Dal) doSearchMovies(msg *message.Movies) {
@@ -462,6 +473,7 @@ func (self *Dal) doSearchMovies(msg *message.Movies) {
 		mlog.Fatalf("unable to begin transaction: %s", self.err)
 	}
 
+	var count uint64 = 0
 	items := make([]*message.Movie, 0)
 
 	for rows.Next() {
@@ -471,43 +483,46 @@ func (self *Dal) doSearchMovies(msg *message.Movies) {
 		// rows.Scan(movie.Id, movie.Title, movie.Original_Title, movie.Year, movie.Runtime, movie.Tmdb_Id, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Resolution, movie.FileType, movie.Location, movie.Cover, movie.Backdrop)
 		// mlog.Info("title: (%s)", movie.Title)
 		items = append(items, &movie)
+		count++
 	}
 	rows.Close()
 
 	tx.Commit()
 
-	msg.Reply <- items
+	mlog.Info("Representing %d movies", count)
+
+	msg.Reply <- &message.MoviesDTO{Count: count, Movies: items}
 }
 
-func (self *Dal) doGetMoviesToFix(msg *message.Movies) {
-	tx, err := self.db.Begin()
-	if err != nil {
-		mlog.Fatalf("unable to begin transaction: %s", err)
-	}
+// func (self *Dal) doGetMoviesToFix(msg *message.Movies) {
+// 	tx, err := self.db.Begin()
+// 	if err != nil {
+// 		mlog.Fatalf("unable to begin transaction: %s", err)
+// 	}
 
-	rows, err := self.listMoviesToFix.Query()
-	if err != nil {
-		mlog.Fatalf("unable to begin transaction: %s", self.err)
-	}
+// 	rows, err := self.listMoviesToFix.Query()
+// 	if err != nil {
+// 		mlog.Fatalf("unable to begin transaction: %s", self.err)
+// 	}
 
-	items := make([]*message.Movie, 0)
+// 	items := make([]*message.Movie, 0)
 
-	self.cnt = 0
+// 	self.cnt = 0
 
-	for rows.Next() {
-		movie := message.Movie{}
-		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched, &movie.Score, &movie.Director, &movie.Writer, &movie.Actors, &movie.Awards, &movie.Imdb_Rating, &movie.Imdb_Votes)
-		items = append(items, &movie)
-		self.cnt++
-	}
-	rows.Close()
+// 	for rows.Next() {
+// 		movie := message.Movie{}
+// 		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched, &movie.Score, &movie.Director, &movie.Writer, &movie.Actors, &movie.Awards, &movie.Imdb_Rating, &movie.Imdb_Votes)
+// 		items = append(items, &movie)
+// 		self.cnt++
+// 	}
+// 	rows.Close()
 
-	tx.Commit()
+// 	tx.Commit()
 
-	mlog.Info("Listed %d movies to fix", self.cnt)
+// 	mlog.Info("Listed %d movies to fix", self.cnt)
 
-	msg.Reply <- items
-}
+// 	msg.Reply <- items
+// }
 
 func (self *Dal) doWatchedMovie(msg *message.SingleMovie) {
 	mlog.Info("STARTED UPDATING WATCHED MOVIE %s (%s)", msg.Movie.Title, msg.Movie.Last_Watched)

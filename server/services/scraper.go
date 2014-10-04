@@ -57,16 +57,16 @@ func (self *Scraper) react() {
 	}
 }
 
-func (self *Scraper) fixMoviesWork(movies []*message.Movie) {
-	mlog.Info("FIX MOVIES WORK REQUESTED FOR [%d] movies", len(movies))
+func (self *Scraper) fixMoviesWork(dto *message.MoviesDTO) {
+	mlog.Info("FIX MOVIES WORK REQUESTED FOR [%d] movies", dto.Count)
 
 	c := make(chan *message.Media)
 
-	for i := range movies {
+	for i := range dto.Movies {
 		gig := &FixMovieGig{
 			self.Bus,
 			self.tmdb,
-			&message.Media{BaseUrl: "", SecureBaseUrl: "", BasePath: "", Movie: movies[i], Forced: true},
+			&message.Media{BaseUrl: "", SecureBaseUrl: "", BasePath: "", Movie: dto.Movies[i], Forced: true},
 			c,
 		}
 
@@ -79,7 +79,7 @@ func (self *Scraper) fixMoviesWork(movies []*message.Movie) {
 		self.Bus.MovieRescraped <- media
 	}
 
-	mlog.Info("FIX MOVIES WORK COMPLETED FOR [%d]", len(movies))
+	mlog.Info("FIX MOVIES WORK COMPLETED FOR [%d]", dto.Count)
 }
 
 func (self *Scraper) requestWork(movie *message.Movie) {

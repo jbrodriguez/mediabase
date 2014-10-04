@@ -5,7 +5,7 @@
 			</div>
 		</div>
 
-		<article dir-paginate="movie in vm.movies | itemsPerPage: 50" class="container row" total-items="2444" current-page="vm.currentPage">
+		<article dir-paginate="movie in vm.movies | itemsPerPage: 50" class="container row" total-items="vm.total" current-page="vm.currentPage">
 			<div class="large-12 column">
 				<h4>{{ movie.title }} ({{ movie.year }})</h4>
 			</div>

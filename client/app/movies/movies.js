@@ -18,6 +18,7 @@
         vm.itemsPerPage = 50;
         vm.currentPage = 1;
         vm.current = 0;
+        vm.total = 0;
 
         vm.scrollPage = scrollPage;
         vm.setWatched = setWatched;
@@ -29,20 +30,21 @@
         activate();
 
         function activate() {
-            // refresh();
+            update();
         };
 
         function refresh() {
-            update('regular');
+            options.mode = 'regular';
+            update();
         };
 
         function search() {
-            update('search');
+            options.mode = 'search';
+            update();
         };
 
-        function update(modeArg) {
-            console.log('varsity blues', modeArg);
-            options.mode = modeArg;
+        function update() {
+            console.log('varsity blues', options.mode);
             vm.currentPage = 1;
             scrollPage(vm.currentPage);
         };
@@ -64,14 +66,20 @@
             if (options.mode === 'regular' || options.searchTerm === '') {
                 return api.getMovies(args).then(function (data) {
                     vm.movies = null;
-                    vm.movies = data;
+
+                    vm.total = data.count;
+                    vm.movies = data.movies;
+
                     return vm.movies;
                 });
             } else {
                 return api.searchMovies(args).then(function(data) {
                     // console.log("what is?: ", data);
                     vm.movies = null;
-                    vm.movies = data;
+
+                    vm.total = data.count;
+                    vm.movies = data.movies;
+
                     return vm.movies;
                 })                
             };
