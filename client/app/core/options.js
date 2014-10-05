@@ -8,17 +8,19 @@
     // api.$inject = ['$http', '$location', exception, logger];
 
     /* @ngInject */
-    function options(exception, logger) {
+    function options() {
     	var searchTerm = '';
 
-        var filterByOptions = ['title', 'genre'];
+        var filterByOptions = [{value: 'title', display: 'Title'}, {value: 'genre', display: 'Genre'}];
         var filterBy = '';
 
-        var sortByOptions = ['title', 'runtime', 'added', 'last_watched'];
+        var sortByOptions = [{value: 'title', display: 'Title'}, {value: 'runtime', display: 'Runtime'}, {value: 'added', display: 'Added'}, {value: 'last_watched', display: 'Watched'}, {value: 'year', display: 'Year'}, {value: 'imdb_rating', display: 'Rating'}];
         var sortBy = '';
 
         var sortOrderOptions = ['asc', 'desc'];
-        var sortOrder = '';
+        var sortOrder = 'desc';
+
+        var mode = 'regular';
 
     	var service = {
             searchTerm: searchTerm,
@@ -27,7 +29,8 @@
             sortByOptions: sortByOptions,
             sortBy: sortBy,
             sortOrderOptions: sortOrderOptions,
-            sortOrder: sortOrder
+            sortOrder: sortOrder,
+            mode: mode
     	};
 
     	return service;

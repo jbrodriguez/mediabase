@@ -1,0 +1,16 @@
+		<section class="container row covers">
+				<ul class="small-block-grid-2 medium-block-grid-4 large-block-grid-6">
+					<li data-ng-repeat="movie in vm.movies">
+						<div class="cover-container">
+							<img src="img/p{{movie.cover}}" />
+							<span class="crimson">{{movie.title | truncate:18}} </span><br>
+							{{movie.year}} | 
+							<span class="bright">{{movie.imdb_rating}}</span> |
+							<span class="label">{{movie.runtime | hourMinute}}</span>
+							<div class="ribbon" data-ng-if="movie.count_watched > 0">
+								<span>watched</span>
+							</div>	
+						</div>
+					</li>
+				</ul>
+		</section>

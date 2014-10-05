@@ -10,6 +10,19 @@ import (
 	"os"
 )
 
+func RestGet(url string, reply interface{}) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// body, err := ioutil.ReadAll(resp.Body)
+	err = json.NewDecoder(resp.Body).Decode(reply)
+
+	return err
+}
+
 func ReadForm(resp http.ResponseWriter, req *http.Request) bool {
 	err := req.ParseForm()
 	if err != nil {

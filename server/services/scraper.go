@@ -2,11 +2,15 @@ package services
 
 import (
 	"apertoire.net/mediabase/server/bus"
+	"apertoire.net/mediabase/server/helper"
 	"apertoire.net/mediabase/server/message"
 	"apertoire.net/mediabase/server/model"
+	"fmt"
 	"github.com/apertoire/go-tmdb"
 	"github.com/apertoire/mlog"
 	"github.com/goinggo/workpool"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -53,16 +57,16 @@ func (self *Scraper) react() {
 	}
 }
 
-func (self *Scraper) fixMoviesWork(movies []*message.Movie) {
-	mlog.Info("FIX MOVIES WORK REQUESTED FOR [%d] movies", len(movies))
+func (self *Scraper) fixMoviesWork(dto *message.MoviesDTO) {
+	mlog.Info("FIX MOVIES WORK REQUESTED FOR [%d] movies", dto.Count)
 
 	c := make(chan *message.Media)
 
-	for i := range movies {
+	for i := range dto.Movies {
 		gig := &FixMovieGig{
 			self.Bus,
 			self.tmdb,
-			&message.Media{BaseUrl: "", SecureBaseUrl: "", BasePath: "", Movie: movies[i], Forced: true},
+			&message.Media{BaseUrl: "", SecureBaseUrl: "", BasePath: "", Movie: dto.Movies[i], Forced: true},
 			c,
 		}
 
@@ -75,7 +79,7 @@ func (self *Scraper) fixMoviesWork(movies []*message.Movie) {
 		self.Bus.MovieRescraped <- media
 	}
 
-	mlog.Info("FIX MOVIES WORK COMPLETED FOR [%d]", len(movies))
+	mlog.Info("FIX MOVIES WORK COMPLETED FOR [%d]", dto.Count)
 }
 
 func (self *Scraper) requestWork(movie *message.Movie) {
@@ -178,6 +182,26 @@ func (self *Gig) DoWork(workRoutine int) {
 		}
 	}
 
+	var omdb model.Omdb
+
+	err = helper.RestGet(fmt.Sprintf("http://www.omdbapi.com/?i=%s", self.media.Movie.Imdb_Id), &omdb)
+	if err != nil {
+		mlog.Info("error", err)
+	}
+
+	mlog.Info("omdb: %+v", omdb)
+
+	vote := strings.Replace(omdb.Imdb_Vote, ",", "", -1)
+	imdb_rating, _ := strconv.ParseFloat(omdb.Imdb_Rating, 64)
+	imdb_vote, _ := strconv.ParseUint(vote, 0, 64)
+
+	self.media.Movie.Director = omdb.Director
+	self.media.Movie.Writer = omdb.Writer
+	self.media.Movie.Actors = omdb.Actors
+	self.media.Movie.Awards = omdb.Awards
+	self.media.Movie.Imdb_Rating = imdb_rating
+	self.media.Movie.Imdb_Votes = imdb_vote
+
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
 
@@ -206,7 +230,7 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 	id := self.media.Movie.Tmdb_Id
 
 	// log.Printf("before getmovie [%d] %s", id, media.Movie.Title)
-	mlog.Info("[%s] before getmovie [%d]", self.media.Movie.Title, self.media.Movie.Tmdb_Id)
+	mlog.Info("[%s] before getmovie [%d]", self.media.Movie.Title, id)
 	gmr, err := self.tmdb.GetMovie(id)
 	if err != nil {
 		mlog.Info("FIXMOVIE: FAILED GETTING MOVIE [%s]", self.media.Movie.Title)
@@ -244,11 +268,32 @@ func (self *FixMovieGig) DoWork(workRoutine int) {
 		}
 	}
 
+	var omdb model.Omdb
+
+	err = helper.RestGet(fmt.Sprintf("http://www.omdbapi.com/?i=%s", self.media.Movie.Imdb_Id), &omdb)
+	if err != nil {
+		mlog.Info("error %s", err)
+	}
+
+	mlog.Info("omdb: %+v", omdb)
+
+	vote := strings.Replace(omdb.Imdb_Vote, ",", "", -1)
+	imdb_rating, _ := strconv.ParseFloat(omdb.Imdb_Rating, 64)
+	imdb_vote, _ := strconv.ParseUint(vote, 0, 64)
+
+	self.media.Movie.Director = omdb.Director
+	self.media.Movie.Writer = omdb.Writer
+	self.media.Movie.Actors = omdb.Actors
+	self.media.Movie.Awards = omdb.Awards
+	self.media.Movie.Imdb_Rating = imdb_rating
+	self.media.Movie.Imdb_Votes = imdb_vote
+
 	self.media.Movie.Modified = time.Now().UTC().Format(time.RFC3339)
 
 	self.media.BaseUrl = self.tmdb.BaseUrl
 	self.media.SecureBaseUrl = self.tmdb.SecureBaseUrl
 
+	mlog.Info("FIXMOVIE: %+v", self.media.Movie)
 	mlog.Info("FIXMOVIE: FINISHED SCRAPING [%s]", self.media.Movie.Title)
 	// return media
 	// self.Bus.MovieScraped <- &message.Media{self.tmdb.BaseUrl, self.tmdb.SecureBaseUrl, "", movie}

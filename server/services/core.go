@@ -62,8 +62,8 @@ func (self *Core) react() {
 			go self.doMovieScraped(msg)
 		case msg := <-self.Bus.MovieRescraped:
 			go self.doMovieRescraped(msg)
-		case msg := <-self.Bus.FixMovies:
-			go self.doFixMovies(msg)
+		// case msg := <-self.Bus.FixMovies:
+		// 	go self.doFixMovies(msg)
 		case msg := <-self.Bus.FixMovie:
 			go self.doFixMovie(msg)
 
@@ -163,24 +163,24 @@ func (self *Core) doMovieRescraped(media *message.Media) {
 	}()
 }
 
-func (self *Core) doFixMovies(flag int) {
-	msg := message.Movies{Reply: make(chan []*message.Movie)}
-	self.Bus.GetMoviesToFix <- &msg
+// func (self *Core) doFixMovies(flag int) {
+// 	msg := message.Movies{Reply: make(chan *message.MoviesDTO)}
+// 	self.Bus.GetMoviesToFix <- &msg
 
-	mlog.Info("AFTER GET MOVIES TO FIX [%v]", msg.Reply)
+// 	mlog.Info("AFTER GET MOVIES TO FIX [%v]", msg.Reply)
 
-	reply := <-msg.Reply
+// 	reply := <-msg.Reply
 
-	mlog.Info("WAITING FOR REPLY [%v]", reply)
+// 	mlog.Info("WAITING FOR REPLY [%v]", reply)
 
-	self.Bus.RescrapeMovies <- reply
-}
+// 	self.Bus.RescrapeMovies <- reply
+// }
 
 func (self *Core) doFixMovie(msg *message.SingleMovie) {
 	movies := make([]*message.Movie, 0)
 	movies = append(movies, msg.Movie)
 
-	self.Bus.RescrapeMovies <- movies
+	self.Bus.RescrapeMovies <- &message.MoviesDTO{Count: 1, Movies: movies}
 }
 
 func (self *Core) doImportMoviesFinished(completed int) {

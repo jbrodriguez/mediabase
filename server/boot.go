@@ -33,6 +33,8 @@ func main() {
 	cache.Start()
 	core.Start()
 
+	// dal.ImportOmdb()
+
 	mlog.Info("press enter to stop ...")
 	var input string
 	fmt.Scanln(&input)

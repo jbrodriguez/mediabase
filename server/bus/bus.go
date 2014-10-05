@@ -20,15 +20,15 @@ type Bus struct {
 
 	PruneMovies chan *message.PruneMovies
 
-	GetMovies      chan *message.GetMovies
-	ListMovies     chan *message.ListMovies
+	GetCover       chan *message.Movies
+	GetMovies      chan *message.Movies
 	ShowDuplicates chan *message.Movies
 	ListByRuntime  chan *message.Movies
-	SearchMovies   chan *message.SearchMovies
+	SearchMovies   chan *message.Movies
 	CheckMovie     chan *message.CheckMovie
 	FixMovies      chan int
 	GetMoviesToFix chan *message.Movies
-	RescrapeMovies chan []*message.Movie
+	RescrapeMovies chan *message.MoviesDTO
 
 	WatchedMovie chan *message.SingleMovie
 	FixMovie     chan *message.SingleMovie
@@ -56,15 +56,15 @@ func (self *Bus) Start() {
 
 	self.PruneMovies = make(chan *message.PruneMovies)
 
-	self.GetMovies = make(chan *message.GetMovies)
-	self.ListMovies = make(chan *message.ListMovies)
+	self.GetCover = make(chan *message.Movies)
+	self.GetMovies = make(chan *message.Movies)
 	self.ShowDuplicates = make(chan *message.Movies)
 	self.ListByRuntime = make(chan *message.Movies)
-	self.SearchMovies = make(chan *message.SearchMovies)
+	self.SearchMovies = make(chan *message.Movies)
 	self.CheckMovie = make(chan *message.CheckMovie)
 	self.FixMovies = make(chan int)
-	self.GetMoviesToFix = make(chan *message.Movies)
-	self.RescrapeMovies = make(chan []*message.Movie)
+	// self.GetMoviesToFix = make(chan *message.Movies)
+	self.RescrapeMovies = make(chan *message.MoviesDTO)
 
 	self.WatchedMovie = make(chan *message.SingleMovie)
 	self.FixMovie = make(chan *message.SingleMovie)

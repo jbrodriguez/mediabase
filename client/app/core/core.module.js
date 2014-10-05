@@ -6,11 +6,11 @@
          * Angular modules
          */
         // 'ngAnimate', 'ui.router', 'ngSanitize',
-        'ui.router',
+        'ui.router', 'angularUtils.directives.dirPagination',
         /*
          * Our reusable cross app code modules
          */
-        'blocks.exception', 'blocks.logger', /*'blocks.router',*/
+        'blocks.exception', 'blocks.logger', 'blocks.storage', /*'blocks.router',*/
         /*
          * 3rd Party modules
          */

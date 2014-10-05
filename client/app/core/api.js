@@ -13,8 +13,8 @@
 
     	var service = {
             getConfig: getConfig,
-    		getRecentMovies: getRecentMovies,
-            getAllMovies: getAllMovies,
+    		getCover: getCover,
+            getMovies: getMovies,
             startImport: startImport,
             searchMovies: searchMovies,
             getStatus: getStatus,
@@ -39,30 +39,31 @@
             }
         };        
 
-    	function getRecentMovies() {
-    		return $http.get(ep + '/movies')
-    			.then(getRecentMoviesEnd)
+    	function getCover() {
+    		return $http.get(ep + '/movies/cover')
+    			.then(getCoverEnd)
                 .catch(function(message) {
-                    exception.catcher('XHR Failed for getRecentMovies')(message);
+                    exception.catcher('XHR Failed for getCover')(message);
                     $location.url('/');
                 });
 
-    		function getRecentMoviesEnd(data, status, headers, config) {
-                logger.info('this is what i got: ', data);
+    		function getCoverEnd(data, status, headers, config) {
+                // logger.info('this is what i got: ', data);
     			return data.data;
     		}
     	};
 
-        function getAllMovies() {
-            return $http.get(ep + '/all')
-                .then(getAllMoviesEnd)
+        function getMovies(args) {
+            // console.log('api: ', args.current, args.limit, args.sortBy, args.sortOrder);
+
+            return $http.post(ep + '/movies', args)
+                .then(getMoviesEnd)
                 .catch(function(message) {
-                    exception.catcher('XHR Failed for getAllMovies')(message);
+                    exception.catcher('XHR Failed for getMovies')(message);
                     $location.url('/');
                 });
 
-            function getAllMoviesEnd(data, status, headers, config) {
-                logger.info('allmovies > this is what i got: ', data);
+            function getMoviesEnd(data, status, headers, config) {
                 return data.data;
             }
         };        
@@ -80,8 +81,8 @@
             }
         };
 
-        function searchMovies(term) {
-            return $http.get(ep + '/search/' + term)
+        function searchMovies(args) {
+            return $http.post(ep + '/movies/search', args)
                 .then(searchMoviesEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for searchMovies')(message);
@@ -94,7 +95,7 @@
         };        
 
         function getStatus() {
-            return $http.get(ep + '/status')
+            return $http.get(ep + '/movies/status')
                 .then(getStatusEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for getStatus')(message);
@@ -112,7 +113,7 @@
                 movie.last_watched = movie.watched.toISOString();
             }
                         
-            return $http.post(ep + '/movie/watched', movie)
+            return $http.post(ep + '/movies/watched', movie)
                 .then(setWatchedEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for saveMovie')(message);
@@ -125,7 +126,7 @@
         };
 
         function fixMovie(movie) {
-            return $http.post(ep + '/movie/fix', movie)
+            return $http.post(ep + '/movies/fix', movie)
                 .then(fixMovieEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for fixMovie')(message);
@@ -146,7 +147,7 @@
                 });
 
             function getDuplicateMoviesEnd(data, status, headers, config) {
-                logger.info('this is what i got: ', data);
+                // logger.info('this is what i got: ', data);
                 return data.data;
             }
         };

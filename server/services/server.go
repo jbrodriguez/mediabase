@@ -26,25 +26,28 @@ func (self *Server) Start() {
 	mlog.Info("starting server service")
 
 	self.r = gin.New()
+	// self.r.SetMode(gin.ReleaseMode)
 
 	self.r.Use(gin.Recovery())
 	self.r.Use(helper.Logging())
 
 	self.r.Use(static.Serve("./"))
-	self.r.NoRoute(static.Serve("./"))
+	self.r.NoRoute(self.redirect)
 
 	api := self.r.Group(apiVersion)
 	{
-		api.GET("/config", self.getConfig)
-		api.GET("/movies", self.getMovies)
-		api.GET("/all", self.listMovies)
-		api.GET("/import", self.importMovies)
-		api.GET("/search/:term", self.searchMovies)
+		api.GET("/movies/cover", self.getCover)
+		api.POST("/movies", self.getMovies)
+		api.POST("/movies/search", self.searchMovies)
+
 		api.GET("/movies/duplicates", self.getDuplicates)
 
-		api.POST("/movie/watched", self.watchedMovie)
-		api.POST("/movie/fix", self.fixMovie)
+		api.POST("/movies/watched", self.watchedMovie)
+		api.POST("/movies/fix", self.fixMovie)
 		api.POST("/movies/prune", self.pruneMovies)
+
+		api.GET("/import", self.importMovies)
+		api.GET("/config", self.getConfig)
 	}
 
 	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
@@ -57,6 +60,11 @@ func (self *Server) Stop() {
 	// nothing here
 }
 
+func (self *Server) redirect(c *gin.Context) {
+	mlog.Info("desperado: %+v", c.Request)
+	c.Redirect(301, "/index.html")
+}
+
 func (self *Server) getConfig(c *gin.Context) {
 	msg := message.GetConfig{Reply: make(chan *model.Config)}
 	self.Bus.GetConfig <- &msg
@@ -65,9 +73,9 @@ func (self *Server) getConfig(c *gin.Context) {
 	c.JSON(200, &reply)
 }
 
-func (self *Server) getMovies(c *gin.Context) {
-	msg := message.GetMovies{Reply: make(chan []*message.Movie)}
-	self.Bus.GetMovies <- &msg
+func (self *Server) getCover(c *gin.Context) {
+	msg := message.Movies{Reply: make(chan *message.MoviesDTO)}
+	self.Bus.GetCover <- &msg
 	reply := <-msg.Reply
 
 	// mlog.Info("response is: %s", reply)
@@ -76,9 +84,15 @@ func (self *Server) getMovies(c *gin.Context) {
 	c.JSON(200, &reply)
 }
 
-func (self *Server) listMovies(c *gin.Context) {
-	msg := message.ListMovies{Reply: make(chan []*message.Movie)}
-	self.Bus.ListMovies <- &msg
+func (self *Server) getMovies(c *gin.Context) {
+	var options message.Options
+
+	c.Bind(&options)
+
+	mlog.Info("bocelli: %+v", options)
+
+	msg := message.Movies{Options: options, Reply: make(chan *message.MoviesDTO)}
+	self.Bus.GetMovies <- &msg
 	reply := <-msg.Reply
 
 	// mlog.Info("response is: %s", reply)
@@ -105,9 +119,14 @@ func (self *Server) importMovies(c *gin.Context) {
 
 func (self *Server) searchMovies(c *gin.Context) {
 	mlog.Info("searchMovies: are you a head honcho ?")
-	term := c.Params.ByName("term")
 
-	msg := message.SearchMovies{Term: term, Reply: make(chan []*message.Movie)}
+	var options message.Options
+
+	c.Bind(&options)
+
+	mlog.Info("anyway the wind blows: %+v", options)
+
+	msg := message.Movies{Options: options, Reply: make(chan *message.MoviesDTO)}
 	self.Bus.SearchMovies <- &msg
 	reply := <-msg.Reply
 
@@ -135,22 +154,12 @@ func (self *Server) pruneMovies(c *gin.Context) {
 }
 
 func (self *Server) getDuplicates(c *gin.Context) {
-	msg := message.Movies{Reply: make(chan []*message.Movie)}
+	msg := message.Movies{Reply: make(chan *message.MoviesDTO)}
 	self.Bus.ShowDuplicates <- &msg
 	reply := <-msg.Reply
 
 	// mlog.Info("response is: %s", reply)
 	c.JSON(200, &reply)
-}
-
-func (self *Server) listByRuntime(w http.ResponseWriter, req *http.Request) {
-	msg := message.Movies{Reply: make(chan []*message.Movie)}
-	self.Bus.ListByRuntime <- &msg
-	reply := <-msg.Reply
-
-	// mlog.Info("response is: %s", reply)
-
-	helper.WriteJson(w, 200, &reply)
 }
 
 func (self *Server) watchedMovie(c *gin.Context) {

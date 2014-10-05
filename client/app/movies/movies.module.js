@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('app.all', []
+    angular.module('app.movies', []
 
     );
 })();

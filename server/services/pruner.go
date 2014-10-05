@@ -38,11 +38,12 @@ func (self *Pruner) react() {
 func (self *Pruner) doPruneMovies(reply chan string) {
 	mlog.Info("Looking for something to prune")
 
-	msg := message.ListMovies{Reply: make(chan []*message.Movie)}
-	self.Bus.ListMovies <- &msg
-	items := <-msg.Reply
+	options := message.Options{Current: 0, Limit: 99999999999999, SortBy: "title", SortOrder: "asc"}
+	msg := message.Movies{Options: options, Reply: make(chan *message.MoviesDTO)}
+	self.Bus.GetMovies <- &msg
+	dto := <-msg.Reply
 
-	for _, item := range items {
+	for _, item := range dto.Movies {
 		if _, err := os.Stat(item.Location); err != nil {
 			if os.IsNotExist(err) {
 				mlog.Info("UP FOR DELETION: [%d] %s (%s))", item.Id, item.Title, item.Location)

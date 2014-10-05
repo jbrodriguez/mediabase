@@ -25,6 +25,7 @@
 
         function startImport() {
             return api.startImport().then(function (data) {
+                vm.context = null;
                 vm.context = data;
                 return vm.context;
             });
@@ -32,6 +33,7 @@
 
         function getStatus() {
             return api.getStatus().then(function (data) {
+                vm.context = null;
                 vm.context = data;
                 return vm.context;
             });

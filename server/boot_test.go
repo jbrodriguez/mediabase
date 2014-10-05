@@ -2,10 +2,10 @@ package main
 
 import (
 	"apertoire.net/mediabase/server/bus"
-	"apertoire.net/mediabase/server/helper"
-	// "apertoire.net/mediabase/server/message"
+	"apertoire.net/mediabase/server/model"
 	"apertoire.net/mediabase/server/services"
-	"fmt"
+	"github.com/apertoire/mlog"
+
 	"log"
 	"runtime"
 	"testing"
@@ -18,6 +18,9 @@ type myGenre struct {
 }
 
 func TestDb(t *testing.T) {
+	mlog.Start(mlog.LevelInfo, "./log/mediabase.log")
+	mlog.Info("starting up ...")
+
 	log.Printf("numproc %d", runtime.NumCPU())
 
 	tiempo := time.Now()
@@ -55,16 +58,25 @@ func TestDb(t *testing.T) {
 
 	log.Printf("starting up ...")
 
-	config := helper.Config{}
-	config.Init()
+	config := model.Config{AppDir: "/Volumes/Users/kayak/Library/Application Support/net.apertoire.mediabase"}
+
+	log.Printf("after model.config ...")
 
 	bus := bus.Bus{}
-	logger := services.Logger{Bus: &bus, Config: &config}
+
+	log.Printf("after bus.Bus")
+
 	dal := services.Dal{Bus: &bus, Config: &config}
 
+	log.Printf("after dal.services")
+
 	bus.Start()
-	logger.Start()
+
+	log.Printf("after bus.start")
+
 	dal.Start()
+
+	log.Printf("after dal.start")
 
 	// bus.StoreMovie <- &message.Movie{Title: "september morning"}
 	// bus.StoreMovie <- &message.Movie{Title: "remember how we danced"}
@@ -74,11 +86,12 @@ func TestDb(t *testing.T) {
 	// bus.StoreMovie <- &message.Movie{Title: "or else"}
 	// bus.StoreMovie <- &message.Movie{Title: "find out about"}
 
-	log.Printf("press enter to stop ...")
-	var input string
-	fmt.Scanln(&input)
+	dal.ImportOmdb()
+
+	// log.Printf("press enter to stop ...")
+	// var input string
+	// fmt.Scanln(&input)
 
 	dal.Stop()
-	logger.Stop()
 	// bus.Stop()
 }

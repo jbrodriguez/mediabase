@@ -1,4 +1,11 @@
-		<article data-ng-repeat="movie in vm.movies" class="container row">
+		<div class="container row top-pager">
+			<div class="large-12 column">
+				<dir-pagination-controls on-page-change="vm.scrollPage(newPageNumber)" max-size="15" boundary-links="true" template-url="app/template/pagination.html">
+				</dir-pagination-controls>
+			</div>
+		</div>
+
+		<article dir-paginate="movie in vm.movies | itemsPerPage: 50" class="container row" total-items="vm.total" current-page="vm.currentPage">
 			<div class="large-12 column">
 				<h4>{{ movie.title }} ({{ movie.year }})</h4>
 			</div>
@@ -23,7 +30,7 @@
 				<div class="row">
 					<div class="large-12 column">
 						<div class="left">
-							<span>{{ movie.director }}</span>
+							<span class="crimson">{{ movie.director }}</span>
 						</div>
 						<div class="right">
 							<span>{{ movie.production_countries }}</span>
@@ -40,7 +47,7 @@
 						</div>
 					</div>
 				</div>			
-			</div>				
+			</div>			
 
 			<div class="large-12 column">
 				<div class="row">
@@ -89,4 +96,11 @@
   				    </div>
 				</div>			
 			</div>
-		</article>	
+		</article>
+
+		<div class="container row top-pager">
+			<div class="large-12 column">
+				<dir-pagination-controls  on-page-change="scrollPage(newPageNumber)" max-size="15" boundary-links="true" template-url="app/template/pagination.html">
+				</dir-pagination-controls>
+			</div>
+		</div>
