@@ -27,7 +27,7 @@
 
         function getCover() {
             return api.getCover().then(function (data) {
-                // logger.info('what is: ', data)
+                logger.info('what is: ', data)
                 vm.movies = null;
                 vm.movies = data.movies;
                 return vm.movies;

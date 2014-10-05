@@ -14,12 +14,14 @@ import (
 )
 
 type Dal struct {
-	Bus    *bus.Bus
-	Config *model.Config
-	db     *sql.DB
-	dbase  string
-	err    error
-	count  uint64
+	Bus         *bus.Bus
+	Config      *model.Config
+	db          *sql.DB
+	dbase       string
+	err         error
+	count       uint64
+	searchCount uint64
+	searchArgs  string
 
 	countRows       *sql.Stmt
 	storeMovie      *sql.Stmt
@@ -59,6 +61,8 @@ func (self *Dal) Start() {
 	}
 
 	self.count = 0
+	self.searchCount = 0
+	self.searchArgs = ""
 
 	self.countRows = self.prepare("select count(*) from movie;")
 	self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
@@ -326,6 +330,8 @@ func (self *Dal) doUpdateMovie(movie *message.Movie) {
 }
 
 func (self *Dal) doGetCover(msg *message.Movies) {
+	mlog.Info("this is the beginning")
+
 	tx, err := self.db.Begin()
 	if err != nil {
 		mlog.Fatalf("unable to begin transaction: %s", err)
@@ -357,6 +363,8 @@ func (self *Dal) doGetCover(msg *message.Movies) {
 	rows.Close()
 
 	tx.Commit()
+
+	mlog.Info("got back %+v", items)
 
 	msg.Reply <- &message.MoviesDTO{Movies: items}
 }
@@ -451,6 +459,29 @@ func (self *Dal) doSearchMovies(msg *message.Movies) {
 		mlog.Fatalf("unable to begin transaction: %s", err)
 	}
 
+	term := msg.Options.SearchTerm + "*"
+	mlog.Info("this is: %s", term)
+
+	args := msg.Options.FilterBy
+	if self.searchArgs != args {
+		self.searchArgs = args
+
+		search := fmt.Sprintf(`select count(*) from movie dt, %s vt where vt.%s match ? and dt.rowid = vt.docid;`, "movie"+msg.Options.FilterBy, "movie"+msg.Options.FilterBy)
+
+		stmt, err := tx.Prepare(search)
+		if err != nil {
+			mlog.Fatalf("unable to prepare transaction: %s", err)
+		}
+		defer stmt.Close()
+
+		mlog.Info("sup dude %s", search)
+
+		err = stmt.QueryRow(term).Scan(&self.searchCount)
+		if err != nil {
+			mlog.Fatalf("unable to count rows: %s", err)
+		}
+	}
+
 	sql := fmt.Sprintf(`select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution,
 				dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, 
 				dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes
@@ -465,15 +496,11 @@ func (self *Dal) doSearchMovies(msg *message.Movies) {
 	}
 	defer stmt.Close()
 
-	term := msg.Options.SearchTerm + "*"
-	mlog.Info("this is: %s", term)
-
 	rows, err := stmt.Query(term, msg.Options.Limit, msg.Options.Current)
 	if err != nil {
 		mlog.Fatalf("unable to begin transaction: %s", self.err)
 	}
 
-	var count uint64 = 0
 	items := make([]*message.Movie, 0)
 
 	for rows.Next() {
@@ -483,15 +510,14 @@ func (self *Dal) doSearchMovies(msg *message.Movies) {
 		// rows.Scan(movie.Id, movie.Title, movie.Original_Title, movie.Year, movie.Runtime, movie.Tmdb_Id, movie.Imdb_Id, movie.Overview, movie.Tagline, movie.Resolution, movie.FileType, movie.Location, movie.Cover, movie.Backdrop)
 		// mlog.Info("title: (%s)", movie.Title)
 		items = append(items, &movie)
-		count++
 	}
 	rows.Close()
 
 	tx.Commit()
 
-	mlog.Info("Representing %d movies", count)
+	mlog.Info("Representing %d movies", self.searchCount)
 
-	msg.Reply <- &message.MoviesDTO{Count: count, Movies: items}
+	msg.Reply <- &message.MoviesDTO{Count: self.searchCount, Movies: items}
 }
 
 // func (self *Dal) doGetMoviesToFix(msg *message.Movies) {

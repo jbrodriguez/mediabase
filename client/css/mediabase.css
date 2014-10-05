@@ -10,9 +10,16 @@ body, html, h1, h2, h3, h4, h5, h6 {
 		background-color: #2c3e50;
 	}
 
-span.director {
+span.crimson {
 	color: #C14242;		
 	background-color: #EFF2F4;
+	white-space: nowrap;
+}
+
+span.bright {
+	color: #6D34A6;
+	background-color: #EFF2F4;
+	white-space: nowrap;	
 }
 
 
@@ -123,6 +130,11 @@ footer {
 	height: 150px;
 }
 
+.covers {
+	padding-top: 15px;
+/*	margin-top: 15px;
+*/}
+
 article {
 	padding-bottom: 10px;
 	padding-top: 15px;
@@ -196,4 +208,66 @@ input.watched {
 	background-color: rgba(0, 0, 0, 0.4);
 	padding: 5px 15px 5px 15px;
 	display: inline-block;
+}
+
+.cover-container {
+/*	height: 6.2em;
+*/	overflow: hidden;
+/*	padding: 0;
+*/	position: relative;
+}
+
+.cover-container .overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 0.4rem 1.6rem 0.4rem 1.6rem;
+	font: 0/0 a;
+}
+
+.cover-container .overlay:before {
+	content: ' ';
+	display: inline-block;
+	height: 100%;
+}
+
+.cover-container .overlay span {
+	font: 16px/1 Lato, Helvetica, sans-serif;
+	color: white;
+	background-color: rgba(0, 0, 0, 0.4);
+	padding: 5px 15px 5px 15px;
+	display: inline-block;
+}
+
+.ribbon {
+	background-color: rgba(170, 0, 0, 0.6);
+/*  background-color: #a00;
+*/  overflow: hidden;
+  white-space: nowrap;
+  /* top left corner */
+  position: absolute;
+  left: -40px;
+  top: 20px;
+  /* 45 deg ccw rotation */
+  -webkit-transform: rotate(-45deg);
+     -moz-transform: rotate(-45deg);
+      -ms-transform: rotate(-45deg);
+       -o-transform: rotate(-45deg);
+          transform: rotate(-45deg);
+  /* shadow */
+  -webkit-box-shadow: 0 0 10px #888;
+     -moz-box-shadow: 0 0 10px #888;
+          box-shadow: 0 0 10px #888;
+}
+.ribbon span {
+  border: 1px solid #faa;
+  color: #fff;
+  display: block;
+  font: bold 81.25% Lato, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin: 1px 0;
+  padding: 10px 50px;
+  text-align: center;
+  text-decoration: none;
+  /* shadow */
+  text-shadow: 0 0 5px #444;
 }
