@@ -48,6 +48,7 @@ func (self *Server) Start() {
 
 		api.GET("/import", self.importMovies)
 		api.GET("/config", self.getConfig)
+		api.PUT("/config", self.saveConfig)
 	}
 
 	mlog.Info("service started listening on %s:%s", self.Config.Host, self.Config.Port)
@@ -68,6 +69,17 @@ func (self *Server) redirect(c *gin.Context) {
 func (self *Server) getConfig(c *gin.Context) {
 	msg := message.GetConfig{Reply: make(chan *model.Config)}
 	self.Bus.GetConfig <- &msg
+
+	reply := <-msg.Reply
+	c.JSON(200, &reply)
+}
+
+func (self *Server) saveConfig(c *gin.Context) {
+	var conf model.Config
+
+	c.Bind(&conf)
+	msg := message.SaveConfig{Config: &conf, Reply: make(chan bool)}
+	self.Bus.SaveConfig <- &msg
 
 	reply := <-msg.Reply
 	c.JSON(200, &reply)

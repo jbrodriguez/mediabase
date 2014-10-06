@@ -73,7 +73,12 @@
 	<footer>
 		<section class="container row">
 			<div class="large-12 column">
-				<small>&copy; 2013-2014 apertoire.net</small>
+				<span class="left">&copy; 2013-2014 apertoire.net</span>
+				<div class="right">
+					<span><a ui-sref="settings" ui-sref-active="active">Settings</a></span> |
+					<span><a ui-sref="about" ui-sref-active="active">About</a></span> |
+					<span>License</span>
+				</div>
 			</div>
 		</section>
 	</footer>
@@ -142,6 +147,10 @@
     <script src="app/settings/config.route.js"></script>
     <script src="app/settings/settings.js"></script>    
 
+    <!-- about -->
+    <script src="app/about/about.module.js"></script>
+    <script src="app/about/config.route.js"></script>
+    <script src="app/about/about.js"></script>    
 </body>
 
 </html>

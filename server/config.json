@@ -2,5 +2,8 @@
 	"Host": "",
 	"Port": "8080",
 	"AppDir": ".",
-	"MediaPath": []
+	"MediaFolders": [],
+	"MediaRegexs": ["`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\\s\\((?P<Year>\\d\\d\\d\\d)\\)/(?:.*/)*bdmv/index.(?P<FileType>bdmv)$`",
+					"`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\\s\\((?P<Year>\\d\\d\\d\\d)\\)/(?:.*/)*.*\\.(?P<FileType>iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms|mdf|wmv)$`",
+					"`(?i)/volumes/.*?/(?P<Resolution>.*?)/(?P<Name>.*?)\\s\\((?P<Year>\\d\\d\\d\\d)\\)/(?:.*/)*(?:video_ts|hv000i01)\\.(?P<FileType>ifo)$`"]
 }

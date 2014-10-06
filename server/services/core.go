@@ -54,6 +54,8 @@ func (self *Core) react() {
 		select {
 		case msg := <-self.Bus.GetConfig:
 			go self.doGetConfig(msg)
+		case msg := <-self.Bus.SaveConfig:
+			go self.doSaveConfig(msg)
 		case msg := <-self.Bus.ImportMovies:
 			go self.doImportMovies(msg)
 		case msg := <-self.Bus.MovieFound:
@@ -75,6 +77,13 @@ func (self *Core) react() {
 
 func (self *Core) doGetConfig(msg *message.GetConfig) {
 	msg.Reply <- self.Config
+}
+
+func (self *Core) doSaveConfig(msg *message.SaveConfig) {
+	self.Config = msg.Config
+	self.Config.Save()
+
+	msg.Reply <- true
 }
 
 func (self *Core) doScrape(e *fsm.Event) {

@@ -25,6 +25,7 @@
         'app.search',
         'app.duplicates',
         'app.settings',
+        'app.about',
     ]);
 
     angular

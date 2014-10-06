@@ -343,7 +343,7 @@ func (self *Dal) doGetCover(msg *message.Movies) {
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.Query(30)
+	rows, err := stmt.Query(60)
 	if err != nil {
 		mlog.Fatalf("unable to run transaction: %s", err)
 	}
@@ -364,7 +364,7 @@ func (self *Dal) doGetCover(msg *message.Movies) {
 
 	tx.Commit()
 
-	mlog.Info("got back %+v", items)
+	// mlog.Info("got back %+v", items)
 
 	msg.Reply <- &message.MoviesDTO{Movies: items}
 }
@@ -488,7 +488,7 @@ func (self *Dal) doSearchMovies(msg *message.Movies) {
 				from movie dt, %s vt where vt.%s match ? and dt.rowid = vt.docid order by dt.%s %s limit ? offset ?`,
 		"movie"+msg.Options.FilterBy, "movie"+msg.Options.FilterBy, msg.Options.SortBy, msg.Options.SortOrder)
 
-	mlog.Info("my main man: %s", sql)
+	// mlog.Info("my main man: %s", sql)
 
 	stmt, err := tx.Prepare(sql)
 	if err != nil {
