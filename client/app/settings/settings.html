@@ -47,38 +47,27 @@
 			<div class="row">
 				<form>
 				<fieldset>
-				<legend>How are your movie files named ?</legend>
+				
+				<legend>Movie naming structure</legend>
 				<div class="row">
 					<div class="large-12 columns">
-						<div class="row collapse">
-							<div class="small-1 columns">
-								<span class="prefix">Criteria</a>
-							</div>
-							<div class="small-10 columns">
-								<input type="text" placeholder="Regular Expression to scan content">
-							</div>
-							<div class="small-1 columns">
-								<a href="#" class="button postfix">Add</a>
-							</div>
-						</div>
+					<p>For your movie collection to be recognized, movies must adhere to the following alternative naming conventions (these examples assumed you entered "/Movies" as the media folder in the previous section) :
 					</div>
 				</div>
 				<div class="row">
 					<div class="large-12 columns">
-					<table>
-					<thead>
-						<th width="30">#</th>
-						<th>Regular Expression</th>
-					</thead>
-					<tbody>
-						<tr data-ng-repeat="expr in vm.options.config.mediaRegexs" >
-						<td><i class="fa fa-times"></i></td>
-						<td data-ng-bind-html-unsafe="expr">{{expr}}</td>
-						</tr>
-					</tbody>
-					</table>
+						<ul>
+							<li>/Movies/Bluray/Avatar (2009)/BDMV/index.bdmv</li>
+							<li>/Movies/Bluray/Avatar (2009)/Avatar.mkv or /Movies/Bluray/Avatar (2009)/Avatar.iso</li>
+							<li>/Movies/Bluray/VIDEO_TS/{VIDEO_TS|HV000i01}.IFO</li>
+							<li>/Movies/Avatar (2009)/BDMV/index.bdmv</li>
+							<li>/Movies/Avatar (2009)/Avatar.mkv or /Movies/Bluray/Avatar (2009)/Avatar.iso</li>
+							<li>/Movies/VIDEO_TS/{VIDEO_TS|HV000i01}.IFO</li>
+							<li>/Movies/Avatar (2009).mkv</li>
+						</ul>
 					</div>
-				</div>			
+				</div>
+
 				</fieldset>
 				</form>
 			</div>

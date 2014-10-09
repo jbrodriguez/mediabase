@@ -5,6 +5,7 @@ import (
 	"github.com/apertoire/mlog"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -14,7 +15,7 @@ type Config struct {
 	AppDir string `json:"appDir"`
 
 	MediaFolders []string `json:"mediaFolders"`
-	MediaRegexs  []string `json:"mediaRegexs"`
+	MediaRegexs  []string `json:"-"`
 }
 
 func (self *Config) Init() {
@@ -26,12 +27,17 @@ func (self *Config) Init() {
 }
 
 func (self *Config) Load() {
-	file, _ := os.Open("./config.json")
+	file, err := os.Open("./config.json")
+	if err != nil {
+		mlog.Fatalf("unable to open config.json: %s", err)
+		return
+	}
+	defer file.Close()
 
 	decoder := json.NewDecoder(file)
 
 	config := Config{}
-	err := decoder.Decode(&config)
+	err = decoder.Decode(&config)
 	if err != nil {
 		mlog.Fatalf("Unable to load configuration: %s", err)
 	}
@@ -40,7 +46,16 @@ func (self *Config) Load() {
 	self.Port = config.Port
 	self.AppDir = config.AppDir
 	self.MediaFolders = config.MediaFolders
-	self.MediaRegexs = config.MediaRegexs
+
+	content, err := ioutil.ReadFile("./regex.txt")
+	if err != nil {
+		mlog.Fatalf("unable to open regex.txt: %s", err)
+		return
+	}
+
+	lines := strings.Split(string(content), "\n")
+
+	self.MediaRegexs = lines
 }
 
 func (self *Config) Save() {

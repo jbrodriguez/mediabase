@@ -18,7 +18,7 @@ func main() {
 	bus := bus.Bus{}
 	dal := services.Dal{Bus: &bus, Config: &config}
 	server := services.Server{Bus: &bus, Config: &config}
-	scanner := services.Scanner{Bus: &bus}
+	scanner := services.Scanner{Bus: &bus, Config: &config}
 	scraper := services.Scraper{Bus: &bus, Config: &config}
 	pruner := services.Pruner{Bus: &bus, Config: &config}
 	cache := services.Cache{Bus: &bus, Config: &config}
