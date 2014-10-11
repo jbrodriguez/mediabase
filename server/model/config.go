@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var version string
+
 type Config struct {
 	Host string `json:"host"`
 	Port string `json:"port"`
@@ -16,6 +18,8 @@ type Config struct {
 
 	MediaFolders []string `json:"mediaFolders"`
 	MediaRegexs  []string `json:"-"`
+
+	Version string `json:"version"`
 }
 
 func (self *Config) Init() {
@@ -53,9 +57,9 @@ func (self *Config) Load() {
 		return
 	}
 
-	lines := strings.Split(string(content), "\n")
+	self.MediaRegexs = strings.Split(string(content), "\n")
 
-	self.MediaRegexs = lines
+	self.Version = version
 }
 
 func (self *Config) Save() {
