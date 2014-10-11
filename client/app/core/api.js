@@ -13,6 +13,7 @@
 
     	var service = {
             getConfig: getConfig,
+            saveConfig: saveConfig,
     		getCover: getCover,
             getMovies: getMovies,
             startImport: startImport,
@@ -36,8 +37,21 @@
 
             function getConfigEnd(data, status, header, config) {
                 return data.data
-            }
-        };        
+            };
+        };
+
+        function saveConfig(arg) {
+            return $http.put(ep + '/config', arg)
+                .then(saveConfigEnd)
+                .catch(function(message) {
+                    exception.catcher('XHR Failed for saveConfig')(message);
+                    $location.url('/');
+                });
+
+            function saveConfigEnd(data, status, header, config) {
+                return data.data
+            };
+        };
 
     	function getCover() {
     		return $http.get(ep + '/movies/cover')
@@ -95,7 +109,7 @@
         };        
 
         function getStatus() {
-            return $http.get(ep + '/movies/status')
+            return $http.get(ep + '/import/status')
                 .then(getStatusEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for getStatus')(message);

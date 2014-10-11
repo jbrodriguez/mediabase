@@ -9,6 +9,8 @@
 
     /* @ngInject */
     function options() {
+        var config = {}
+
     	var searchTerm = '';
 
         var filterByOptions = [{value: 'title', display: 'Title'}, {value: 'genre', display: 'Genre'}];
@@ -23,6 +25,7 @@
         var mode = 'regular';
 
     	var service = {
+            config: config,
             searchTerm: searchTerm,
             filterByOptions: filterByOptions,
             filterBy: filterBy,

@@ -93,6 +93,11 @@ type GetConfig struct {
 	Reply chan *model.Config
 }
 
+type SaveConfig struct {
+	Config *model.Config
+	Reply  chan bool
+}
+
 type Options struct {
 	SearchTerm string `json:"searchTerm"`
 	Current    uint64 `json:"current"`

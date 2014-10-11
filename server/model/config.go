@@ -3,8 +3,9 @@ package model
 import (
 	"encoding/json"
 	"github.com/apertoire/mlog"
-	"log"
+	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -13,7 +14,8 @@ type Config struct {
 
 	AppDir string `json:"appDir"`
 
-	MediaPath []string `json:"mediaPath"`
+	MediaFolders []string `json:"mediaFolders"`
+	MediaRegexs  []string `json:"-"`
 }
 
 func (self *Config) Init() {
@@ -25,16 +27,17 @@ func (self *Config) Init() {
 }
 
 func (self *Config) Load() {
-	file, _ := os.Open("./config.json")
-
-	log.Println("file: ", file)
+	file, err := os.Open("./config.json")
+	if err != nil {
+		mlog.Fatalf("unable to open config.json: %s", err)
+		return
+	}
+	defer file.Close()
 
 	decoder := json.NewDecoder(file)
 
-	log.Println("decoder: ", decoder)
-
 	config := Config{}
-	err := decoder.Decode(&config)
+	err = decoder.Decode(&config)
 	if err != nil {
 		mlog.Fatalf("Unable to load configuration: %s", err)
 	}
@@ -42,7 +45,32 @@ func (self *Config) Load() {
 	self.Host = config.Host
 	self.Port = config.Port
 	self.AppDir = config.AppDir
-	self.MediaPath = config.MediaPath
+	self.MediaFolders = config.MediaFolders
+
+	content, err := ioutil.ReadFile("./regex.txt")
+	if err != nil {
+		mlog.Fatalf("unable to open regex.txt: %s", err)
+		return
+	}
+
+	lines := strings.Split(string(content), "\n")
+
+	self.MediaRegexs = lines
+}
+
+func (self *Config) Save() {
+	b, err := json.MarshalIndent(self, "", "   ")
+	if err != nil {
+		mlog.Info("couldn't marshal: %s", err)
+		return
+	}
+
+	err = ioutil.WriteFile("./config.json.tmp", b, 0644)
+	if err != nil {
+		mlog.Info("WriteFileJson ERROR: %+v", err)
+	}
+
+	mlog.Info("saved as: %s", string(b))
 }
 
 func GetOrDefaultString(ask string, def string) string {

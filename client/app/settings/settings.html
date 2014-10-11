@@ -1,5 +1,74 @@
-		<article class="container row">
-			<div class="large-12 column">
-				<h1>Time of my life </h1>
+		<section class="container">
+			<div class="row" data-ng-if="vm.options.config.mediaFolders.lenght === 0">
+				<div class="large-12 columns">
+					<h4>This is your first time running the application. Please configure it as per your environment</h4>
+				</div>
 			</div>
-		</article>
+
+			<div class="row">
+				<form>
+				<fieldset>
+				<legend>Where are your movies stored ?</legend>
+				<div class="row">
+					<div class="large-12 columns">
+						<div class="row collapse">
+							<div class="small-1 columns">
+								<span class="prefix">Folder</a>
+							</div>
+							<div class="small-10 columns">
+								<input type="text" placeholder="Media Folder" data-ng-model="vm.folder">
+							</div>
+							<div class="small-1 columns">
+								<a href="#" class="button postfix" data-ng-click="vm.addFolder()">Add</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-12 columns">
+					<table>
+					<thead>
+						<th width="50">#</th>
+						<th>Folder</th>
+					</thead>
+					<tbody>
+						<tr data-ng-repeat="folder in vm.options.config.mediaFolders">
+						<td><i class="fa fa-times"></i></td>
+						<td>{{folder}}</td>
+						</tr>
+					</tbody>
+					</table>
+					</div>
+				</div>
+				</fieldset>
+				</form>
+			</div>
+
+			<div class="row">
+				<form>
+				<fieldset>
+				
+				<legend>Movie naming structure</legend>
+				<div class="row">
+					<div class="large-12 columns">
+					<p>For your movie collection to be recognized, movies must adhere to the following alternative naming conventions (these examples assumed you entered "/Movies" as the media folder in the previous section) :
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-12 columns">
+						<ul>
+							<li>/Movies/Bluray/Avatar (2009)/BDMV/index.bdmv</li>
+							<li>/Movies/Bluray/Avatar (2009)/Avatar.mkv or /Movies/Bluray/Avatar (2009)/Avatar.iso</li>
+							<li>/Movies/Bluray/VIDEO_TS/{VIDEO_TS|HV000i01}.IFO</li>
+							<li>/Movies/Avatar (2009)/BDMV/index.bdmv</li>
+							<li>/Movies/Avatar (2009)/Avatar.mkv or /Movies/Bluray/Avatar (2009)/Avatar.iso</li>
+							<li>/Movies/VIDEO_TS/{VIDEO_TS|HV000i01}.IFO</li>
+							<li>/Movies/Avatar (2009).mkv</li>
+						</ul>
+					</div>
+				</div>
+
+				</fieldset>
+				</form>
+			</div>
+		</section>

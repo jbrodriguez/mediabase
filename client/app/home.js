@@ -18,9 +18,9 @@
         activate();
 
         function activate() {
-            vm.options.filterBy = storage.get('filterBy') || 'title';
-            vm.options.sortBy = storage.get('sortBy') || 'added';
-            vm.options.sortOrder = storage.get('sortOrder') || 'asc';
+            options.filterBy = storage.get('filterBy') || 'title';
+            options.sortBy = storage.get('sortBy') || 'added';
+            options.sortOrder = storage.get('sortOrder') || 'asc';
 
             return getConfig().then(function() {
                 logger.info('initialized state home.js');
@@ -36,10 +36,10 @@
 
         function sortOrder() {
             // console.log("is there anybody out there: ", $state.$current.name);
-            vm.options.sortOrder = vm.options.sortOrder === 'desc' ? 'asc' : 'desc';
+            options.sortOrder = options.sortOrder === 'desc' ? 'asc' : 'desc';
 
-            storage.set('sortBy', vm.options.sortBy);
-            vm.options.mode = 'regular';
+            storage.set('sortOrder', options.sortOrder);
+            options.mode = 'regular';
 
             if ($state.$current.name === 'movies') {
                 // console.log("inside ===");
@@ -52,9 +52,9 @@
 
         function getConfig() {
             return api.getConfig().then(function(data) {
-                vm.options.config = data;
+                options.config = data;
 
-                if (vm.options.config.mediaPath.length === 0) {
+                if (options.config.mediaFolders.length === 0) {
                     $state.go('settings');
                 } else {
                     $state.go('cover');
@@ -66,7 +66,7 @@
             return vm.options.filterBy;
         }), function(newVal, oldVal) {
             // console.log('current: ', $state.$current.name);
-            storage.set('filterBy', vm.options.filterBy);
+            storage.set('filterBy', options.filterBy);
             // $state.go('movies');
         }, true);
 
@@ -74,8 +74,8 @@
             return vm.options.sortBy;
         }), function(newVal, oldVal) {
             // console.log('current: ', $state.$current.name);
-            storage.set('sortBy', vm.options.sortBy);
-            vm.options.mode = 'regular';
+            storage.set('sortBy', options.sortBy);
+            options.mode = 'regular';
 
             if ($state.$current.name === 'movies') {
                 $rootScope.$emit('/movies/refresh');
@@ -87,7 +87,7 @@
         $scope.$watch(angular.bind(this, function() {
             return vm.options.searchTerm;
         }), function(newVal) {
-             console.log('searching for either vm.searchTerm: '+vm.options.searchTerm + ' or newVal: '+newVal);
+             console.log('searching for either vm.searchTerm: '+options.searchTerm + ' or newVal: '+newVal);
             vm.options.mode = 'search';
             if ($state.$current.name === 'movies') {
                 $rootScope.$emit('/movies/search');
