@@ -58,6 +58,8 @@ func (self *Core) react() {
 			go self.doSaveConfig(msg)
 		case msg := <-self.Bus.ImportMovies:
 			go self.doImportMovies(msg)
+		case msg := <-self.Bus.ImportMoviesStatus:
+			go self.doImportMoviesStatus(msg)
 		case msg := <-self.Bus.MovieFound:
 			go self.doMovieFound(msg)
 		case msg := <-self.Bus.MovieScraped:
@@ -92,9 +94,10 @@ func (self *Core) doScrape(e *fsm.Event) {
 }
 
 func (self *Core) doImportMovies(status *message.Status) {
-	if err := self.fsm.Event("import", status); err != nil {
-		mlog.Info("error trying to trigger import event: %s", err)
-	}
+	self.fsm.Event("import", status)
+	// if err := self.fsm.Event("import", status); err != nil {
+	// 	mlog.Info("error trying to trigger import event: %s", err)
+	// }
 }
 
 func (self *Core) importer(e *fsm.Event) {
@@ -106,12 +109,16 @@ func (self *Core) importer(e *fsm.Event) {
 		self.context.Message = reply
 	}
 
-	mlog.Info("Before sending some answers %s: %s", e.Event, e.FSM.Current())
+	// mlog.Info("Before sending some answers %s: %s", e.Event, e.FSM.Current())
 
 	status, _ := e.Args[0].(*message.Status)
 	status.Reply <- &self.context
 
-	mlog.Info("Event %s was fired, currently in state %s", e.Event, e.FSM.Current())
+	// mlog.Info("Event %s was fired, currently in state %s", e.Event, e.FSM.Current())
+}
+
+func (self *Core) doImportMoviesStatus(status *message.Status) {
+	status.Reply <- &self.context
 }
 
 func (self *Core) doMovieFound(movie *message.Movie) {
@@ -129,9 +136,10 @@ func (self *Core) doMovieFound(movie *message.Movie) {
 		self.Bus.ScrapeMovie <- movie
 	}
 
-	if err := self.fsm.Event("found", text); err != nil {
-		mlog.Info("error trying to trigger found event: %s", err)
-	}
+	self.fsm.Event("found", text)
+	// if err := self.fsm.Event("found", text); err != nil {
+	// 	mlog.Info("error trying to trigger found event: %s", err)
+	// }
 }
 
 func (self *Core) found(e *fsm.Event) {

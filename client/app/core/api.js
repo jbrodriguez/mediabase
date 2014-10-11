@@ -109,7 +109,7 @@
         };        
 
         function getStatus() {
-            return $http.get(ep + '/movies/status')
+            return $http.get(ep + '/import/status')
                 .then(getStatusEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for getStatus')(message);

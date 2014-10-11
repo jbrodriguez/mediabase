@@ -47,6 +47,8 @@ func (self *Server) Start() {
 		api.POST("/movies/prune", self.pruneMovies)
 
 		api.GET("/import", self.importMovies)
+		api.GET("/import/status", self.importMoviesStatus)
+
 		api.GET("/config", self.getConfig)
 		api.PUT("/config", self.saveConfig)
 	}
@@ -126,6 +128,14 @@ func (self *Server) importMovies(c *gin.Context) {
 	// mlog.Info("response is: %+v", reply)
 
 	// helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
+	c.JSON(200, &reply)
+}
+
+func (self *Server) importMoviesStatus(c *gin.Context) {
+	msg := message.Status{Reply: make(chan *message.Context)}
+	self.Bus.ImportMoviesStatus <- &msg
+	reply := <-msg.Reply
+
 	c.JSON(200, &reply)
 }
 

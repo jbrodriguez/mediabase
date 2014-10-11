@@ -5,9 +5,8 @@
         .module('app.import')
         .controller('Import', Import);
 
-    Import.$inject = ['$q', 'api', 'logger'];
-
-    function Import($q, api, logger) {
+    /* @ngInject */
+    function Import($scope, $state, $timeout, api, logger) {
 
         /*jshint validthis: true */
         var vm = this;
@@ -20,8 +19,9 @@
             logger.info('trying to import');
             return startImport().then(function() {
                 logger.info('started import function');
+                update();
             });
-        }
+        };
 
         function startImport() {
             return api.startImport().then(function (data) {
@@ -29,7 +29,7 @@
                 vm.context = data;
                 return vm.context;
             });
-        }
+        };
 
         function getStatus() {
             return api.getStatus().then(function (data) {
@@ -37,6 +37,23 @@
                 vm.context = data;
                 return vm.context;
             });
-        }
+        };
+
+        function update() {
+            getStatus();
+            if (!vm.context.completed) {
+                schedule(update, 1000);
+            } else {
+                $state.go('cover');
+            };
+        };
+
+        function schedule(fn, delay) {
+            var promise = $timeout(fn, delay);
+            var deregister = $scope.$on('$destroy', function() {
+                $timeout.cancel(promise);
+            });
+            promise.then(deregister);
+        };
     }
 })();

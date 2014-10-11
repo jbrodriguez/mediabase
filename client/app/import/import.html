@@ -1,7 +1,8 @@
 <section class="container">
 	<div class="row">
 		<div class="large-12 column import-status">
-			<h4>{{ vm.context.message }}</h4>
+			<i class="fa fa-circle-o-notch fa-spin" data-ng-if="!vm.context.completed"></i>
+			<span>{{ vm.context.message }}</span>
 		</div>
 	</div>
 	<div class="row">

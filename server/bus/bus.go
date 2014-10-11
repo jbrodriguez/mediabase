@@ -9,9 +9,11 @@ type Bus struct {
 	GetConfig  chan *message.GetConfig
 	SaveConfig chan *message.SaveConfig
 
-	ImportMovies chan *message.Status
-	ScanMovies   chan *message.ScanMovies
-	ScrapeMovie  chan *message.Movie
+	ImportMovies       chan *message.Status
+	ImportMoviesStatus chan *message.Status
+
+	ScanMovies  chan *message.ScanMovies
+	ScrapeMovie chan *message.Movie
 
 	MovieFound     chan *message.Movie
 	MovieScraped   chan *message.Media
@@ -47,6 +49,7 @@ func (self *Bus) Start() {
 	self.SaveConfig = make(chan *message.SaveConfig)
 
 	self.ImportMovies = make(chan *message.Status)
+	self.ImportMoviesStatus = make(chan *message.Status)
 	self.ScanMovies = make(chan *message.ScanMovies)
 	self.ScrapeMovie = make(chan *message.Movie)
 
