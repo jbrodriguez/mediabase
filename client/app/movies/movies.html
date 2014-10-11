@@ -13,7 +13,12 @@
 			<div class="large-12 column">
 				<div class="row">
 					<div class="large-2 column">
-						<img src="img/p{{movie.cover}}">
+						<div class="cover-container">
+							<img src="img/p{{movie.cover}}">
+							<div class="ribbon" data-ng-if="movie.count_watched > 0">
+								<span>watched</span>
+							</div>
+						</div>
 					</div>
 
 					<div class="large-10 column overlay-container">

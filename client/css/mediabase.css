@@ -218,7 +218,7 @@ input.watched {
 */	position: relative;
 }
 
-.cover-container .overlay {
+/*.cover-container .overlay {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -238,7 +238,7 @@ input.watched {
 	background-color: rgba(0, 0, 0, 0.4);
 	padding: 5px 15px 5px 15px;
 	display: inline-block;
-}
+}*/
 
 .ribbon {
 	background-color: rgba(170, 0, 0, 0.6);
