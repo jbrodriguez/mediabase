@@ -1,0 +1,111 @@
+Version 0.1.0
+Merge branch 'feature/generalitat' into develop
+- Changed version and changes filenames
+- Added bump version script - Added watched ribbon to movies feature ui
+- Made ui to provide feedback while importing movies
+- Added cross-browser datepicker, but it's not working. need to investigate further - Fixed save state of sortOrder - Rewrote configuration of scanner service in order to use regexs loaded from disk
+- Changed config helper to read regex from text file (to work around json restrictions), changing the scanner service accordingly - Changed settings functionality to set a fixed movie naming structure. Advanced users can always add lines to the regex.txt file
+- Changed settings fieldset headers, for better semantics
+- Added about feature - Implemented settings functionality (both displaying and saving it). Works only for folders, need to complete the regex part
+Merge branch 'feature/optionality' into develop
+- Created cover page with a gallery of movies covers
+- Fixed pagination functionality, so that the server actually returned how many records were involved in each transaction (be it search o list retrieving)
+- Fixed search functionality, based on new paging structure - Refactored code
+- Added pagination functionality, replacing infinite scroll functionality
+- Added new fields to the ui (director, actors, country and genres - Need to fix a nasty memory consumption bug. it kills the browser tab
+- Added fields for director, writer, actors, awards, imdb rating and imdb votes. Data comes from omdb.com site
+- Added infinite scroll functionality - Fixed html5mode = true (on the server side)
+- Refactored feature names and api calls
+- Added support to change to the "all" state if not currently there, while changing options
+- Added more options to sort by (rating, year)
+- Implemented sorting by certain data and selecting sort order (asc, desc)
+- Added movie listing criteria support. On the server side, had to work around prepare statement not accepting order by "?" syntax - Changed watched and added labels in the ui
+- Modified top navbar to be fixed, and hold widgets for sorting and filtering results - Implemented sorting and filtering preferences to be saved to localstorage
+- Added scaffolding both in client and server for settings functionality. Need to work on the server side of things, for this to be actually functional.
+- Added prune duplicate movies functionality - Fixed runtime display in the ui, new format is (h:mm)
+- Added duplicate detection functionality
+- Added text overlay over the movie background, to display both runtime and rating (tmdb rating) - Changed movie title color to dark blue
+Merge branch 'feature/commonFilters' into develop
+- Added support for counting how many times I watched a movie
+- Implemented the first step towards user customizable filtering and sorting. Worked on the client this time, will now try a proof of concept on the server
+- Implemented first pass at fix movie functionality, it does the work, but shows no feedback in the ui
+Merge branch 'feature/watched' into develop
+- Some additional small fixes
+- Small ui fixes
+- Implemeneted Watched Movie functionality, including, toastr message in the ui, and aggregating watched dates to an all_watched field in the database
+- Changed database structure to define dates as RFC3399 UTC - Changed small UI details
+Merge branch 'feature/multiple' into develop
+- Changed the layout for the main ui - Started working on save movie functionality (for changes to last watched and score), but need to address date format issues first
+- Created alternative 1 of movie list ui
+- Arranged the tmdb id, date and rating fields to better align in their alloted space (ui)
+- Added truncate text functionality. - Working on replacing jquery.datetimepicker plugin with the built in date input type
+- Using thumbnails for cover pics
+- Implemented a listing of all movies in the database. But it doesnt work because the images (mostly the backgrounds) take up too much memory
+- Added pretty urls ($locationProvider and html5mode magic) - Split the directives into their own files
+- Cleaned up some logging
+- Added schema initialization to dal.go - Fixed row scan after changing the prepared statement for searchMovie
+- Added personal score field, changing table schema, server and client code
+Merge branch 'feature/scan' into develop
+- Created a directive for datetimepicker. Need to import moment.js to handle timezones correctly - Created a directive for star ratings (not tested yet) - Rename layout folder to template to better identify it's purpose - Fixed the case where a database query returned and empty set
+- Implemented search functionality (mostly server code)
+- Added search functionality in the client, need to add the corresponding backend functionality
+- Hid implementation details of the backend protocol (currently ajax) from the controller
+- Changed default background picture for scan featurette
+- Completed first phase of the scan functionality It's working back-end wise, but still have to polish the ui side of the story
+Merge branch 'feature/refactorUI' into develop
+- Finished the base rewrite of the ui. Will now focus on adding other modules/features.
+- Wired angularjs into the html code and got it working - Replaced gorilla mux with gin (based on httprouter)
+refactored code into client/ and a server/ folders. this improves readibility, at the expense of being more verbose in the import paths for the golang files. will now focus on the client part of the code
+this turned out to be an all out refactoring. have to go through with this commit under the changeUI feature branch.
+well yeah, this is pretty much a go ! switched to my own logging library and it went fine, also upgraded go-sqlite3 to the latest version and built it with fts4 so that i dont have to call my app binary with a flag
+first working version of the fix movies functionality so far i dont think any changes are needed, it has worked so far with the tests i've performed
+Merge branch 'feature/duplicates' into develop
+change to reflect the new folder paths
+cleaned up list movies / duplicates menu entry added list by runtime functionality
+added functionality to detect duplicates as well as to list all movies in the database
+small fixes in database management
+Merge branch 'feature/tmdb' into develop
+completed feature set for tmdb branch
+first working version, some minor checks then i will declare this as 0.1
+switched cache service to use new workpool implementation changed logging format across services
+added checkmovie message, to check for movie existence before i send a request to scrape it fixed typo with regards to a movie field name
+workpool 101 is working. couple fixes are needed - tmdb may return no match, need to handle accordingly - will switch to a dal injected object, rather than a service, so that i dont deal with so many messaging going back and forth. in any case, probably the core service is the only one that will use the dal
+implemented a workpool class, that doesnt work will try an implementation i found on github
+created a workpool to distribute work among different workers, so cool database is not working as expected, will switch to a per call db opening
+created new database structure refactored some messages and bus events created download foundation
+changing sql schema
+Merge branch 'feature/rearchitect2' into develop
+search functionality is working some tweaks to the ui
+added search movies functionality, but querying is extremely slow, so i’ll be taking advantage of fts in sqlite
+ui based on pure, still missing the individual movie view added logging service, but will phase it out to just call a global function
+the ui is working,but i want a search input control in the horizontal header
+moved to pure framework, established the base for the page html code
+Merge branch 'feature/rearchitect' into develop
+switching back to html ui
+a lot of rework, we could call this v0.0.1 hehehe … it does nothing, but it does show a window with a tableview hehehehe
+grunt and bower are set, down to the bare minimum, but it’s still not fully tested
+start of restructure
+small changes, prepping for gruntjs overhaul
+Merge branch 'feature/workingtitle' into develop
+this is the first working version, in an end to end fashion i will now work on refactoring the ui portion of the code, maybe i will leave ngboilerplate and go commando as in solo for simplicity’s sake and the capability to use the software versions i want
+well i cant return a list of objects from the database if it was my life … cant return them for shit !!! need to investigate
+Merge branch 'feature/ui' into develop
+first working version, where i can call a rest api from the server and get back a response
+didnt like that much the alphabet pagination …. will revisit the idea in the future
+finally got a nested state to work … not sure about code structure though .. will need to revisit
+first customizations, just name and version in supporting files
+base ngboilerplate setup, need to start customizing now
+Merge branch 'feature/strut' into develop
+im leaving server side as it is for the time being the only issue i have so far is that core blocks while cache is copying files, i will further investigate this later on will work on ui now
+refactoring is working as expected, got this version to basically do what i want server side, conceptually … now on to finish the implementation
+Merge branch 'feature/scanner' into develop
+im about to change the structure of messages, im removing the model concept and putting all data into the message struct itself, lets see how it goes
+well, it’s finding the files i want it to find. next up - read from a text file with the regular expressions - build an extension list and only run the regexps against those files that match … should make it faster, because non matching expressions will evaluate all expressions and fail at that - keep going
+project name changed from moviebase to mediabase began working on scanning functionality
+just a couple of changes to web code, but before i move further ... i will rename the project
+Merge branch 'feature/bus' into develop
+added scanner service, now will work on the web code
+added bus and services structure, added webpage (based on vaultee)
+we have a working structure, now we need to make changes specific to the application (sqlite rather than postgres, etc)
+Initial commit
+

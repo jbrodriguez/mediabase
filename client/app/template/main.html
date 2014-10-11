@@ -1,0 +1,92 @@
+		<article data-ng-repeat="movie in vm.movies" class="container row">
+			<div class="large-12 column">
+				<h4>{{ movie.title }} ({{ movie.year }})</h4>
+			</div>
+
+			<div class="large-12 column">
+				<div class="row">
+					<div class="large-2 column">
+						<img src="img/p{{movie.cover}}">
+					</div>
+
+					<div class="large-10 column overlay-container">
+						<img src="img/b{{movie.backdrop}}" />
+						<div class="overlay">
+							<span class="left">{{movie.runtime | hourMinute}}</span>
+							<span class="right">{{movie.imdb_rating}}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="large-12 column">
+				<div class="row">
+					<div class="large-12 column">
+						<div class="left">
+							<span>{{ movie.director }}</span>
+						</div>
+						<div class="right">
+							<span>{{ movie.production_countries }}</span>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="large-12 column">
+						<div class="left">
+							<span>{{ movie.actors }}</span>
+						</div>
+						<div class="right">
+							<span>{{ movie.genres}}</span>
+						</div>
+					</div>
+				</div>			
+			</div>				
+
+			<div class="large-12 column">
+				<div class="row">
+					<div class="large-12 column">
+						<div class="left">
+							<span class="label">{{ movie.resolution }}</span>
+							<span class="label secondary">{{ movie.location }}</span>
+						</div>
+						<div class="right">
+							<span class="label watched" data-ng-if="movie.last_watched != ''"><i class="fa fa-binoculars"></i> &nbsp; <b>{{ movie.last_watched | date: 'MMM dd, yyyy' }}</b></span>
+							<span class="label"><i class="fa fa-plus"></i> &nbsp; {{ movie.added | date: 'MMM dd, yyyy HH:mm' }}</span>
+						</div>
+					</div>
+				</div>			
+			</div>
+
+			<div class="large-12 column">
+				<div class="row collapse">
+					<div class="large-12 column overview">
+					{{ movie.overview }}
+					</div>
+				</div>
+			</div>
+
+			<div class="large-12 column">
+				<div class="row collapse">
+					<div class="large-3 column">
+						<div class="row collapse">
+						    <div class="small-8 large-8 column">
+						    	<input type="number" placeholder="TMDB Id" data-ng-model="movie.tmdb_id">
+						    </div>
+						    <div class="small-4 large-4 column">
+								<a href="#" class="button postfix" data-ng-click="vm.fixMovie($index)">Fix</a>
+          				    </div>
+						</div>					
+					</div>
+					<div class="large-4 column">
+						<input type="date" data-ng-model="movie.watched" placeholder="mm/dd/yyyy" class="watched">					
+					</div>
+					<div class="large-4 column">
+						<div rating data-ng-model="movie.score" score="movie.score" max="10" style="margin: 5px 10px 0;" class="right"></div>
+						<span class="label right score-numeral">{{movie.score}}</span>
+					</div>
+				    <div class="large-1 column">
+						<a href="#" class="button tiny" data-ng-click="vm.setWatched($index)">Save</a>
+  				    </div>
+				</div>			
+			</div>
+		</article>	

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" ng-app="mediabase" ng-controller="AppCtrl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MediaBase</title>
+
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.3.0/pure-min.css">
+    <link rel="stylesheet" href="mediabase.css">
+
+    <!-- compiled JavaScript --><% scripts.forEach( function ( file ) { %>
+    <script type="text/javascript" src="<%= file %>"></script><% }); %> 
+</head>
+<body>
+    <div class="pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
+        <a href="#" class="pure-menu-heading">MediaBase</a>
+        <ul>
+            <li><a href="#/movies">Movies</a></li>
+            <li><a href="#">Shows</a></li>
+            <li>
+                <form class="pure-form">
+                    <div class="pure-u-1">
+                        <input class="pure-input-1" type="text" placeholder="Enter search string" ng-model="queryTerm" ng-change="search()">
+                    </div>
+                </form>
+            </li>
+        </ul>
+    </div>
+
+    <div class="pane" ui-view></div>
+</body>
+</html>
