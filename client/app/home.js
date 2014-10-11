@@ -38,7 +38,7 @@
             // console.log("is there anybody out there: ", $state.$current.name);
             options.sortOrder = options.sortOrder === 'desc' ? 'asc' : 'desc';
 
-            storage.set('sortBy', options.sortBy);
+            storage.set('sortOrder', options.sortOrder);
             options.mode = 'regular';
 
             if ($state.$current.name === 'movies') {

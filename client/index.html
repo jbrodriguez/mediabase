@@ -17,7 +17,7 @@
 	<link rel='stylesheet' href='css/mediabase.css' />
 	<link href='//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css' rel='stylesheet' type='text/css' />
 	<link href='//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css' rel='stylesheet' type='text/css' />
-	
+	<link rel="stylesheet" href="css/jquery-ui.min.css">
 
 	<script src="js/vendor/modernizr.js"></script>
 </head>
@@ -89,6 +89,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.js"></script>
 	<script src="js/vendor/dirPagination.js"></script>
+	<script src="js/vendor/jquery-ui.min.js"></script>
     <!-- endinject -->
 
 
@@ -140,17 +141,34 @@
     <!-- duplicates -->
     <script src="app/duplicates/duplicates.module.js"></script>
     <script src="app/duplicates/config.route.js"></script>
-    <script src="app/duplicates/duplicates.js"></script>    
+    <script src="app/duplicates/duplicates.js"></script>
 
     <!-- settings -->
     <script src="app/settings/settings.module.js"></script>
     <script src="app/settings/config.route.js"></script>
-    <script src="app/settings/settings.js"></script>    
+    <script src="app/settings/settings.js"></script>
 
     <!-- about -->
     <script src="app/about/about.module.js"></script>
     <script src="app/about/config.route.js"></script>
-    <script src="app/about/about.js"></script>    
-</body>
+    <script src="app/about/about.js"></script>
+
+	<script>
+		var initDatepicker = function() {
+		    $('input[type=date]').each(function() {
+		        var $input = $(this);
+		        $input.datepicker({
+		            minDate: $input.attr('min'),
+		            maxDate: $input.attr('max'),
+		            dateFormat: 'yy-mm-dd'
+		        });
+		    });
+		};
+
+		if(!Modernizr.inputtypes.date){
+		    $(document).ready(initDatepicker);
+		};
+	</script>	
+	</body>
 
 </html>
