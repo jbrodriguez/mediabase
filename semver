@@ -141,12 +141,13 @@ function release {
 
   if [[ $CURRENT == "default" ]]; then
     echo "Version $VERSION" > $CHANGES_FILE
-    git log --pretty=format:"%s" >> $CHANGES_FILE
+    git --no-pager log --pretty=raw | egrep -v '^[[:space:]]*$' | egrep -v '^[commit|tree|author|parent]' >> $CHANGES_FILE
     echo "" >> $CHANGES_FILE
     echo "" >> $CHANGES_FILE    
   else
     echo "Version $VERSION:" > tmpfile
-    git log --pretty=format:"%s" "v$CURRENT"...HEAD >> tmpfile
+#    git log --pretty=format:"%s" "$CURRENT"...HEAD >> tmpfile
+    git --no-pager log --pretty=raw "$CURRENT"...HEAD | egrep -v '^[[:space:]]*$' | egrep -v '^[commit|tree|author|parent]' >> tmpfile
     echo "" >> tmpfile
     echo "" >> tmpfile
     cat $CHANGES_FILE >> tmpfile

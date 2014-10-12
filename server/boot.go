@@ -8,11 +8,13 @@ import (
 	"github.com/apertoire/mlog"
 )
 
+var Version string
+
 func main() {
 	mlog.Start(mlog.LevelInfo, "./log/mediabase.log")
 	mlog.Info("starting up ...")
 
-	config := model.Config{}
+	config := model.Config{Version: Version}
 	config.Load()
 
 	bus := bus.Bus{}

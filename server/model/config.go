@@ -16,14 +16,8 @@ type Config struct {
 
 	MediaFolders []string `json:"mediaFolders"`
 	MediaRegexs  []string `json:"-"`
-}
 
-func (self *Config) Init() {
-	self.Host = GetOrDefaultString(os.Getenv("HOST"), "")
-	self.Port = GetOrDefaultString(os.Getenv("PORT"), "8080")
-
-	// self.AppDir = "/Volumes/Users/kayak/Library/Application Support/net.apertoire.mediabase/"
-	self.AppDir = "."
+	Version string `json:"version"`
 }
 
 func (self *Config) Load() {
@@ -53,9 +47,9 @@ func (self *Config) Load() {
 		return
 	}
 
-	lines := strings.Split(string(content), "\n")
+	self.MediaRegexs = strings.Split(string(content), "\n")
 
-	self.MediaRegexs = lines
+	mlog.Info("Version: %s", self.Version)
 }
 
 func (self *Config) Save() {
