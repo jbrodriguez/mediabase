@@ -1,30 +1,42 @@
 Version 0.1.0
 Merge branch 'feature/generalitat' into develop
 - Changed version and changes filenames
-- Added bump version script - Added watched ribbon to movies feature ui
+- Added bump version script
+- Added watched ribbon to movies feature ui
 - Made ui to provide feedback while importing movies
-- Added cross-browser datepicker, but it's not working. need to investigate further - Fixed save state of sortOrder - Rewrote configuration of scanner service in order to use regexs loaded from disk
-- Changed config helper to read regex from text file (to work around json restrictions), changing the scanner service accordingly - Changed settings functionality to set a fixed movie naming structure. Advanced users can always add lines to the regex.txt file
+- Added cross-browser datepicker, but it's not working. need to investigate further
+- Fixed save state of sortOrder
+- Rewrote configuration of scanner service in order to use regexs loaded from disk
+- Changed config helper to read regex from text file (to work around json restrictions), changing the scanner service accordingly
+- Changed settings functionality to set a fixed movie naming structure. Advanced users can always add lines to the regex.txt file
 - Changed settings fieldset headers, for better semantics
-- Added about feature - Implemented settings functionality (both displaying and saving it). Works only for folders, need to complete the regex part
+- Added about feature
+- Implemented settings functionality (both displaying and saving it). Works only for folders, need to complete the regex part
 Merge branch 'feature/optionality' into develop
 - Created cover page with a gallery of movies covers
 - Fixed pagination functionality, so that the server actually returned how many records were involved in each transaction (be it search o list retrieving)
-- Fixed search functionality, based on new paging structure - Refactored code
+- Fixed search functionality, based on new paging structure
+- Refactored code
 - Added pagination functionality, replacing infinite scroll functionality
-- Added new fields to the ui (director, actors, country and genres - Need to fix a nasty memory consumption bug. it kills the browser tab
+- Added new fields to the ui (director, actors, country and genres
+- Need to fix a nasty memory consumption bug. it kills the browser tab
 - Added fields for director, writer, actors, awards, imdb rating and imdb votes. Data comes from omdb.com site
-- Added infinite scroll functionality - Fixed html5mode = true (on the server side)
+- Added infinite scroll functionality
+- Fixed html5mode = true (on the server side)
 - Refactored feature names and api calls
 - Added support to change to the "all" state if not currently there, while changing options
 - Added more options to sort by (rating, year)
 - Implemented sorting by certain data and selecting sort order (asc, desc)
-- Added movie listing criteria support. On the server side, had to work around prepare statement not accepting order by "?" syntax - Changed watched and added labels in the ui
-- Modified top navbar to be fixed, and hold widgets for sorting and filtering results - Implemented sorting and filtering preferences to be saved to localstorage
+- Added movie listing criteria support. On the server side, had to work around prepare statement not accepting order by "?" syntax
+- Changed watched and added labels in the ui
+- Modified top navbar to be fixed, and hold widgets for sorting and filtering results
+- Implemented sorting and filtering preferences to be saved to localstorage
 - Added scaffolding both in client and server for settings functionality. Need to work on the server side of things, for this to be actually functional.
-- Added prune duplicate movies functionality - Fixed runtime display in the ui, new format is (h:mm)
+- Added prune duplicate movies functionality
+- Fixed runtime display in the ui, new format is (h:mm)
 - Added duplicate detection functionality
-- Added text overlay over the movie background, to display both runtime and rating (tmdb rating) - Changed movie title color to dark blue
+- Added text overlay over the movie background, to display both runtime and rating (tmdb rating)
+- Changed movie title color to dark blue
 Merge branch 'feature/commonFilters' into develop
 - Added support for counting how many times I watched a movie
 - Implemented the first step towards user customizable filtering and sorting. Worked on the client this time, will now try a proof of concept on the server
@@ -33,20 +45,28 @@ Merge branch 'feature/watched' into develop
 - Some additional small fixes
 - Small ui fixes
 - Implemeneted Watched Movie functionality, including, toastr message in the ui, and aggregating watched dates to an all_watched field in the database
-- Changed database structure to define dates as RFC3399 UTC - Changed small UI details
+- Changed database structure to define dates as RFC3399 UTC
+- Changed small UI details
 Merge branch 'feature/multiple' into develop
-- Changed the layout for the main ui - Started working on save movie functionality (for changes to last watched and score), but need to address date format issues first
+- Changed the layout for the main ui
+- Started working on save movie functionality (for changes to last watched and score), but need to address date format issues first
 - Created alternative 1 of movie list ui
 - Arranged the tmdb id, date and rating fields to better align in their alloted space (ui)
-- Added truncate text functionality. - Working on replacing jquery.datetimepicker plugin with the built in date input type
+- Added truncate text functionality.
+- Working on replacing jquery.datetimepicker plugin with the built in date input type
 - Using thumbnails for cover pics
 - Implemented a listing of all movies in the database. But it doesnt work because the images (mostly the backgrounds) take up too much memory
-- Added pretty urls ($locationProvider and html5mode magic) - Split the directives into their own files
+- Added pretty urls ($locationProvider and html5mode magic)
+- Split the directives into their own files
 - Cleaned up some logging
-- Added schema initialization to dal.go - Fixed row scan after changing the prepared statement for searchMovie
+- Added schema initialization to dal.go
+- Fixed row scan after changing the prepared statement for searchMovie
 - Added personal score field, changing table schema, server and client code
 Merge branch 'feature/scan' into develop
-- Created a directive for datetimepicker. Need to import moment.js to handle timezones correctly - Created a directive for star ratings (not tested yet) - Rename layout folder to template to better identify it's purpose - Fixed the case where a database query returned and empty set
+- Created a directive for datetimepicker. Need to import moment.js to handle timezones correctly
+- Created a directive for star ratings (not tested yet)
+- Rename layout folder to template to better identify it's purpose
+- Fixed the case where a database query returned and empty set
 - Implemented search functionality (mostly server code)
 - Added search functionality in the client, need to add the corresponding backend functionality
 - Hid implementation details of the backend protocol (currently ajax) from the controller
@@ -54,7 +74,8 @@ Merge branch 'feature/scan' into develop
 - Completed first phase of the scan functionality It's working back-end wise, but still have to polish the ui side of the story
 Merge branch 'feature/refactorUI' into develop
 - Finished the base rewrite of the ui. Will now focus on adding other modules/features.
-- Wired angularjs into the html code and got it working - Replaced gorilla mux with gin (based on httprouter)
+- Wired angularjs into the html code and got it working
+- Replaced gorilla mux with gin (based on httprouter)
 refactored code into client/ and a server/ folders. this improves readibility, at the expense of being more verbose in the import paths for the golang files. will now focus on the client part of the code
 this turned out to be an all out refactoring. have to go through with this commit under the changeUI feature branch.
 well yeah, this is pretty much a go ! switched to my own logging library and it went fine, also upgraded go-sqlite3 to the latest version and built it with fts4 so that i dont have to call my app binary with a flag
