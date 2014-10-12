@@ -1,3 +1,10 @@
+Version 0.2.0:
+    - Add to the ui the options to filter by Country, Director and Actor
+    Merge branch 'release/0.1.1' into develop
+    Merge branch 'release/0.1.1'
+    Merge branch 'release/0.1.0'
+
+
 Version 0.1.1:
     - Fix carriage returns in multiline commit message that were incorrectly written to the changelog in the previous version of semver
     - Change the names of VERSION_FILE and CHANGES_FILE
