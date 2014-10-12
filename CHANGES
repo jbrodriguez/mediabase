@@ -1,3 +1,16 @@
+Version 0.1.1:
+    - Fix carriage returns in multiline commit message that were incorrectly written to the changelog in the previous version of semver
+    - Change the names of VERSION_FILE and CHANGES_FILE
+    Merge branch 'feature/version' into develop
+    - Add version string using golang ldflags functionality
+    - Show version string in the footer
+    - Clean footer ui (uppercase some labels)
+    - Add version string
+    - Fix bump script to correctly handle multiline commits, when writing to the changelog
+    Merge branch 'release/0.1.0' into develop
+    Merge branch 'release/0.1.0'
+
+
 Version 0.1.0
 Merge branch 'feature/generalitat' into develop
 - Changed version and changes filenames
