@@ -14,6 +14,8 @@
         vm.options = options;
         vm.pruneMovies = pruneMovies;
         vm.sortOrder = sortOrder;
+        vm.date = new Date();
+
 
         activate();
 
@@ -26,6 +28,19 @@
                 logger.info('initialized state home.js');
             })
         };
+
+        function getConfig() {
+            return api.getConfig().then(function(data) {
+                options.config = data;
+                console.log(options)
+
+                if (options.config.mediaFolders.length === 0) {
+                    $state.go('settings');
+                } else {
+                    $state.go('cover');
+                };
+            });
+        };        
 
         function pruneMovies() {
             return api.pruneMovies().then(function(data) {
@@ -48,18 +63,6 @@
                 // console.log("inside go");
                 $state.go('movies');
             };
-        };
-
-        function getConfig() {
-            return api.getConfig().then(function(data) {
-                options.config = data;
-
-                if (options.config.mediaFolders.length === 0) {
-                    $state.go('settings');
-                } else {
-                    $state.go('cover');
-                };
-            });
         };
 
         $scope.$watch(angular.bind(this, function() {

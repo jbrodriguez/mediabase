@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-var version string
-
 type Config struct {
 	Host string `json:"host"`
 	Port string `json:"port"`
@@ -20,14 +18,6 @@ type Config struct {
 	MediaRegexs  []string `json:"-"`
 
 	Version string `json:"version"`
-}
-
-func (self *Config) Init() {
-	self.Host = GetOrDefaultString(os.Getenv("HOST"), "")
-	self.Port = GetOrDefaultString(os.Getenv("PORT"), "8080")
-
-	// self.AppDir = "/Volumes/Users/kayak/Library/Application Support/net.apertoire.mediabase/"
-	self.AppDir = "."
 }
 
 func (self *Config) Load() {
@@ -59,7 +49,7 @@ func (self *Config) Load() {
 
 	self.MediaRegexs = strings.Split(string(content), "\n")
 
-	self.Version = version
+	mlog.Info("Version: %s", self.Version)
 }
 
 func (self *Config) Save() {
