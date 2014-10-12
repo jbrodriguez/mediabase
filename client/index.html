@@ -22,12 +22,12 @@
 	<script src="js/vendor/modernizr.js"></script>
 </head>
 
-<body>
-	<header class="sticky fixed" data-ng-controller="Home as home">
+<body data-ng-controller="Home as home">
+	<header class="sticky fixed">
 		<nav class="top-bar container row" data-topbar>
 			<ul class="title-area">
 				<li class="name">
-					<h1><a ui-sref="cover"  ui-sref-active="active">mediabase</a></h1>
+					<h1><a ui-sref="cover" ui-sref-active="active">mediabase</a></h1>
 				</li>
 			</ul>
 
@@ -73,11 +73,15 @@
 	<footer>
 		<section class="container row">
 			<div class="large-12 column">
-				<span class="left">&copy; 2013-2014 apertoire.net</span>
+				<div class="left">
+					<span class="left">&copy; 2013-{{ home.date | date:'yyyy' }} apertoire.net &nbsp;</span> |
+					<span class="label secondary">mediabase v{{ home.options.config.version }}</span>
+				</div>
+
 				<div class="right">
-					<span><a ui-sref="settings" ui-sref-active="active">Settings</a></span> |
-					<span><a ui-sref="about" ui-sref-active="active">About</a></span> |
-					<span>License</span>
+					<span><a ui-sref="settings" ui-sref-active="active">SETTINGS</a></span> |
+					<span><a ui-sref="about" ui-sref-active="active">ABOUT</a></span> |
+					<span>LICENSE</span>
 				</div>
 			</div>
 		</section>

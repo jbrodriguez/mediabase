@@ -3,7 +3,10 @@
 default: build
 
 build: vet
-	go build -v -o ./dist/mediabase ./server/boot.go
+#	CMT_VERSION=$(shell cat VERSION)
+#	CMT_COUNT=$(shell git rev-list --count $(shell cat VERSION)..)
+#	CMT_HASH=$(shell git rev-parse --short HEAD)
+	go build -ldflags "-X main.Version $(shell cat VERSION)-$(shell git rev-list --count $(shell cat VERSION)..).$(shell git rev-parse --short HEAD)" -v -o ./dist/mediabase ./server/boot.go
 
 doc:
 	godoc -http=:6060 -index
