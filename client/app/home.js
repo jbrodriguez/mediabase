@@ -32,7 +32,7 @@
         function getConfig() {
             return api.getConfig().then(function(data) {
                 options.config = data;
-                console.log(options)
+                // console.log(options)
 
                 if (options.config.mediaFolders.length === 0) {
                     $state.go('settings');
@@ -90,7 +90,7 @@
         $scope.$watch(angular.bind(this, function() {
             return vm.options.searchTerm;
         }), function(newVal) {
-             console.log('searching for either vm.searchTerm: '+options.searchTerm + ' or newVal: '+newVal);
+             // console.log('searching for either vm.searchTerm: '+options.searchTerm + ' or newVal: '+newVal);
             vm.options.mode = 'search';
             if ($state.$current.name === 'movies') {
                 $rootScope.$emit('/movies/search');

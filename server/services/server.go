@@ -42,7 +42,7 @@ func (self *Server) Start() {
 
 		api.GET("/movies/duplicates", self.getDuplicates)
 
-		api.POST("/movies/watched", self.watchedMovie)
+		api.PUT("/movies/watched", self.watchedMovie)
 		api.POST("/movies/fix", self.fixMovie)
 		api.POST("/movies/prune", self.pruneMovies)
 
@@ -190,15 +190,11 @@ func (self *Server) watchedMovie(c *gin.Context) {
 	c.Bind(&movie)
 	// mlog.Info("%+v", movie)
 
-	msg := message.SingleMovie{Movie: &movie, Reply: make(chan bool)}
+	msg := message.SingleMovie{Movie: &movie, Reply: make(chan *message.Movie)}
 	self.Bus.WatchedMovie <- &msg
 	reply := <-msg.Reply
 
-	data := struct {
-		Status bool `json:"status"`
-	}{Status: reply}
-
-	c.JSON(200, &data)
+	c.JSON(200, &reply)
 }
 
 func (self *Server) fixMovies(w http.ResponseWriter, req *http.Request) {
@@ -212,7 +208,7 @@ func (self *Server) fixMovie(c *gin.Context) {
 	c.Bind(&movie)
 	mlog.Info("%+v", movie)
 
-	msg := message.SingleMovie{Movie: &movie, Reply: make(chan bool)}
+	msg := message.SingleMovie{Movie: &movie, Reply: make(chan *message.Movie)}
 	self.Bus.FixMovie <- &msg
 
 	data := struct {

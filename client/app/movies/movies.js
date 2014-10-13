@@ -44,7 +44,6 @@
         };
 
         function update() {
-            console.log('varsity blues', options.mode);
             vm.currentPage = 1;
             scrollPage(vm.currentPage);
         };
@@ -56,7 +55,6 @@
         // }, true);
 
         function scrollPage(page) {
-            console.log("we shall overcome: ", page);
             vm.current = (page - 1) * vm.itemsPerPage;
 
             $window.scrollTo(0, 0);
@@ -87,9 +85,10 @@
 
         function setWatched(index) {
             // console.log("maldecido!!!!: ", index);
-            return api.setWatched(vm.movies[index]).then(function(data) {
-                var title = vm.movies[index].title
-                logger.success("Movie was updated successfully", "", title);
+            return api.setWatched(vm.movies[index]).then(function(movie) {
+                vm.movies[index] = null
+                vm.movies[index] = movie
+                logger.success("Movie was updated successfully", "", movie.title);
             })
         };
 

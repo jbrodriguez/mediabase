@@ -127,7 +127,7 @@
                 movie.last_watched = movie.watched.toISOString();
             }
                         
-            return $http.post(ep + '/movies/watched', movie)
+            return $http.put(ep + '/movies/watched', movie)
                 .then(setWatchedEnd)
                 .catch(function(message) {
                     exception.catcher('XHR Failed for saveMovie')(message);
