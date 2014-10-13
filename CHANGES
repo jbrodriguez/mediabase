@@ -1,3 +1,14 @@
+Version 0.2.1:
+    - Fix scanner service, to support a movie naming structure where there is no resolution folder at the top of the hierarchy
+    - Fix movies watched functionality so that the server returns the freshly changed movie object and the client updates the view accordingly
+    - Change api semantics of watched function (put rather than post)
+    - Remove some console logging in the client (should help prevent leaks)
+    Merge branch 'release/0.2.0' into develop
+    Merge branch 'release/0.2.0'
+    Merge branch 'release/0.1.1'
+    Merge branch 'release/0.1.0'
+
+
 Version 0.2.0:
     - Add to the ui the options to filter by Country, Director and Actor
     Merge branch 'release/0.1.1' into develop
