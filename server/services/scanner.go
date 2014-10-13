@@ -118,7 +118,13 @@ func (self *Scanner) walker(folder string) error {
 				continue
 			}
 
-			movie := &message.Movie{Title: rmap["Name"], File_Title: rmap["Name"], Year: rmap["Year"], Resolution: rmap["Resolution"], FileType: rmap["FileType"], Location: path}
+			var resolution string
+			var ok bool
+			if resolution, ok = rmap["Resolution"]; !ok {
+				resolution = ""
+			}
+
+			movie := &message.Movie{Title: rmap["Name"], File_Title: rmap["Name"], Year: rmap["Year"], Resolution: resolution, FileType: rmap["FileType"], Location: path}
 			mlog.Info("FOUND [%s] (%s)", movie.Title, movie.Location)
 
 			self.Bus.MovieFound <- movie

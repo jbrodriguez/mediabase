@@ -34,7 +34,7 @@ type CheckMovie struct {
 
 type SingleMovie struct {
 	Movie *Movie
-	Reply chan bool
+	Reply chan *Movie
 }
 
 type Movie struct {

@@ -590,7 +590,11 @@ func (self *Dal) doWatchedMovie(msg *message.SingleMovie) {
 	tx.Commit()
 	mlog.Info("FINISHED UPDATING WATCHED MOVIE %s", msg.Movie.Title)
 
-	msg.Reply <- true
+	msg.Movie.All_Watched = all_watched
+	msg.Movie.Count_Watched = count_watched
+	msg.Movie.Modified = now
+
+	msg.Reply <- msg.Movie
 }
 
 // type Omdb struct {
