@@ -55,7 +55,7 @@ func (self *Dal) prepare(sql string) *sql.Stmt {
 func (self *Dal) Start() {
 	mlog.Info("starting dal service ...")
 
-	self.dbase = filepath.Join(self.Config.AppDir, "/db/mediabase.db")
+	self.dbase = filepath.Join(self.Config.DataDir, "db", "mediabase.db")
 	self.db, self.err = sql.Open("sqlite3", self.dbase)
 	if self.err != nil {
 		mlog.Fatalf("open database: %s (%s)", self.err, self.dbase)

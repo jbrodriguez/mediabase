@@ -11,11 +11,8 @@ import (
 var Version string
 
 func main() {
-	mlog.Start(mlog.LevelInfo, "./log/mediabase.log")
-	mlog.Info("starting up ...")
-
-	config := model.Config{Version: Version}
-	config.Load()
+	config := model.Config{}
+	config.Init(Version)
 
 	bus := bus.Bus{}
 	dal := services.Dal{Bus: &bus, Config: &config}

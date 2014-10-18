@@ -82,7 +82,7 @@ func (self *Core) doGetConfig(msg *message.GetConfig) {
 }
 
 func (self *Core) doSaveConfig(msg *message.SaveConfig) {
-	self.Config = msg.Config
+	self.Config.MediaFolders = msg.Config.MediaFolders
 	self.Config.Save()
 
 	msg.Reply <- true
@@ -155,7 +155,7 @@ func (self *Core) doMovieScraped(media *message.Media) {
 
 	go func() {
 		mlog.Info("CACHING MEDIA [%s]", media.Movie.Title)
-		media.BasePath = self.Config.AppDir
+		media.BasePath = self.Config.DataDir
 		self.Bus.CacheMedia <- media
 
 		self.fsm.Event("scrape", media.Movie)
@@ -175,7 +175,7 @@ func (self *Core) doMovieRescraped(media *message.Media) {
 
 	go func() {
 		mlog.Info("CACHING MEDIA [%s]", media.Movie.Title)
-		media.BasePath = self.Config.AppDir
+		media.BasePath = self.Config.DataDir
 		self.Bus.CacheMedia <- media
 	}()
 }
