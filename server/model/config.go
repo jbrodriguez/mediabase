@@ -59,7 +59,7 @@ func (self *Config) Save() {
 		return
 	}
 
-	err = ioutil.WriteFile("./config.json.tmp", b, 0644)
+	err = ioutil.WriteFile("./config.json", b, 0644)
 	if err != nil {
 		mlog.Info("WriteFileJson ERROR: %+v", err)
 	}

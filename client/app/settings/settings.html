@@ -1,9 +1,22 @@
 		<section class="container">
-			<div class="row" data-ng-if="vm.options.config.mediaFolders.lenght === 0">
+			<div class="row" data-ng-if="vm.options.config.mediaFolders.length === 0">
 				<div class="large-12 columns">
-					<h4>This is your first time running the application. Please configure it as per your environment</h4>
+					<h6>There are no folders selected for scanning. Please enter the media folders where you store your movies, to scan for movies. {{vm.options.config.mediaFolders.length}}</h6>
 				</div>
 			</div>
+
+			<div class="row" style="padding-top: 25px;">
+				<div class="small-3 small-centered columns">
+					<button data-ng-click="vm.importer()" data-ng-disabled="vm.options.config.mediaFolders.length === 0">IMPORT</button>
+				</div>
+			</div>
+
+			<div class="row" data-ng-if="vm.running">
+				<div class="large-12 column import-status">
+					<i class="fa fa-refresh fa-spin" data-ng-if="!vm.context.completed"></i> &nbsp;
+					<span>{{ vm.context.message }}</span>
+				</div>
+			</div>			
 
 			<div class="row">
 				<form>
