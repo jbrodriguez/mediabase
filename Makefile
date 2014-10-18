@@ -28,8 +28,6 @@ clean:
 
 run: clean build
 	cp -r client/ dist
-	cp server/config.json dist
-	cp server/regex.txt dist
 	ln -s "/Volumes/Users/kayak/Library/Application Support/net.apertoire.mediabase/web/img" dist/img
 	ln -s "/Volumes/Users/kayak/Library/Application Support/net.apertoire.mediabase/db" dist/db
 	cd dist && ./mediabase
