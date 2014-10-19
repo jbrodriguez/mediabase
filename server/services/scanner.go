@@ -65,15 +65,12 @@ func (self *Scanner) react() {
 		select {
 		case msg := <-self.Bus.ScanMovies:
 			go self.doScanMovies(msg.Reply)
-		case msg := <-self.Bus.ConfigChanged:
-			go self.configChanged(msg)
 		}
 	}
 }
 
-func (self *Scanner) configChanged(msg *message.ConfigChanged) {
-	self.Config = msg.Config
-	mlog.Info("config is now: %+v", self.Config)
+func (self *Scanner) ConfigChanged(conf *model.Config) {
+	self.Config = conf
 }
 
 func (self *Scanner) doScanMovies(reply chan string) {

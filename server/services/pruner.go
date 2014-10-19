@@ -35,6 +35,10 @@ func (self *Pruner) react() {
 	}
 }
 
+func (self *Pruner) ConfigChanged(conf *model.Config) {
+	self.Config = conf
+}
+
 func (self *Pruner) doPruneMovies(reply chan string) {
 	mlog.Info("Looking for something to prune")
 

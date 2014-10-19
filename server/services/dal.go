@@ -115,15 +115,12 @@ func (self *Dal) react() {
 		// 	go self.doGetMoviesToFix(msg)
 		case msg := <-self.Bus.WatchedMovie:
 			go self.doWatchedMovie(msg)
-		case msg := <-self.Bus.ConfigChanged:
-			go self.configChanged(msg)
 		}
 	}
 }
 
-func (self *Dal) configChanged(msg *message.ConfigChanged) {
-	self.Config = msg.Config
-	mlog.Info("config is now: %+v", self.Config)
+func (self *Dal) ConfigChanged(conf *model.Config) {
+	self.Config = conf
 }
 
 func (self *Dal) initSchema() {
@@ -339,8 +336,6 @@ func (self *Dal) doUpdateMovie(movie *message.Movie) {
 }
 
 func (self *Dal) doGetCover(msg *message.Movies) {
-	mlog.Info("this is the beginning")
-
 	tx, err := self.db.Begin()
 	if err != nil {
 		mlog.Fatalf("unable to begin transaction: %s", err)

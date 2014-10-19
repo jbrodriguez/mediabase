@@ -21,7 +21,9 @@ func main() {
 	scraper := services.Scraper{Bus: &bus, Config: &config}
 	pruner := services.Pruner{Bus: &bus, Config: &config}
 	cache := services.Cache{Bus: &bus, Config: &config}
-	core := services.Core{Bus: &bus, Config: &config}
+
+	list := []services.Service{&dal, &scanner, &scraper, &pruner, &cache}
+	core := services.Core{Bus: &bus, Config: &config, Services: list}
 
 	bus.Start()
 	dal.Start()

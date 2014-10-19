@@ -10,10 +10,11 @@ import (
 )
 
 type Core struct {
-	Bus     *bus.Bus
-	Config  *model.Config
-	fsm     *fsm.FSM
-	context message.Context
+	Bus      *bus.Bus
+	Config   *model.Config
+	fsm      *fsm.FSM
+	context  message.Context
+	Services []Service
 }
 
 func (self *Core) Start() {
@@ -85,8 +86,9 @@ func (self *Core) doSaveConfig(msg *message.SaveConfig) {
 	self.Config.MediaFolders = msg.Config.MediaFolders
 	self.Config.Save()
 
-	arg := message.ConfigChanged{Config: self.Config}
-	self.Bus.ConfigChanged <- &arg
+	for _, service := range self.Services {
+		service.ConfigChanged(self.Config)
+	}
 
 	msg.Reply <- self.Config
 }
