@@ -39,8 +39,14 @@ func (self *Cache) react() {
 		select {
 		case msg := <-self.Bus.CacheMedia:
 			go self.requestWork(msg)
+		case msg := <-self.Bus.ConfigChanged:
+			go self.configChanged(msg)
 		}
 	}
+}
+
+func (self *Cache) configChanged(msg *message.ConfigChanged) {
+	self.Config = msg.Config
 }
 
 func (self *Cache) requestWork(media *message.Media) {

@@ -95,7 +95,11 @@ type GetConfig struct {
 
 type SaveConfig struct {
 	Config *model.Config
-	Reply  chan bool
+	Reply  chan *model.Config
+}
+
+type ConfigChanged struct {
+	Config *model.Config
 }
 
 type Options struct {

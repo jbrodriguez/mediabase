@@ -85,7 +85,10 @@ func (self *Core) doSaveConfig(msg *message.SaveConfig) {
 	self.Config.MediaFolders = msg.Config.MediaFolders
 	self.Config.Save()
 
-	msg.Reply <- true
+	arg := message.ConfigChanged{Config: self.Config}
+	self.Bus.ConfigChanged <- &arg
+
+	msg.Reply <- self.Config
 }
 
 func (self *Core) doScrape(e *fsm.Event) {

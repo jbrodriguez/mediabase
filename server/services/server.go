@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/apertoire/mlog"
 	"github.com/gin-gonic/gin"
-	// "io"
 	"net/http"
 )
 
@@ -26,7 +25,6 @@ func (self *Server) Start() {
 	mlog.Info("starting server service")
 
 	self.r = gin.New()
-	// self.r.SetMode(gin.ReleaseMode)
 
 	self.r.Use(gin.Recovery())
 	self.r.Use(helper.Logging())
@@ -64,7 +62,6 @@ func (self *Server) Stop() {
 }
 
 func (self *Server) redirect(c *gin.Context) {
-	mlog.Info("desperado: %+v", c.Request)
 	c.Redirect(301, "/index.html")
 }
 
@@ -80,11 +77,11 @@ func (self *Server) saveConfig(c *gin.Context) {
 	var conf model.Config
 
 	c.Bind(&conf)
-	msg := message.SaveConfig{Config: &conf, Reply: make(chan bool)}
+	msg := message.SaveConfig{Config: &conf, Reply: make(chan *model.Config)}
 	self.Bus.SaveConfig <- &msg
 
-	reply := <-msg.Reply
-	c.JSON(200, &reply)
+	self.Config = <-msg.Reply
+	c.JSON(200, &self.Config)
 }
 
 func (self *Server) getCover(c *gin.Context) {
@@ -121,13 +118,6 @@ func (self *Server) importMovies(c *gin.Context) {
 	self.Bus.ImportMovies <- &msg
 	reply := <-msg.Reply
 
-	// msg := message.ScanMovies{Reply: make(chan string)}
-	// self.Bus.ScanMovies <- &msg
-	// reply := <-msg.Reply
-
-	// mlog.Info("response is: %+v", reply)
-
-	// helper.WriteJson(w, 200, &helper.StringMap{"message": reply})
 	c.JSON(200, &reply)
 }
 
@@ -159,11 +149,6 @@ func (self *Server) searchMovies(c *gin.Context) {
 
 func (self *Server) pruneMovies(c *gin.Context) {
 	mlog.Info("pruning .. i got here")
-	// data := struct {
-	// 	Code        int8
-	// 	Description string
-	// }{0, "all is good"}
-	// helper.WriteJson(w, 200, &data)
 
 	msg := message.PruneMovies{Reply: make(chan string)}
 	self.Bus.PruneMovies <- &msg

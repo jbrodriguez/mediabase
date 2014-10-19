@@ -115,8 +115,15 @@ func (self *Dal) react() {
 		// 	go self.doGetMoviesToFix(msg)
 		case msg := <-self.Bus.WatchedMovie:
 			go self.doWatchedMovie(msg)
+		case msg := <-self.Bus.ConfigChanged:
+			go self.configChanged(msg)
 		}
 	}
+}
+
+func (self *Dal) configChanged(msg *message.ConfigChanged) {
+	self.Config = msg.Config
+	mlog.Info("config is now: %+v", self.Config)
 }
 
 func (self *Dal) initSchema() {
