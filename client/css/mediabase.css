@@ -125,7 +125,8 @@ nav .menu {
 }
 
 footer {
-	color: white;
+	color: #9ea8b8;
+	font-size: 75%;
 	background: #2e3c49;
 	background-image: linear-gradient(to bottom, rgba(61,79,95,1) 0%,rgba(27,36,45,1) 100%);	
 /*	background: #2c3e50;

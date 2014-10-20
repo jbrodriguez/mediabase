@@ -45,6 +45,7 @@ func (self *Config) Init(version string) {
 		}
 	}
 
+	// os.Setenv("GIN_MODE", "release")
 	mlog.Start(mlog.LevelInfo, filepath.Join(self.DataDir, "log", "mediabase.log"))
 	mlog.Info("mediabase v%s starting up on %s ...", self.Version, runtime)
 
