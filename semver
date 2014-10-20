@@ -147,7 +147,7 @@ function release {
   else
     echo "Version $VERSION:" > tmpfile
 #    git log --pretty=format:"%s" "$CURRENT"...HEAD >> tmpfile
-    git --no-pager log --pretty=raw "$CURRENT"...HEAD | egrep -v '^[[:space:]]*$' | egrep -v '^[commit|tree|author|parent]' >> tmpfile
+    git --no-pager log --pretty=raw "$CURRENT"...HEAD | egrep -v '^[[:space:]]*$' | egrep -v '^[commit|tree|author|parent]' | egrep -v '.*Merge' >> tmpfile
     echo "" >> tmpfile
     echo "" >> tmpfile
     cat $CHANGES_FILE >> tmpfile
