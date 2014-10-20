@@ -61,6 +61,20 @@ func (self *Dal) Start() {
 		mlog.Fatalf("open database: %s (%s)", self.err, self.dbase)
 	}
 
+	stmtExist := self.prepare(`select name from sqlite_master where type='table' and name='movie'`)
+	defer stmtExist.Close()
+
+	var name string
+	err := stmtExist.QueryRow().Scan(&name)
+	if err != nil {
+		mlog.Fatalf("unable to check for existence of movie database: %s (%s)", self.err, self.dbase)
+	}
+
+	if name != "movie" {
+		mlog.Info("Initializing database schema ...")
+		self.initSchema()
+	}
+
 	self.count = 0
 	self.searchCount = 0
 	self.searchArgs = ""
@@ -71,7 +85,6 @@ func (self *Dal) Start() {
 	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie where original_title = 'FIXMOV23'")
 
 	var abs string
-	var err error
 	if abs, err = filepath.Abs(self.dbase); err != nil {
 		mlog.Info("unable to get absolute path: %s, ", err)
 		return
