@@ -140,12 +140,12 @@ function release {
   echo $VERSION | tee $VERSION_FILE
 
   if [[ $CURRENT == "default" ]]; then
-    echo "Version $VERSION" > $CHANGES_FILE
+    echo "Version $VERSION - `date +%F`" > $CHANGES_FILE
     git --no-pager log --reverse --pretty=raw | egrep -v '^[[:space:]]*$' | egrep -v '^[commit|tree|author|parent]' | egrep -v '.*Merge' >> $CHANGES_FILE
     echo "" >> $CHANGES_FILE
     echo "" >> $CHANGES_FILE    
   else
-    echo "Version $VERSION:" > tmpfile
+    echo "Version $VERSION - `date +%F`" > tmpfile
     git --no-pager log --reverse --pretty=raw "$CURRENT"...HEAD | egrep -v '^[[:space:]]*$' | egrep -v '^[commit|tree|author|parent]' | egrep -v '.*Merge' >> tmpfile
     echo "" >> tmpfile
     echo "" >> tmpfile
