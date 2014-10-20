@@ -10,6 +10,7 @@ import (
 	"github.com/apertoire/mlog"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"path/filepath"
 )
 
 const apiVersion string = "/api/v1"
@@ -27,9 +28,21 @@ func (self *Server) Start() {
 	self.r = gin.New()
 
 	self.r.Use(gin.Recovery())
-	self.r.Use(helper.Logging())
+	// self.r.Use(helper.Logging())
 
-	self.r.Use(static.Serve("./"))
+	path := filepath.Join(".", "web")
+
+	var abs string
+	var err error
+	if abs, err = filepath.Abs(path); err != nil {
+		mlog.Info("unable to get absolute path: %s, ", err)
+		return
+	}
+
+	mlog.Info("server root path is: %s", abs)
+
+	// self.r.Use(static.Serve("./web/"))
+	self.r.Use(static.Serve(path))
 	self.r.NoRoute(self.redirect)
 
 	api := self.r.Group(apiVersion)

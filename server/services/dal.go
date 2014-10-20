@@ -55,7 +55,7 @@ func (self *Dal) prepare(sql string) *sql.Stmt {
 func (self *Dal) Start() {
 	mlog.Info("starting dal service ...")
 
-	self.dbase = filepath.Join(self.Config.DataDir, "db", "mediabase.db")
+	self.dbase = filepath.Join(".", "db", "mediabase.db")
 	self.db, self.err = sql.Open("sqlite3", self.dbase)
 	if self.err != nil {
 		mlog.Fatalf("open database: %s (%s)", self.err, self.dbase)
@@ -73,7 +73,14 @@ func (self *Dal) Start() {
 	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie order by runtime")
 	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie where original_title = 'FIXMOV23'")
 
-	mlog.Info("connected to database (%s)", self.dbase)
+	var abs string
+	var err error
+	if abs, err = filepath.Abs(self.dbase); err != nil {
+		mlog.Info("unable to get absolute path: %s, ", err)
+		return
+	}
+
+	mlog.Info("connected to database (%s)", abs)
 
 	// self.initSchema()
 

@@ -24,12 +24,16 @@ test:
 	go test ./...
 
 clean:
-	rm -rf dist
+	rm -rf dist/web/app
+	rm -rf dist/web/css
+	rm -rf dist/web/js
+	rm -rf dist/web/index.html
+	cd dist/web && unlink img || true
 
 run: clean build
-	cp -r client/ dist
-	ln -s "/Volumes/Users/kayak/Library/Application Support/net.apertoire.mediabase/web/img" dist/img
-	ln -s "/Volumes/Users/kayak/Library/Application Support/net.apertoire.mediabase/db" dist/db
+	cp -r client/ dist/web
+	ln -s "/Volumes/Users/kayak/.mediabase/db" dist/db
+	ln -s "/Volumes/Users/kayak/.mediabase/web/img" dist/web/img
 	cd dist && ./mediabase
 
 vendor_clean:

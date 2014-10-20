@@ -30,7 +30,7 @@ func (self *Config) Init(version string) {
 
 	switch runtime {
 	case "darwin":
-		self.DataDir = filepath.Join(os.Getenv("HOME"), "Library/Application Support/net.apertoire.mediabase/")
+		self.DataDir = filepath.Join(os.Getenv("HOME"), ".mediabase/")
 	case "linux":
 		self.DataDir = filepath.Join(os.Getenv("HOME"), ".mediabase/")
 	case "windows":
@@ -49,13 +49,13 @@ func (self *Config) Init(version string) {
 	mlog.Start(mlog.LevelInfo, filepath.Join(self.DataDir, "log", "mediabase.log"))
 	mlog.Info("mediabase v%s starting up on %s ...", self.Version, runtime)
 
-	self.setupFolders()
+	self.setupOperatingEnv()
 
 	self.LoadConfig()
 	self.LoadRegex()
 }
 
-func (self *Config) setupFolders() {
+func (self *Config) setupOperatingEnv() {
 	path := filepath.Join(self.DataDir, "db")
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err = os.Mkdir(path, 0755); err != nil {
@@ -104,6 +104,7 @@ func (self *Config) setupFolders() {
 			mlog.Fatalf("Unable to create folder %s: %s", path, err)
 		}
 	}
+
 }
 
 func (self *Config) LoadConfig() {
