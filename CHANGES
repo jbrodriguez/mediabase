@@ -1,3 +1,19 @@
+Version 0.3.0:
+    - Read home directory from environment variables
+    - Cleanup folders that are not used anymore
+    - Fix data dir definition, because for now I want the simplest deployment possible, just download the zip file and unzip it in ~/.mediabase, and everything will work.
+    - Small ui changes
+    - Create a service interface, and pass the list of services created on boot to core service, so that it can notify each one when the config data is changed
+    - Small change to footer colors
+    - Add broadcast of config changes, so that all services are working with the latest version
+    - Remove config.json and regex.txt from the makefile (no longer needed)
+    - Define application data directory at startup, create required folders and files if not present
+    - Minor fixes to settings page
+    - Fix bug where movie watched time and count wasn't getting updated correctly
+    - Enhance wording on settings page
+    - Remove media folder from config.json to force a first run
+
+
 Version 0.2.1:
     - Fix scanner service, to support a movie naming structure where there is no resolution folder at the top of the hierarchy
     - Fix movies watched functionality so that the server returns the freshly changed movie object and the client updates the view accordingly

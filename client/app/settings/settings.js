@@ -6,22 +6,23 @@
         .controller('Settings', Settings);
 
     /* @ngInject */
-    function Settings($state, $q, api, options, logger) {
+    function Settings($state, $scope, $timeout, api, options, logger) {
 
         /*jshint validthis: true */
         var vm = this;
 
         vm.options = options;
         vm.folder = '';
-        vm.regex = '';
+        vm.context = {};
+        vm.running = false;
 
         vm.addFolder = addFolder;
-        vm.addRegex = addRegex;
+        vm.importer = importer;
 
         activate();
 
         function activate() {
-            console.log("behind petrified eyes", options);
+            // console.log("behind petrified eyes", options);
         };
 
         function addFolder() {
@@ -36,8 +37,47 @@
             });
         };
 
-        function addRegex() {
-            console.log('adding regex');
+        function importer() {
+            return startImport().then(function() {
+                logger.info('started import function');
+                update();
+            });
         };
+
+        function startImport() {
+            return api.startImport().then(function (data) {
+                vm.context = null;
+                vm.context = data;
+                vm.running = true;
+                return vm.context;
+            });
+        };
+
+        function update() {
+            getStatus();
+            if (!vm.context.completed) {
+                schedule(update, 1000);
+            } else {
+                vm.running = false;
+                $state.go('cover');
+            };
+        };
+
+        function getStatus() {
+            return api.getStatus().then(function (data) {
+                vm.context = null;
+                vm.context = data;
+                return vm.context;
+            });
+        };        
+
+        function schedule(fn, delay) {
+            var promise = $timeout(fn, delay);
+            var deregister = $scope.$on('$destroy', function() {
+                $timeout.cancel(promise);
+            });
+            promise.then(deregister);
+        };        
+
     }
 })();

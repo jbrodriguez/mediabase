@@ -43,12 +43,16 @@ func (self *Cache) react() {
 	}
 }
 
+func (self *Cache) ConfigChanged(conf *model.Config) {
+	self.Config = conf
+}
+
 func (self *Cache) requestWork(media *message.Media) {
 	mlog.Info("CACHE MEDIA REQUESTED [%s]", media.Movie.Title)
 
 	gig := &CacheGig{
 		media,
-		self.Config.AppDir,
+		self.Config.DataDir,
 	}
 
 	self.workpool.PostWork("cachegig", gig)
@@ -60,7 +64,7 @@ type CacheGig struct {
 }
 
 func (self *CacheGig) DoWork(workRoutine int) {
-	coverPath := filepath.Join(self.appDir, "/img/p", self.media.Movie.Cover)
+	coverPath := filepath.Join(self.appDir, "web", "img", "p", self.media.Movie.Cover)
 	if _, err := os.Stat(coverPath); err == nil && !self.media.Forced {
 		// log.Printf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		// self.Bus.Log <- fmt.Sprintf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
@@ -73,7 +77,7 @@ func (self *CacheGig) DoWork(workRoutine int) {
 		}
 	}
 
-	thumbPath := filepath.Join(self.appDir, "/img/t", self.media.Movie.Cover)
+	thumbPath := filepath.Join(self.appDir, "web", "img", "t", self.media.Movie.Cover)
 	if _, err := os.Stat(thumbPath); err == nil && !self.media.Forced {
 		// log.Printf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		// self.Bus.Log <- fmt.Sprintf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
@@ -86,7 +90,7 @@ func (self *CacheGig) DoWork(workRoutine int) {
 		}
 	}
 
-	backdropPath := filepath.Join(self.appDir, "/img/b", self.media.Movie.Backdrop)
+	backdropPath := filepath.Join(self.appDir, "web", "img", "b", self.media.Movie.Backdrop)
 	if _, err := os.Stat(backdropPath); err == nil && !self.media.Forced {
 		// log.Printf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
 		// self.Bus.Log <- fmt.Sprintf("SKIP: picture in cache for [%s]: %s", picture.Name, picture.Id)
