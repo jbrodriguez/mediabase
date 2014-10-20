@@ -28,12 +28,13 @@ clean:
 	rm -rf dist/web/css
 	rm -rf dist/web/js
 	rm -rf dist/web/index.html
-	cd dist/web && unlink img || true
+	unlink dist/web/img || true
+	unlink dist/db || true
 
 run: clean build
 	cp -r client/ dist/web
-	ln -s "/Volumes/Users/kayak/.mediabase/db" dist/db
-	ln -s "/Volumes/Users/kayak/.mediabase/web/img" dist/web/img
+	ln -s "$(shell echo $$HOME)/.mediabase/db" dist/db
+	ln -s "$(shell echo $$HOME)/.mediabase/web/img" dist/web/img
 	cd dist && ./mediabase
 
 vendor_clean:
