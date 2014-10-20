@@ -1,9 +1,22 @@
 		<section class="container">
-			<div class="row" data-ng-if="vm.options.config.mediaFolders.lenght === 0">
+			<div class="row" data-ng-if="vm.options.config.mediaFolders.length === 0">
 				<div class="large-12 columns">
-					<h4>This is your first time running the application. Please configure it as per your environment</h4>
+					<h6>There are no folders selected for scanning. Please enter the media folders where you store your movies, to scan for movies. {{vm.options.config.mediaFolders.length}}</h6>
 				</div>
 			</div>
+
+			<div class="row" style="padding-top: 25px;">
+				<div class="small-3 small-centered columns">
+					<button data-ng-click="vm.importer()" data-ng-disabled="vm.options.config.mediaFolders.length === 0">IMPORT</button>
+				</div>
+			</div>
+
+			<div class="row" data-ng-if="vm.running">
+				<div class="large-12 column import-status">
+					<i class="fa fa-refresh fa-spin" data-ng-if="!vm.context.completed"></i> &nbsp;
+					<span>{{ vm.context.message }}</span>
+				</div>
+			</div>			
 
 			<div class="row">
 				<form>
@@ -58,16 +71,21 @@
 					<div class="large-12 columns">
 						<ul>
 							<li>/Movies/Bluray/Avatar (2009)/BDMV/index.bdmv</li>
-							<li>/Movies/Bluray/Avatar (2009)/Avatar.mkv or /Movies/Bluray/Avatar (2009)/Avatar.iso</li>
-							<li>/Movies/Bluray/VIDEO_TS/{VIDEO_TS|HV000i01}.IFO</li>
+							<li>/Movies/Bluray/Avatar (2009)/Avatar.{iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms|mdf|wmv}</li>
+							<li>/Movies/Bluray/Avatar (2009)/{VIDEO_TS|HV000i01}.IFO</li>
 							<li>/Movies/Avatar (2009)/BDMV/index.bdmv</li>
-							<li>/Movies/Avatar (2009)/Avatar.mkv or /Movies/Bluray/Avatar (2009)/Avatar.iso</li>
-							<li>/Movies/VIDEO_TS/{VIDEO_TS|HV000i01}.IFO</li>
-							<li>/Movies/Avatar (2009).mkv</li>
+							<li>/Movies/Avatar (2009)/Avatar.{iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms|mdf|wmv}</li>
+							<li>/Movies/Avatar (2009)/{VIDEO_TS|HV000i01}.IFO</li>
+							<li>/Movies/Avatar (2009).{iso|img|nrg|mkv|avi|xvid|ts|mpg|dvr-ms|mdf|wmv}</li>
 						</ul>
 					</div>
 				</div>
-
+				<div class="row">
+					<div class="large-12 columns">
+					<p>Note: The first three forms let you specify a resolution category to your movies, so you need to create these folders in your media directory.
+						The naming is up to you and could be, for example: Bluray, Blurip, DVD, XVID and others.
+					</div>
+				</div>
 				</fieldset>
 				</form>
 			</div>

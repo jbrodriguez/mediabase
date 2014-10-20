@@ -2,5 +2,7 @@
 	"Host": "",
 	"Port": "8080",
 	"AppDir": ".",
-	"MediaFolders": ["/Volumes/wopr-films/"]
+	"MediaFolders": [
+		"/Volumes/wopr-films"
+	]
 }

@@ -57,6 +57,10 @@ func (self *Scraper) react() {
 	}
 }
 
+func (self *Scraper) ConfigChanged(conf *model.Config) {
+	self.Config = conf
+}
+
 func (self *Scraper) fixMoviesWork(dto *message.MoviesDTO) {
 	mlog.Info("FIX MOVIES WORK REQUESTED FOR [%d] movies", dto.Count)
 

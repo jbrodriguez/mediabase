@@ -6,8 +6,9 @@ import (
 )
 
 type Bus struct {
-	GetConfig  chan *message.GetConfig
-	SaveConfig chan *message.SaveConfig
+	GetConfig     chan *message.GetConfig
+	SaveConfig    chan *message.SaveConfig
+	ConfigChanged chan *message.ConfigChanged
 
 	ImportMovies       chan *message.Status
 	ImportMoviesStatus chan *message.Status
@@ -47,6 +48,7 @@ func (self *Bus) Start() {
 
 	self.GetConfig = make(chan *message.GetConfig)
 	self.SaveConfig = make(chan *message.SaveConfig)
+	self.ConfigChanged = make(chan *message.ConfigChanged)
 
 	self.ImportMovies = make(chan *message.Status)
 	self.ImportMoviesStatus = make(chan *message.Status)

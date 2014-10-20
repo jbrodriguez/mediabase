@@ -10,10 +10,11 @@ import (
 )
 
 type Core struct {
-	Bus     *bus.Bus
-	Config  *model.Config
-	fsm     *fsm.FSM
-	context message.Context
+	Bus      *bus.Bus
+	Config   *model.Config
+	fsm      *fsm.FSM
+	context  message.Context
+	Services []Service
 }
 
 func (self *Core) Start() {
@@ -82,10 +83,14 @@ func (self *Core) doGetConfig(msg *message.GetConfig) {
 }
 
 func (self *Core) doSaveConfig(msg *message.SaveConfig) {
-	self.Config = msg.Config
+	self.Config.MediaFolders = msg.Config.MediaFolders
 	self.Config.Save()
 
-	msg.Reply <- true
+	for _, service := range self.Services {
+		service.ConfigChanged(self.Config)
+	}
+
+	msg.Reply <- self.Config
 }
 
 func (self *Core) doScrape(e *fsm.Event) {
@@ -155,7 +160,7 @@ func (self *Core) doMovieScraped(media *message.Media) {
 
 	go func() {
 		mlog.Info("CACHING MEDIA [%s]", media.Movie.Title)
-		media.BasePath = self.Config.AppDir
+		media.BasePath = self.Config.DataDir
 		self.Bus.CacheMedia <- media
 
 		self.fsm.Event("scrape", media.Movie)
@@ -175,7 +180,7 @@ func (self *Core) doMovieRescraped(media *message.Media) {
 
 	go func() {
 		mlog.Info("CACHING MEDIA [%s]", media.Movie.Title)
-		media.BasePath = self.Config.AppDir
+		media.BasePath = self.Config.DataDir
 		self.Bus.CacheMedia <- media
 	}()
 }

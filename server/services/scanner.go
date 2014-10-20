@@ -69,6 +69,10 @@ func (self *Scanner) react() {
 	}
 }
 
+func (self *Scanner) ConfigChanged(conf *model.Config) {
+	self.Config = conf
+}
+
 func (self *Scanner) doScanMovies(reply chan string) {
 	mlog.Info("inside ScanMovies")
 
