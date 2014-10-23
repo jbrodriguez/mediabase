@@ -5,7 +5,7 @@ Mediabase
 
 Check the [this blog post](http://www.apertoire.net/introducing-mediabase) for a general description of the app.
 
-## Install Guide
+## Install Guide (End Users)
 
 Please take the following steps, which assume that your home folder is named "MyUser" (/Users/MyUser in MAC OS X or /home/MyUser in Linux)
 
@@ -35,6 +35,18 @@ The server will listen on port 3267 by default, so you can now open a web browse
 </code></pre>
 <br>
 
+## Contributing (Developers)
+
+Fork and clone the repo to your drive, then
+<pre><code>make build
+</code></pre>
+to create an executable at ./dist. It will also copy the client code and assets to this folder too.
+
+To run the app do
+<pre><code>make run
+</code></pre>
+
+
 ## Credits
 
  - [Go](https://golang.org/)
@@ -47,3 +59,8 @@ The server will listen on port 3267 by default, so you can now open a web browse
  - [go-sqlite3 (Yasuhiro Matsumoto)](https://github.com/mattn/go-sqlite3)
  - [gin (gin-gonic)](https://github.com/gin-gonic/gin)
  - [semver (fsaintjacques)](https://github.com/fsaintjacques/semver-tool)
+ - [go-tmdb (rharter)](https://github.com/rharter/go-tmdb)
+ - [go-log (siddontang)](https://github.com/siddontang/go-log)
+
+## License
+MIT license.
