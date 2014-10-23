@@ -61,20 +61,30 @@ func (self *Dal) Start() {
 		mlog.Fatalf("open database: %s (%s)", self.err, self.dbase)
 	}
 
+	stmtExist := self.prepare(`select name from sqlite_master where type='table' and name='movie'`)
+	defer stmtExist.Close()
+
+	var name string
+	err := stmtExist.QueryRow().Scan(&name)
+	if err != nil {
+		mlog.Fatalf("unable to check for existence of movie database: %s (%s)", self.err, self.dbase)
+	}
+
+	if name != "movie" {
+		mlog.Info("Initializing database schema ...")
+		self.initSchema()
+	}
+
 	self.count = 0
 	self.searchCount = 0
 	self.searchArgs = ""
 
 	self.countRows = self.prepare("select count(*) from movie;")
-	// self.searchMovies = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes from movie dt, movietitle vt where vt.movietitle match ? and dt.rowid = vt.docid order by dt.title;")
-	// self.searchGenre = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes from movie dt, moviegenre vt where vt.moviegenre match ? and dt.rowid = vt.docid order by dt.title;")
-	// self.searchCountry = self.prepare("select dt.rowid, dt.title, dt.original_title, dt.year, dt.runtime, dt.tmdb_id, dt.imdb_id, dt.overview, dt.tagline, dt.resolution, dt.filetype, dt.location, dt.cover, dt.backdrop, dt.genres, dt.vote_average, dt.vote_count, dt.countries, dt.added, dt.modified, dt.last_watched, dt.all_watched, dt.count_watched, dt.score, dt.director, dt.writer, dt.actors, dt.awards, dt.imdb_rating, dt.imdb_votes from movie dt, moviecountry vt where vt.moviecountry match ? and dt.rowid = vt.docid order by dt.title;")
 	self.listMovies = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie order by ? desc limit ? offset ?")
 	self.listByRuntime = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie order by runtime")
 	self.listMoviesToFix = self.prepare("select rowid, title, original_title, file_title, year, runtime, tmdb_id, imdb_id, overview, tagline, resolution, filetype, location, cover, backdrop, genres, vote_average, vote_count, countries, added, modified, last_watched, all_watched, count_watched, score, director, writer, actors, awards, imdb_rating, imdb_votes from movie where original_title = 'FIXMOV23'")
 
 	var abs string
-	var err error
 	if abs, err = filepath.Abs(self.dbase); err != nil {
 		mlog.Info("unable to get absolute path: %s, ", err)
 		return
@@ -128,78 +138,6 @@ func (self *Dal) react() {
 
 func (self *Dal) ConfigChanged(conf *model.Config) {
 	self.Config = conf
-}
-
-func (self *Dal) initSchema() {
-	sql := `
-DROP TABLE IF EXISTS movie;
-DROP TABLE IF EXISTS movietitle;
-DROP INDEX IF EXISTS movie_filetype_idx;
-DROP INDEX IF EXISTS movie_location_idx;
-DROP INDEX IF EXISTS movie_title_idx;
-
-DROP TRIGGER IF EXISTS movie_ai;
-DROP TRIGGER IF EXISTS movie_au;
-DROP TRIGGER IF EXISTS movie_bd;
-DROP TRIGGER IF EXISTS movie_bu;
-
-CREATE TABLE movie
-(
-  title text,
-  original_title text,
-  file_title text,
-  year integer,
-  runtime integer,
-  tmdb_id integer,
-  imdb_id text,
-  overview text,
-  tagline text,
-  resolution text,
-  filetype text,
-  location text,
-  cover text,
-  backdrop text,
-  genres text,
-  vote_average integer,
-  vote_count integer,
-  countries text,
-  added text,
-  modified text,
-  last_watched text,
-  all_watched text,
-  count_watched integer,
-  score integer
-);
-CREATE INDEX movie_title_idx ON movie (title);
-CREATE INDEX movie_location_idx ON movie (location);
-CREATE INDEX movie_filetype_idx ON movie (filetype);
-
-CREATE VIRTUAL TABLE movietitle USING fts4(content="movie", title, original_title, file_title);
-CREATE TRIGGER movie_bu BEFORE UPDATE ON movie BEGIN
-	DELETE FROM movietitle WHERE docid=old.rowid;
-END;
-
-CREATE TRIGGER movie_bd BEFORE DELETE ON movie BEGIN
-	DELETE FROM movietitle WHERE docid=old.rowid;
-END;
-
-CREATE TRIGGER movie_au AFTER UPDATE ON movie BEGIN
-	INSERT INTO movietitle(docid, title, original_title, file_title) VALUES (new.rowid, new.title, new.original_title, new.file_title);
-END;
-
-CREATE TRIGGER movie_ai AFTER INSERT ON movie BEGIN
-	INSERT INTO movietitle(docid, title, original_title, file_title) VALUES (new.rowid, new.title, new.original_title, new.file_title);
-END;
-
-	`
-
-	_, err := self.db.Exec(sql)
-	if err != nil {
-		mlog.Info("%q: %s", err, sql)
-		return
-	}
-
-	mlog.Info("inited schema")
 }
 
 func (self *Dal) doCheckMovie(msg *message.CheckMovie) {
@@ -532,36 +470,6 @@ func (self *Dal) doSearchMovies(msg *message.Movies) {
 	msg.Reply <- &message.MoviesDTO{Count: self.searchCount, Movies: items}
 }
 
-// func (self *Dal) doGetMoviesToFix(msg *message.Movies) {
-// 	tx, err := self.db.Begin()
-// 	if err != nil {
-// 		mlog.Fatalf("unable to begin transaction: %s", err)
-// 	}
-
-// 	rows, err := self.listMoviesToFix.Query()
-// 	if err != nil {
-// 		mlog.Fatalf("unable to begin transaction: %s", self.err)
-// 	}
-
-// 	items := make([]*message.Movie, 0)
-
-// 	self.cnt = 0
-
-// 	for rows.Next() {
-// 		movie := message.Movie{}
-// 		rows.Scan(&movie.Id, &movie.Title, &movie.Original_Title, &movie.File_Title, &movie.Year, &movie.Runtime, &movie.Tmdb_Id, &movie.Imdb_Id, &movie.Overview, &movie.Tagline, &movie.Resolution, &movie.FileType, &movie.Location, &movie.Cover, &movie.Backdrop, &movie.Genres, &movie.Vote_Average, &movie.Vote_Count, &movie.Production_Countries, &movie.Added, &movie.Modified, &movie.Last_Watched, &movie.All_Watched, &movie.Count_Watched, &movie.Score, &movie.Director, &movie.Writer, &movie.Actors, &movie.Awards, &movie.Imdb_Rating, &movie.Imdb_Votes)
-// 		items = append(items, &movie)
-// 		self.cnt++
-// 	}
-// 	rows.Close()
-
-// 	tx.Commit()
-
-// 	mlog.Info("Listed %d movies to fix", self.cnt)
-
-// 	msg.Reply <- items
-// }
-
 func (self *Dal) doWatchedMovie(msg *message.SingleMovie) {
 	mlog.Info("STARTED UPDATING WATCHED MOVIE %s (%s)", msg.Movie.Title, msg.Movie.Last_Watched)
 
@@ -606,111 +514,177 @@ func (self *Dal) doWatchedMovie(msg *message.SingleMovie) {
 	msg.Reply <- msg.Movie
 }
 
-// type Omdb struct {
-// 	Director    string `json:"Director"`
-// 	Writer      string `json:"Writer"`
-// 	Actors      string `json:"Actors"`
-// 	Awards      string `json:"Awards"`
-// 	Imdb_Rating string `json:"imdbRating"`
-// 	Imdb_Vote   string `json:"imdbVotes"`
-// }
+func (self *Dal) initSchema() {
+	sql := `
+DROP TABLE IF EXISTS movie;
+DROP TABLE IF EXISTS movietitle;
+DROP TABLE IF EXISTS moviegenre;
+DROP TABLE IF EXISTS moviecountry;
+DROP TABLE IF EXISTS moviedirector;
+DROP TABLE IF EXISTS movieactor;
 
-// func (self *Dal) ImportOmdb() {
-// 	mlog.Info("life goes on")
+DROP INDEX IF EXISTS movie_filetype_idx;
+DROP INDEX IF EXISTS movie_location_idx;
+DROP INDEX IF EXISTS movie_title_idx;
 
-// 	tx, err := self.db.Begin()
-// 	if err != nil {
-// 		mlog.Fatalf("unable to begin transaction: %s", err)
-// 	}
+DROP TRIGGER IF EXISTS movie_ai;
+DROP TRIGGER IF EXISTS movie_au;
+DROP TRIGGER IF EXISTS movie_bd;
+DROP TRIGGER IF EXISTS movie_bu;
 
-// 	mlog.Info("life goes on 2")
+DROP TRIGGER IF EXISTS genre_ai;
+DROP TRIGGER IF EXISTS genre_au;
+DROP TRIGGER IF EXISTS genre_bd;
+DROP TRIGGER IF EXISTS genre_bu;
 
-// 	rows, err := self.db.Query("select rowid, imdb_id, director from movie;")
-// 	if err != nil {
-// 		mlog.Fatalf("unable to prepare transaction: %s", self.err)
-// 	}
+DROP TRIGGER IF EXISTS country_ai;
+DROP TRIGGER IF EXISTS country_au;
+DROP TRIGGER IF EXISTS country_bd;
+DROP TRIGGER IF EXISTS country_bu;
 
-// 	items := make([]*message.Movie, 0)
+DROP TRIGGER IF EXISTS director_ai;
+DROP TRIGGER IF EXISTS director_au;
+DROP TRIGGER IF EXISTS director_bd;
+DROP TRIGGER IF EXISTS director_bu;
 
-// 	self.cnt = 0
+DROP TRIGGER IF EXISTS actor_ai;
+DROP TRIGGER IF EXISTS actor_au;
+DROP TRIGGER IF EXISTS actor_bd;
+DROP TRIGGER IF EXISTS actor_bu;
 
-// 	for rows.Next() {
-// 		movie := message.Movie{}
-// 		rows.Scan(&movie.Id, &movie.Imdb_Id, &movie.Director)
-// 		items = append(items, &movie)
-// 		self.cnt++
-// 	}
-// 	rows.Close()
+CREATE TABLE movie
+(
+  title text,
+  original_title text,
+  file_title text,
+  year integer,
+  runtime integer,
+  tmdb_id integer,
+  imdb_id text,
+  overview text,
+  tagline text,
+  resolution text,
+  filetype text,
+  location text,
+  cover text,
+  backdrop text,
+  genres text,
+  vote_average integer,
+  vote_count integer,
+  countries text,
+  added text,
+  modified text,
+  last_watched text,
+  all_watched text,
+  count_watched integer,
+  score integer,
+  director text,
+  writer text,
+  actors text,
+  awards text,
+  imdb_rating integer,
+  imdb_votes integer
+);
+CREATE INDEX movie_title_idx ON movie (title);
+CREATE INDEX movie_location_idx ON movie (location);
+CREATE INDEX movie_filetype_idx ON movie (filetype);
 
-// 	tx.Commit()
+/* titles */
+CREATE VIRTUAL TABLE movietitle USING fts4(content="movie", title, original_title, file_title);
+CREATE TRIGGER movie_bu BEFORE UPDATE ON movie BEGIN
+	DELETE FROM movietitle WHERE docid=old.rowid;
+END;
 
-// 	var omdb Omdb
-// 	allgood := true
+CREATE TRIGGER movie_bd BEFORE DELETE ON movie BEGIN
+	DELETE FROM movietitle WHERE docid=old.rowid;
+END;
 
-// 	for _, val := range items {
-// 		mlog.Info("before call to api")
+CREATE TRIGGER movie_au AFTER UPDATE ON movie BEGIN
+	INSERT INTO movietitle(docid, title, original_title, file_title) VALUES (new.rowid, new.title, new.original_title, new.file_title);
+END;
 
-// 		imdbid := val.Imdb_Id
+CREATE TRIGGER movie_ai AFTER INSERT ON movie BEGIN
+	INSERT INTO movietitle(docid, title, original_title, file_title) VALUES (new.rowid, new.title, new.original_title, new.file_title);
+END;
 
-// 		if imdbid == "" {
-// 			mlog.Info("skipped due to imdb_id empty: ", imdbid)
-// 			continue
-// 		}
+/* genres */
+CREATE VIRTUAL TABLE moviegenre USING fts4(content="movie", genres);
+CREATE TRIGGER genre_bu BEFORE UPDATE ON movie BEGIN
+  DELETE FROM moviegenre WHERE docid=old.rowid;
+END;
 
-// 		// if val.Director != "" {
-// 		// 	mlog.Info("skipped due to director not empty: ", val.Director)
-// 		// 	continue
-// 		// }
+CREATE TRIGGER genre_bd BEFORE DELETE ON movie BEGIN
+  DELETE FROM moviegenre WHERE docid=old.rowid;
+END;
 
-// 		err := helper.RestGet(fmt.Sprintf("http://www.omdbapi.com/?i=%s", imdbid), &omdb)
-// 		if err != nil {
-// 			mlog.Info("error", err)
-// 		}
+CREATE TRIGGER genre_au AFTER UPDATE ON movie BEGIN
+  INSERT INTO moviegenre(docid, genres) VALUES (new.rowid, new.genres);
+END;
 
-// 		mlog.Info("omdb: %+v", omdb)
+CREATE TRIGGER genre_ai AFTER INSERT ON movie BEGIN
+  INSERT INTO moviegenre(docid, genres) VALUES (new.rowid, new.genres);
+END;
 
-// 		vote := strings.Replace(omdb.Imdb_Vote, ",", "", -1)
+/* country */
+CREATE VIRTUAL TABLE moviecountry USING fts4(content="movie", countries);
+CREATE TRIGGER country_bu BEFORE UPDATE ON movie BEGIN
+  DELETE FROM moviecountry WHERE docid=old.rowid;
+END;
 
-// 		imdb_rating, _ := strconv.ParseFloat(omdb.Imdb_Rating, 64)
-// 		imdb_vote, _ := strconv.ParseInt(vote, 0, 64)
+CREATE TRIGGER country_bd BEFORE DELETE ON movie BEGIN
+  DELETE FROM moviecountry WHERE docid=old.rowid;
+END;
 
-// 		mlog.Info("ir = %2f, iv = %d", imdb_rating, imdb_vote)
+CREATE TRIGGER country_au AFTER UPDATE ON movie BEGIN
+  INSERT INTO moviecountry(docid, countries) VALUES (new.rowid, new.countries);
+END;
 
-// 		tx, err = self.db.Begin()
-// 		if err != nil {
-// 			mlog.Fatalf("unable to begin transaction: %s", err)
-// 		}
+CREATE TRIGGER country_ai AFTER INSERT ON movie BEGIN
+  INSERT INTO moviecountry(docid, countries) VALUES (new.rowid, new.countries);
+END;
 
-// 		stmt, err := tx.Prepare("update movie set director = ?, writer = ?, actors = ?, awards = ?, imdb_rating = ?, imdb_votes = ? where rowid = ?")
-// 		if err != nil {
-// 			// tx.Rollback()
-// 			mlog.Info("at prepare: %s", err)
-// 			allgood = false
-// 			break
-// 		}
-// 		defer stmt.Close()
+/* director */
+CREATE VIRTUAL TABLE moviedirector USING fts4(content="movie", director);
+CREATE TRIGGER director_bu BEFORE UPDATE ON movie BEGIN
+  DELETE FROM moviedirector WHERE docid=old.rowid;
+END;
 
-// 		_, err = stmt.Exec(omdb.Director, omdb.Writer, omdb.Actors, omdb.Awards, imdb_rating, imdb_vote, val.Id)
-// 		if err != nil {
-// 			// tx.Rollback()
-// 			mlog.Info("at exec: %s", err)
-// 			allgood = false
-// 			break
-// 		}
+CREATE TRIGGER director_bd BEFORE DELETE ON movie BEGIN
+  DELETE FROM moviedirector WHERE docid=old.rowid;
+END;
 
-// 		if allgood {
-// 			tx.Commit()
-// 		} else {
-// 			tx.Rollback()
-// 		}
+CREATE TRIGGER director_au AFTER UPDATE ON movie BEGIN
+  INSERT INTO moviedirector(docid, director) VALUES (new.rowid, new.director);
+END;
 
-// 		time.Sleep(5 * 1000 * time.Millisecond)
-// 	}
+CREATE TRIGGER director_ai AFTER INSERT ON movie BEGIN
+  INSERT INTO moviedirector(docid, director) VALUES (new.rowid, new.director);
+END;
 
-// 	if allgood {
-// 		tx.Commit()
-// 	} else {
-// 		tx.Rollback()
-// 	}
+/* actor */
+CREATE VIRTUAL TABLE movieactor USING fts4(content="movie", actors);
+CREATE TRIGGER actor_bu BEFORE UPDATE ON movie BEGIN
+  DELETE FROM movieactor WHERE docid=old.rowid;
+END;
 
-// }
+CREATE TRIGGER actor_bd BEFORE DELETE ON movie BEGIN
+  DELETE FROM movieactor WHERE docid=old.rowid;
+END;
+
+CREATE TRIGGER actor_au AFTER UPDATE ON movie BEGIN
+  INSERT INTO movieactor(docid, actors) VALUES (new.rowid, new.actors);
+END;
+
+CREATE TRIGGER actor_ai AFTER INSERT ON movie BEGIN
+  INSERT INTO movieactor(docid, actors) VALUES (new.rowid, new.actors);
+END;
+	`
+
+	_, err := self.db.Exec(sql)
+	if err != nil {
+		mlog.Info("%q: %s", err, sql)
+		return
+	}
+
+	mlog.Info("inited schema")
+}
