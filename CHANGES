@@ -1,3 +1,12 @@
+Version 0.3.1 - 2014-10-23
+    - Reverse commit messages to make changes appear in correct chronological order in the changelog
+    - Create function to initialize database schema
+    - Add date to app version in changelog
+    - Initialize schema if movie table is not found
+    - Adjust wording in the settings page, remove variable that was being showed for debug
+    - Upgrade to Angularjs 1.3.0
+
+
 Version 0.3.0:
     - Read home directory from environment variables
     - Cleanup folders that are not used anymore
