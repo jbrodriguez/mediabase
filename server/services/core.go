@@ -20,16 +20,18 @@ type Core struct {
 func (self *Core) Start() {
 	mlog.Info("starting core service ...")
 
+	events := []fsm.EventDesc{
+				{Name: "import", Src: []string{"idle", "scanning"}, Dst: "scanning"},
+				{Name: "found", Src: []string{"scanning"}, Dst: "scanning"},
+				{Name: "scraped", Src: []string{"scanning"}, Dst: "scanning"},
+				{Name: "status", Src: []string{"idle", "scanning"}, Dst: "scanning"},
+				{Name: "finish", Src: []string{"scanning"}, Dst: "idle"},
+	}
+
 	// some initialization
 	self.fsm = fsm.NewFSM(
 		"idle",
-		fsm.Events{
-			{Name: "import", Src: []string{"idle", "scanning"}, Dst: "scanning"},
-			{Name: "found", Src: []string{"scanning"}, Dst: "scanning"},
-			{Name: "scraped", Src: []string{"scanning"}, Dst: "scanning"},
-			{Name: "status", Src: []string{"idle", "scanning"}, Dst: "scanning"},
-			{Name: "finish", Src: []string{"scanning"}, Dst: "idle"},
-		},
+		events,
 		fsm.Callbacks{
 			"import":  self.importer,
 			"found":   self.found,
