@@ -35,6 +35,9 @@ The server will listen on port 3267 by default, so you can now open a web browse
 </code></pre>
 <br>
 
+> **Note:**
+> - Only the MAC OS X binary is currently available, due to problems compiling for the Linux platform. This will be updated as soon as the issue is solved.
+
 ## Contributing (Developers)
 
 Fork and clone the repo to your drive, then
@@ -44,6 +47,10 @@ to create an executable at ./dist. It will also copy the client code and assets 
 
 To run the app do
 <pre><code>make run
+</code></pre>
+
+Please note that go-sqlite3 needs to be built with FTS4 support. So you need to issue
+<pre><code>CGO_CFLAGS=-DSQLITE_ENABLE_FTS4 go get -u github.com/mattn/go-sqlite3
 </code></pre>
 
 
@@ -61,6 +68,7 @@ To run the app do
  - [semver (fsaintjacques)](https://github.com/fsaintjacques/semver-tool)
  - [go-tmdb (rharter)](https://github.com/rharter/go-tmdb)
  - [go-log (siddontang)](https://github.com/siddontang/go-log)
+ - [napping (jmcvetta)](https://github.com/jmcvetta/napping)
 
 ## License
 MIT license.
