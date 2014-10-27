@@ -10,7 +10,7 @@ Check the [this blog post](http://www.apertoire.net/introducing-mediabase) for a
 Please take the following steps, which assume that your home folder is named "MyUser" (/Users/MyUser in MAC OS X or /home/MyUser in Linux)
 
 - Download the zip file containing the binary release
-<pre><code>wget github.com/apertoire/release/mediabase.zip /Users/MyUser/Downloads
+<pre><code>https://github.com/apertoire/mediabase/releases/latest
 </code></pre>
 <br>
 
@@ -21,7 +21,7 @@ Please take the following steps, which assume that your home folder is named "My
 
 - Cd into this folder and unzip the binary file
 <pre><code>cd /Users/MyUser/.mediabase
-unzip /Users/MyUser/Downloads/mediabase.zip .
+unzip /Users/MyUser/Downloads/mediabase.zip
 </code></pre>
 <br>
 
