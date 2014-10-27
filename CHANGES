@@ -1,3 +1,19 @@
+Version 0.3.2 - 2014-10-27
+    - Add readme
+    - Add license
+    - Adjust about and footer, to reflect new license
+    - Delete unneeded config.json in server code root path
+    - Add credit for two other compoments, from which code was derived
+    - Create all folders in the path when initializing the app
+    - Make cover and backdrop align to a fixed height, making it more portable across browsers
+    - Make watched ribbon to adjust to new height
+    - Fix makefile (to account for differences between gnu and non-gnu cp semantics: trailing slash or no trailing slash)
+    - Fix error about struct with non-keyed fields
+    - Add note about only osx binary being available
+    - Add note about compiling go-sqlite3 with FTS support
+    - Add credit for napping
+
+
 Version 0.3.1 - 2014-10-23
     - Reverse commit messages to make changes appear in correct chronological order in the changelog
     - Create function to initialize database schema
