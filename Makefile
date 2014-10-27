@@ -32,7 +32,7 @@ clean:
 	unlink dist/db || true
 
 run: clean build
-	cp -r client/ dist/web
+	cp -r client/* dist/web
 	ln -s "$(shell echo $$HOME)/.mediabase/db" dist/db
 	ln -s "$(shell echo $$HOME)/.mediabase/web/img" dist/web/img
 	cd dist && ./mediabase

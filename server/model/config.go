@@ -58,14 +58,14 @@ func (self *Config) Init(version string) {
 func (self *Config) setupOperatingEnv() {
 	path := filepath.Join(self.DataDir, "db")
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err = os.Mkdir(path, 0755); err != nil {
+		if err = os.MkdirAll(path, 0755); err != nil {
 			mlog.Fatalf("Unable to create folder %s: %s", path, err)
 		}
 	}
 
 	path = filepath.Join(self.DataDir, "log")
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err = os.Mkdir(path, 0755); err != nil {
+		if err = os.MkdirAll(path, 0755); err != nil {
 			mlog.Fatalf("Unable to create folder %s: %s", path, err)
 		}
 	}

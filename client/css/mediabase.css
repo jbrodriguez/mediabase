@@ -179,13 +179,13 @@ input.watched {
 	opacity: 0.6;
 }
 
-.movie-item {
+/*.movie-item {
     height: 12.2em;
     overflow: hidden;	
-}
+}*/
 
 .overlay-container {
-	height: 12.2em;
+	height: 100%;
 	overflow: hidden;
 /*	padding: 0;
 */	position: relative;
@@ -216,6 +216,7 @@ input.watched {
 }
 
 .cover-container {
+	height: 100%;
 /*	height: 6.2em;
 */	overflow: hidden;
 /*	padding: 0;
@@ -252,7 +253,7 @@ input.watched {
   /* top left corner */
   position: absolute;
   left: -40px;
-  top: 20px;
+  top: 15px;
   /* 45 deg ccw rotation */
   -webkit-transform: rotate(-45deg);
      -moz-transform: rotate(-45deg);
