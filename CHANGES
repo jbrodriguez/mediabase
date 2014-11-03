@@ -1,3 +1,9 @@
+Version 0.3.4 - 2014-11-03
+    - Add Linux 64-bit binaries
+    - Remove breaking lines from README.md
+    - Add release target to makefile
+
+
 Version 0.3.3 - 2014-10-27
     - Fix url of latest release
     - Fix instructions for unzipping the archive

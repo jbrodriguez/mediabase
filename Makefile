@@ -1,12 +1,14 @@
+mb_osname := $(shell uname)
+mb_version := $(shell cat VERSION)
+mb_count := $(shell git rev-list --count $(shell cat VERSION)..)
+mb_hash := $(shell git rev-parse --short HEAD)
+
 .PHONY: build doc fmt lint run test vendor_clean vendor_get vendor_update vet
 
 default: build
 
 build: vet
-#	CMT_VERSION=$(shell cat VERSION)
-#	CMT_COUNT=$(shell git rev-list --count $(shell cat VERSION)..)
-#	CMT_HASH=$(shell git rev-parse --short HEAD)
-	go build -ldflags "-X main.Version $(shell cat VERSION)-$(shell git rev-list --count $(shell cat VERSION)..).$(shell git rev-parse --short HEAD)" -v -o ./dist/mediabase ./server/boot.go
+	go build -ldflags "-X main.Version $(mb_version)-$(mb_count).$(mb_hash)" -v -o ./dist/mediabase ./server/boot.go
 
 doc:
 	godoc -http=:6060 -index
@@ -24,6 +26,7 @@ test:
 	go test ./...
 
 clean:
+	rm -rf build
 	rm -rf dist/web/app
 	rm -rf dist/web/css
 	rm -rf dist/web/js
@@ -37,25 +40,18 @@ run: clean build
 	ln -s "$(shell echo $$HOME)/.mediabase/web/img" dist/web/img
 	cd dist && ./mediabase
 
-vendor_clean:
-	rm -dRf ./_vendor/src
+release: clean build
+	mkdir build
+	cp dist/mediabase build
+	cp CHANGES build
+	cp LICENSE build
+	cp README.md build
+ifeq ($(mb_osname), Darwin)
+	cd build && zip mediabase-$(mb_version)-darwin-amd64.zip *
+else
+	cd build && tar czf mediabase-$(mb_version)-linux-amd64.tar.gz *
+endif
 
-# We have to set GOPATH to just the _vendor
-# directory to ensure that `go get` doesn't
-# update packages in our primary GOPATH instead.
-# This will happen if you already have the package
-# installed in GOPATH since `go get` will use
-# that existing location as the destination.
-vendor_get: vendor_clean
-	GOPATH=${PWD}/_vendor go get -d -u -v \
-	github.com/jpoehls/gophermail \
-	github.com/codegangsta/martini
-
-vendor_update: vendor_get
-	rm -rf `find ./_vendor/src -type d -name .git` \
-	&& rm -rf `find ./_vendor/src -type d -name .hg` \
-	&& rm -rf `find ./_vendor/src -type d -name .bzr` \
-	&& rm -rf `find ./_vendor/src -type d -name .svn`
 
 # http://godoc.org/code.google.com/p/go.tools/cmd/vet
 # go get code.google.com/p/go.tools/cmd/vet

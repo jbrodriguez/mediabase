@@ -12,35 +12,29 @@ Please take the following steps, which assume that your home folder is named "My
 - Download the zip file containing the binary release
 <pre><code>https://github.com/apertoire/mediabase/releases/latest
 </code></pre>
-<br>
-
 - Create a folder (.mediabase) in your home folder.
 <pre><code>mkdir /Users/MyUser/.mediabase
 </code></pre>
-<br>
-
 - Cd into this folder and unzip the binary file
 <pre><code>cd /Users/MyUser/.mediabase
 unzip /Users/MyUser/Downloads/mediabase.zip
 </code></pre>
-<br>
-
 - Run the server
 <pre><code>./mediabase
 </code></pre>
-<br>
 
 The server will listen on port 3267 by default, so you can now open a web browser and point it to the app url
 <pre><code>http://localhost:3267/
 </code></pre>
-<br>
-
 > **Note:**
-> - Only the MAC OS X binary is currently available, due to problems compiling for the Linux platform. This will be updated as soon as the issue is solved.
+> - Both OSX and Linux 64-bit binaries are available.
 
 ## Contributing (Developers)
 
-Fork and clone the repo to your drive, then
+Fork and clone the repo to your drive, y download dependencies
+<pre><code>go get ./...
+</code></pre>
+and
 <pre><code>make build
 </code></pre>
 to create an executable at ./dist. It will also copy the client code and assets to this folder too.
@@ -71,4 +65,4 @@ Please note that go-sqlite3 needs to be built with FTS4 support. So you need to 
  - [napping (jmcvetta)](https://github.com/jmcvetta/napping)
 
 ## License
-MIT license.
+[MIT license](http://jbrodriguez.mit-license.org)
